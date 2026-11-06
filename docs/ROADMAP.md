@@ -33,9 +33,9 @@ Estimated total: **6–7 weeks** part-time (about 4–5 full-time). Each phase i
 - **Gate:** T1–T10 pass; concurrency suite stable across 20 runs.
 
 ## Phase 4 — Real time (FR-D1–D7) (3–4 days)
-- [ ] Socket.IO server, JWT handshake, Redis adapter, rooms, event helpers
-- [ ] `useAuctionSocket`, `useServerClock`, `useCountdown`, live price/bid list, viewer count
-- [ ] Outbid notification events, extension banner, reconnect resync
+- [x] Socket.IO server, JWT handshake, Redis adapter, rooms, event helpers
+- [x] `useAuctionSocket`, `useServerClock`, `useCountdown`, live price/bid list, viewer count
+- [x] Outbid notification events, extension banner, reconnect resync
 - **Gate:** T22–T24 pass; four windows update within ~200 ms; countdown stays accurate with a deliberately wrong system clock.
 
 ## Phase 5 — Background processing (FR-E1, E2, E7) (4–5 days)

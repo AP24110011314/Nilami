@@ -4,6 +4,7 @@ import { env } from './config/env.js';
 import { logger } from './config/logger.js';
 import { connectDB, disconnectDB } from './config/db.js';
 import { getRedisClient, disconnectRedis } from './config/redis.js';
+import { initSocketServer, closeSocketServer } from './realtime/socket.js';
 
 let server: http.Server | null = null;
 let isShuttingDown = false;
@@ -16,6 +17,7 @@ async function startServer(): Promise<void> {
 
     const app = createApp();
     server = http.createServer(app);
+    initSocketServer(server);
 
     server.listen(env.PORT, () => {
       logger.info(
@@ -34,7 +36,13 @@ async function shutdown(signal: string): Promise<void> {
   isShuttingDown = true;
   logger.info({ signal }, `Received ${signal}, commencing graceful shutdown`);
 
-  // Stop accepting incoming connections
+  // Close socket server and stop accepting incoming connections
+  try {
+    await closeSocketServer();
+  } catch (err) {
+    logger.error({ err }, 'Error closing socket server');
+  }
+
   if (server) {
     await new Promise<void>((resolve) => {
       server?.close((err) => {

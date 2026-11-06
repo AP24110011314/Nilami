@@ -6,7 +6,7 @@ import { Gavel, AlertCircle, CheckCircle2, AlertTriangle, ArrowRight, Loader2 } 
 
 interface BidFormProps {
   auction: AuctionItem;
-  onBidSuccess: (updatedAuction: AuctionItem) => void;
+  onBidSuccess?: (updatedAuction: AuctionItem) => void;
 }
 
 export const BidForm: React.FC<BidFormProps> = ({ auction, onBidSuccess }) => {
@@ -27,7 +27,7 @@ export const BidForm: React.FC<BidFormProps> = ({ auction, onBidSuccess }) => {
   }, [auction.minNextBid]);
 
   const isSeller = user && user.id === auction.sellerId;
-  const isHighestBidder = false; // Phase 4 will track this live via socket
+  const isHighestBidder = Boolean(user && auction.highestBidderId === user.id);
   const isVerified = Boolean(user?.emailVerifiedAt);
 
   const handleQuickAdd = (multiplier: number) => {
@@ -47,7 +47,7 @@ export const BidForm: React.FC<BidFormProps> = ({ auction, onBidSuccess }) => {
 
       const res = await apiClient.placeBid(auction.id, amountPaise, idempotencyKey);
       setSuccessMsg(`Bid of ${formatINR(res.bid.amount)} placed successfully!`);
-      onBidSuccess(res.auction);
+      onBidSuccess?.(res.auction);
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);

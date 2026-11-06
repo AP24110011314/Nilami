@@ -285,6 +285,8 @@ export interface AuctionItem {
   minIncrement: number;
   currentPrice: number;
   minNextBid: number;
+  highestBidderId?: string | null;
+  highestBidderMasked?: string;
   bidCount: number;
   startsAt: string;
   endsAt: string;

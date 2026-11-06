@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { Bid, type BidDocument } from './bid.model.js';
 import { Auction, type AuctionDocument } from '../auctions/auction.model.js';
+import { User } from '../users/user.model.js';
 import { Notification } from '../notifications/notification.model.js';
 import { sanitizeAuction, type SanitizedAuction } from '../auctions/auction.service.js';
 import {
@@ -11,6 +12,12 @@ import {
 } from '../../lib/errors.js';
 import { formatINR } from '../../lib/money.js';
 import { logger } from '../../config/logger.js';
+import {
+  emitBidUpdated,
+  emitAuctionExtended,
+  emitOutbidNotification,
+  maskName,
+} from '../../realtime/events.js';
 
 export interface PlaceBidParams {
   auctionId: string;
@@ -71,19 +78,26 @@ export class BidService {
 
     const session = await mongoose.startSession();
     try {
-      let committed: { auction: AuctionDocument; bid: BidDocument; extended: boolean } | null = null;
+      let committed: {
+        auction: AuctionDocument;
+        bid: BidDocument;
+        extended: boolean;
+        outbidUserId?: mongoose.Types.ObjectId | null;
+        preCurrentPrice: number;
+      } | null = null;
 
       await session.withTransaction(
         async () => {
           committed = null; // withTransaction may retry on write conflicts
 
-          // Read pre-state within transaction to know previous extension count
+          // Read pre-state within transaction to know previous extension count and current price
           const preAuction = await Auction.findById(auctionObjectId)
-            .select('extensionCount antiSnipe')
+            .select('extensionCount antiSnipe currentPrice')
             .session(session)
             .lean();
 
           const preExtensionCount = preAuction?.extensionCount || 0;
+          const preCurrentPrice = preAuction?.currentPrice || 0;
 
           // 1. Atomic conditional update via aggregation pipeline with $$NOW (MongoDB authoritative clock)
           const updatedAuction = await Auction.findOneAndUpdate(
@@ -179,7 +193,13 @@ export class BidService {
             );
           }
 
-          committed = { auction: updatedAuction, bid, extended };
+          committed = {
+            auction: updatedAuction,
+            bid,
+            extended,
+            outbidUserId: updatedAuction.outbidUserId,
+            preCurrentPrice,
+          };
         },
         {
           maxCommitTimeMS: 2000,
@@ -215,8 +235,63 @@ export class BidService {
         throw await this.diagnoseRejection(auctionObjectId, bidderObjectId, p.amount);
       }
 
-      const resAuction = (committed as { auction: AuctionDocument; bid: BidDocument }).auction;
-      const resBid = (committed as { auction: AuctionDocument; bid: BidDocument }).bid;
+      const {
+        auction: resAuction,
+        bid: resBid,
+        extended,
+        outbidUserId,
+        preCurrentPrice,
+      } = committed as {
+        auction: AuctionDocument;
+        bid: BidDocument;
+        extended: boolean;
+        outbidUserId?: mongoose.Types.ObjectId | null;
+        preCurrentPrice: number;
+      };
+
+      // Emit realtime events after transaction commit
+      try {
+        const bidder = await User.findById(bidderObjectId).select('name').lean();
+        const bidderMasked = maskName(bidder?.name);
+
+        emitBidUpdated({
+          auctionId: p.auctionId,
+          currentPrice: resAuction.currentPrice,
+          minNextBid: resAuction.minNextBid,
+          bidCount: resAuction.bidCount,
+          highestBidderMasked: bidderMasked,
+          bid: {
+            id: resBid._id.toString(),
+            amount: resBid.amount,
+            at: resBid.createdAt.toISOString(),
+            bidderMasked,
+          },
+          endsAt: resAuction.endsAt.toISOString(),
+          serverTime: new Date().toISOString(),
+        });
+
+        if (extended) {
+          emitAuctionExtended({
+            auctionId: p.auctionId,
+            endsAt: resAuction.endsAt.toISOString(),
+            extensionCount: resAuction.extensionCount,
+            serverTime: new Date().toISOString(),
+          });
+        }
+
+        if (outbidUserId) {
+          emitOutbidNotification(outbidUserId.toString(), {
+            auctionId: p.auctionId,
+            title: resAuction.title,
+            yourLastBid: preCurrentPrice,
+            currentPrice: resAuction.currentPrice,
+            minNextBid: resAuction.minNextBid,
+            serverTime: new Date().toISOString(),
+          });
+        }
+      } catch (emitErr) {
+        logger.error({ emitErr, auctionId: p.auctionId }, 'Failed to emit realtime events for bid');
+      }
 
       logger.info(
         {
