@@ -66,10 +66,10 @@ Estimated total: **6–7 weeks** part-time (about 4–5 full-time). Each phase i
 - **Gate:** T28 passes; seller dashboard charts render real data.
 
 ## Phase 9 — Hardening and polish (3–4 days)
-- [ ] Security checklist in `SECURITY.md`, rate limits, upload tests
-- [ ] Accessibility pass, mobile layout, empty/error states
-- [ ] Playwright multi-window E2E, load check, chaos checks
-- [ ] Logging/metrics, README with GIF
+- [x] Security checklist in `SECURITY.md`, rate limits, upload tests
+- [x] Accessibility pass, mobile layout, empty/error states
+- [x] Playwright multi-window E2E, load check, chaos checks
+- [x] Logging/metrics, README with GIF
 - **Gate:** all T1–T30 green; `npm run check` clean.
 
 ## Phase 10 — Deployment and demo (2–3 days)

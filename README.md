@@ -78,3 +78,32 @@ Nilami supports verified Stripe Checkout and automatic off-session settlement:
 - **Webhook Authority**: Payment success is confirmed only through signed Stripe webhook events (`stripe_events` idempotency table), never client redirect query parameters.
 - **India RBI E-Mandate Limitation**: Under Reserve Bank of India (RBI) e-mandate guidelines, off-session recurring / deferred auto-debit without OTP is restricted for transactions exceeding ₹15,000. In such scenarios or when a bank requires customer interaction (`authentication_required`), Nilami automatically cascades to on-session 3-D Secure Stripe Checkout via immediate fallback notifications (`PAYMENT_DUE` with direct Pay Now links).
 - **Dual Provider Architecture**: `PAYMENT_PROVIDER=stripe|mock` allows full offline test execution and recruiter demos without live network credentials.
+
+## Recruiter Demo Walkthrough (≈3 Minutes)
+
+Follow this sequence to demonstrate real-time distributed systems engineering:
+
+1. **Seed & Boot**:
+   ```bash
+   npm run infra:up
+   npm run seed
+   npm run dev
+   ```
+2. **Concurrent Multi-Client Bidding**:
+   Open 3 browser windows on `http://localhost:5173/auctions/`:
+   - Buyer 1, Buyer 2, and an unauthenticated spectator.
+   - Fire bids concurrently from both buyers: watch live Socket.IO price updates and outbid toast notifications propagate instantly across all viewports without page refresh.
+3. **Anti-Sniping Engine**:
+   - Place a bid in the final 10 seconds of an auction.
+   - Watch the anti-snipe banner trigger and countdown clock extend by +30 seconds dynamically across all clients.
+4. **Crash-Proof Worker & Outbox Reconciliation**:
+   - Kill the background worker (`pkill -f "worker.ts"`).
+   - Let an active auction expire.
+   - Restart the worker (`npm run dev:worker`): watch the reconciliation engine safely claim expired auctions, transition them to `payment_pending`, write to the outbox, and notify the winner.
+5. **Stripe Checkout & Realtime Settlement**:
+   - The winner logs in, views their dashboard won lots, and clicks **Pay Now**.
+   - Complete checkout via Stripe (`4242...` test card): webhook verification triggers instant real-time `payment-success` socket events and marks the lot `completed`.
+6. **Admin Security & Analytics**:
+   - Log in as `admin@nilami.local` and visit `/admin` to review the explainable fraud detection queue (`SELLER_LINKED_BIDDER`, `BID_BURST`, `PING_PONG`) and audit log trail.
+   - Visit `/dashboard` to view seller analytics charts powered by Recharts with 14-day revenue breakdowns and sell-through rates.
+
