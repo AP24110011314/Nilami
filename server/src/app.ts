@@ -1,3 +1,4 @@
+import path from 'node:path';
 import express, { type Express } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -9,14 +10,20 @@ import { errorHandler } from './middleware/error.js';
 import { healthRouter } from './modules/health/health.routes.js';
 import { authRouter } from './modules/auth/auth.routes.js';
 import { userRouter } from './modules/users/user.routes.js';
+import { auctionRouter } from './modules/auctions/auction.routes.js';
+import { uploadRouter } from './modules/uploads/upload.routes.js';
 import { adminRouter } from './modules/admin/admin.routes.js';
 import { NotFoundError } from './lib/errors.js';
 
 export function createApp(): Express {
   const app = express();
 
-  // Security headers
-  app.use(helmet());
+  // Security headers (allow loading uploaded images locally)
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
 
   // CORS - CLIENT_URL only
   app.use(
@@ -43,10 +50,15 @@ export function createApp(): Express {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
+  // Static uploads directory
+  app.use('/uploads', express.static(path.resolve(process.cwd(), env.UPLOAD_DIR)));
+
   // Routes
   app.use('/api', healthRouter);
   app.use('/api/auth', authRouter);
   app.use('/api/users', userRouter);
+  app.use('/api/auctions', auctionRouter);
+  app.use('/api/uploads', uploadRouter);
   app.use('/api/admin', adminRouter);
   app.use('/', healthRouter);
 

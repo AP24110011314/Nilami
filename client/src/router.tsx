@@ -2,6 +2,10 @@ import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router';
 import { Layout } from './components/layout/Layout.js';
 import { HomePage } from './pages/HomePage.js';
+import { BrowsePage } from './pages/auctions/BrowsePage.js';
+import { AuctionDetailPage } from './pages/auctions/AuctionDetailPage.js';
+import { CreateAuctionPage } from './pages/seller/CreateAuctionPage.js';
+import { EditAuctionPage } from './pages/seller/EditAuctionPage.js';
 import { LoginPage } from './pages/auth/LoginPage.js';
 import { RegisterPage } from './pages/auth/RegisterPage.js';
 import { VerifyEmailPage } from './pages/auth/VerifyEmailPage.js';
@@ -15,7 +19,6 @@ import { apiClient } from './api/client.js';
 export const AppRouter: React.FC = () => {
   const { setAuth, setInitialized } = useAuthStore();
 
-  // On application mount, attempt silent refresh from httpOnly cookie
   useEffect(() => {
     const initializeAuth = async () => {
       try {
@@ -25,7 +28,6 @@ export const AppRouter: React.FC = () => {
         });
         setAuth(meData.user, refreshData.accessToken);
       } catch {
-        // No active refresh session, proceed unauthenticated
         setInitialized(true);
       }
     };
@@ -38,6 +40,24 @@ export const AppRouter: React.FC = () => {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
+          <Route path="/auctions" element={<BrowsePage />} />
+          <Route path="/auctions/:id" element={<AuctionDetailPage />} />
+          <Route
+            path="/seller/new"
+            element={
+              <ProtectedRoute requiredRole="seller" requireVerified={true}>
+                <CreateAuctionPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/seller/auctions/:id/edit"
+            element={
+              <ProtectedRoute requiredRole="seller">
+                <EditAuctionPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />

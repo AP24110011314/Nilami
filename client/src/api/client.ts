@@ -178,9 +178,88 @@ class ApiClient {
     return this.post<{ user: User }>('/users/me/become-seller');
   }
 
+  // Auctions Endpoints
+  public async getAuctions(params?: Record<string, string | number | undefined>) {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== '') {
+          searchParams.set(k, String(v));
+        }
+      });
+    }
+    const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
+    return this.get<{
+      items: AuctionItem[];
+      total: number;
+      page: number;
+      limit: number;
+      serverTime: string;
+    }>(`/auctions${query}`);
+  }
+
+  public async getAuction(id: string) {
+    return this.get<{ auction: AuctionItem; serverTime: string }>(`/auctions/${id}`);
+  }
+
+  public async createAuction(data: unknown) {
+    return this.post<{ auction: AuctionItem }>('/auctions', data);
+  }
+
+  public async updateAuction(id: string, data: unknown) {
+    return this.patch<{ auction: AuctionItem }>(`/auctions/${id}`, data);
+  }
+
+  public async cancelAuction(id: string) {
+    return this.post<{ auction: AuctionItem }>(`/auctions/${id}/cancel`);
+  }
+
+  public async uploadImages(files: File[]) {
+    const formData = new FormData();
+    files.forEach((file) => formData.append('images', file));
+    return this.request<{ images: Array<{ url: string; publicId: string }> }>('/uploads/images', {
+      method: 'POST',
+      body: formData,
+    });
+  }
+
   public async getHealth(): Promise<HealthResponse> {
     return this.get<HealthResponse>('/health');
   }
+}
+
+export interface AuctionItem {
+  id: string;
+  sellerId: string;
+  title: string;
+  description: string;
+  category: 'electronics' | 'collectibles' | 'art' | 'fashion' | 'vehicles' | 'other';
+  condition: 'new' | 'like_new' | 'used_good' | 'used_fair';
+  images: Array<{ url: string; publicId?: string }>;
+  currency: 'INR';
+  startingPrice: number;
+  minIncrement: number;
+  currentPrice: number;
+  minNextBid: number;
+  bidCount: number;
+  startsAt: string;
+  endsAt: string;
+  status:
+    | 'scheduled'
+    | 'active'
+    | 'payment_pending'
+    | 'completed'
+    | 'payment_failed'
+    | 'unsold'
+    | 'cancelled';
+  reserveMet: boolean;
+  seller?: {
+    id: string;
+    name: string;
+    ratingAvg: number;
+    ratingCount: number;
+  };
+  createdAt: string;
 }
 
 export const apiClient = new ApiClient();

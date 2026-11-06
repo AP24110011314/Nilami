@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router';
-import { Gavel, Activity, User, LogOut } from 'lucide-react';
+import { Gavel, Activity, User, LogOut, PlusCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/auth.js';
 import { apiClient } from '../../api/client.js';
 
@@ -18,6 +18,8 @@ export const Header: React.FC = () => {
     navigate('/login');
   };
 
+  const isSeller = user?.roles.includes('seller');
+
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -33,6 +35,9 @@ export const Header: React.FC = () => {
             <Link to="/" className="hover:text-indigo-600 transition-colors">
               Home
             </Link>
+            <Link to="/auctions" className="hover:text-indigo-600 transition-colors">
+              Browse Lots
+            </Link>
             {user && (
               <Link to="/dashboard" className="hover:text-indigo-600 transition-colors">
                 Dashboard
@@ -46,6 +51,16 @@ export const Header: React.FC = () => {
             <Activity className="w-3.5 h-3.5 animate-pulse" />
             <span>Port 4000 Native</span>
           </div>
+
+          {isSeller && (
+            <Link
+              to="/seller/new"
+              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition"
+            >
+              <PlusCircle className="w-3.5 h-3.5" />
+              <span>List Item</span>
+            </Link>
+          )}
 
           {user ? (
             <div className="flex items-center gap-3">

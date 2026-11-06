@@ -18,11 +18,11 @@ Estimated total: **6–7 weeks** part-time (about 4–5 full-time). Each phase i
 - **Gate:** tests T26, T27, T30 pass; verification email visible in Mailpit.
 
 ## Phase 2 — Auction management (FR-B1–B4) (4–5 days)
-- [ ] Auction model + indexes, create/edit/cancel, validation rules
-- [ ] Image upload (local driver + Cloudinary driver interface), sharp re-encode
-- [ ] List/search/filter/sort, detail endpoint with `serverTime`
-- [ ] Seller create/edit forms, browse page, auction detail (static)
-- [ ] Seed script
+- [x] Auction model + indexes, create/edit/cancel, validation rules
+- [x] Image upload (local driver + Cloudinary driver interface), sharp re-encode
+- [x] List/search/filter/sort, detail endpoint with `serverTime`
+- [x] Seller create/edit forms, browse page, auction detail (static)
+- [x] Seed script
 - **Gate:** seller creates an auction with images; buyers browse and filter; reserve price never leaks.
 
 ## Phase 3 — Bidding engine (FR-C1–C5, FR-G1 backend) (5–6 days)
