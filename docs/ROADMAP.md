@@ -39,10 +39,10 @@ Estimated total: **6–7 weeks** part-time (about 4–5 full-time). Each phase i
 - **Gate:** T22–T24 pass; four windows update within ~200 ms; countdown stays accurate with a deliberately wrong system clock.
 
 ## Phase 5 — Background processing (FR-E1, E2, E7) (4–5 days)
-- [ ] BullMQ queues, schedule on create, `activate`/`ending-soon`/`close` jobs
-- [ ] Idempotent `closeAuction`, outbox + dispatcher, redis-emitter in worker
-- [ ] Reconciliation scheduler + boot recovery, payment row creation
-- [ ] Winner/ended UI states, "You won" banner
+- [x] BullMQ queues, schedule on create, `activate`/`ending-soon`/`close` jobs
+- [x] Idempotent `closeAuction`, outbox + dispatcher, redis-emitter in worker
+- [x] Reconciliation scheduler + boot recovery, payment row creation
+- [x] Winner/ended UI states, "You won" banner
 - **Gate:** T11–T15, T25 pass; kill-worker chaos test passes.
 
 ## Phase 6 — Payments (FR-E3–E6) (5–6 days)
@@ -54,8 +54,8 @@ Estimated total: **6–7 weeks** part-time (about 4–5 full-time). Each phase i
 - **Gate:** T16–T21 pass with Stripe CLI; auto-charge fallback demonstrated.
 
 ## Phase 7 — Notifications and watchlist (FR-F1–F3, FR-G3) (3–4 days)
-- [ ] Notification persistence + bell UI + socket push + email worker templates
-- [ ] Watchlist API/UI, reminder jobs that re-check `endsAt`
+- [x] Notification persistence + bell UI + socket push + email worker templates
+- [x] Watchlist API/UI, reminder jobs that re-check `endsAt`
 - **Gate:** T29 passes; every event type in `DATABASE.md` notifications has a template.
 
 ## Phase 8 — Advanced: analytics, fraud, reviews, admin (FR-G2, G4, G5) (5–6 days)

@@ -277,6 +277,57 @@ class ApiClient {
     return this.post<{ ok: boolean; message: string }>(`/payments/mock-complete/${auctionId}`);
   }
 
+  // Watchlist Endpoints (Phase 7)
+  public async getWatchlist() {
+    return this.get<{
+      watchlist: Array<{
+        id: string;
+        auction: AuctionItem;
+        reminderMinutesBefore?: number | null;
+        createdAt: string;
+      }>;
+    }>('/watchlist');
+  }
+
+  public async getWatchlistStatus(auctionId: string) {
+    return this.get<{
+      watching: boolean;
+      reminderMinutesBefore?: number | null;
+    }>(`/watchlist/${auctionId}/status`);
+  }
+
+  public async watchAuction(auctionId: string, reminderMinutesBefore?: number) {
+    return this.post<{
+      watching: boolean;
+      reminderMinutesBefore?: number | null;
+    }>(`/watchlist/${auctionId}`, { reminderMinutesBefore });
+  }
+
+  public async unwatchAuction(auctionId: string) {
+    return this.delete<{
+      watching: boolean;
+    }>(`/watchlist/${auctionId}`);
+  }
+
+  // Notifications Endpoints (Phase 7)
+  public async getNotifications(page = 1, limit = 20) {
+    return this.get<{
+      notifications: NotificationItem[];
+      total: number;
+      page: number;
+      totalPages: number;
+      unreadCount: number;
+    }>(`/notifications?page=${page}&limit=${limit}`);
+  }
+
+  public async markNotificationRead(id: string) {
+    return this.patch<{ notification: NotificationItem }>(`/notifications/${id}/read`);
+  }
+
+  public async markAllNotificationsRead() {
+    return this.post<{ updatedCount: number }>('/notifications/mark-all-read');
+  }
+
   public async uploadImages(files: File[]) {
     const formData = new FormData();
     files.forEach((file) => formData.append('images', file));
@@ -326,6 +377,20 @@ export interface AuctionItem {
     ratingAvg: number;
     ratingCount: number;
   };
+  createdAt: string;
+}
+
+export interface NotificationItem {
+  id: string;
+  type: string;
+  title: string;
+  body: string;
+  data?: {
+    auctionId?: string;
+    bidId?: string;
+    paymentId?: string;
+  };
+  readAt?: string | null;
   createdAt: string;
 }
 

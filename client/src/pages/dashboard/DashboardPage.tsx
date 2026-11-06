@@ -12,6 +12,7 @@ import {
   Award,
   TrendingUp,
   ArrowUpRight,
+  Bookmark,
 } from 'lucide-react';
 
 interface MyBidItem {
@@ -25,12 +26,20 @@ interface MyWinItem {
   finalPrice: number;
 }
 
+interface MyWatchItem {
+  id: string;
+  auction: AuctionItem;
+  reminderMinutesBefore?: number | null;
+  createdAt: string;
+}
+
 export const DashboardPage: React.FC = () => {
   const { user, setUser } = useAuthStore();
-  const [activeTab, setActiveTab] = useState<'overview' | 'bids' | 'wins'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'bids' | 'wins' | 'watchlist'>('overview');
 
   const [myBids, setMyBids] = useState<MyBidItem[]>([]);
   const [myWins, setMyWins] = useState<MyWinItem[]>([]);
+  const [myWatchlist, setMyWatchlist] = useState<MyWatchItem[]>([]);
   const [loadingActivities, setLoadingActivities] = useState(false);
 
   const [becomingSeller, setBecomingSeller] = useState(false);
@@ -41,12 +50,14 @@ export const DashboardPage: React.FC = () => {
     const fetchActivities = async () => {
       setLoadingActivities(true);
       try {
-        const [bidsRes, winsRes] = await Promise.all([
+        const [bidsRes, winsRes, watchRes] = await Promise.all([
           apiClient.getMyBids(),
           apiClient.getMyWins(),
+          apiClient.getWatchlist(),
         ]);
         setMyBids(bidsRes.bids);
         setMyWins(winsRes.wins);
+        setMyWatchlist(watchRes.watchlist);
       } catch {
         // Soft fail
       } finally {
@@ -181,6 +192,19 @@ export const DashboardPage: React.FC = () => {
           <span>Won Lots</span>
           <span className="px-1.5 py-0.2 bg-emerald-200 text-emerald-900 rounded-full text-[10px]">
             {myWins.length}
+          </span>
+        </button>
+        <button
+          onClick={() => setActiveTab('watchlist')}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
+            activeTab === 'watchlist'
+              ? 'bg-indigo-600 text-white shadow-sm'
+              : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <span>Watchlist</span>
+          <span className="px-1.5 py-0.2 bg-amber-200 text-amber-900 rounded-full text-[10px]">
+            {myWatchlist.length}
           </span>
         </button>
       </div>
@@ -342,6 +366,89 @@ export const DashboardPage: React.FC = () => {
                       Pay Now ({formatINR(finalPrice)})
                     </button>
                   )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Tab: Watchlist */}
+      {activeTab === 'watchlist' && (
+        <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+          <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+            <h2 className="text-base font-bold text-slate-900">Watched Auctions</h2>
+            <span className="text-xs text-slate-500">
+              {myWatchlist.length} {myWatchlist.length === 1 ? 'item' : 'items'}
+            </span>
+          </div>
+
+          {loadingActivities ? (
+            <div className="p-8 text-center text-xs text-slate-400">Loading watchlist...</div>
+          ) : myWatchlist.length === 0 ? (
+            <div className="p-12 text-center space-y-3">
+              <Bookmark className="w-8 h-8 text-slate-300 mx-auto" />
+              <p className="text-sm font-medium text-slate-600">Your watchlist is empty</p>
+              <p className="text-xs text-slate-400">
+                Explore active auctions and click "Watch Lot" to track closing times and get reminders.
+              </p>
+              <Link
+                to="/auctions"
+                className="inline-block mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm transition"
+              >
+                Browse Auctions
+              </Link>
+            </div>
+          ) : (
+            <div className="divide-y divide-slate-100">
+              {myWatchlist.map(({ id, auction, reminderMinutesBefore }) => (
+                <div
+                  key={id}
+                  className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-slate-50 transition"
+                >
+                  <div className="flex items-center gap-4">
+                    <img
+                      src={auction.images[0]?.url || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100'}
+                      alt=""
+                      className="w-16 h-16 rounded-xl object-cover border border-slate-200 flex-shrink-0"
+                    />
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Link
+                          to={`/auctions/${auction.id}`}
+                          className="font-bold text-sm text-slate-900 hover:text-indigo-600 transition"
+                        >
+                          {auction.title}
+                        </Link>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-50 text-amber-700 border border-amber-200">
+                          {auction.status}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-4 text-xs text-slate-500">
+                        <span>
+                          Current: <strong className="text-slate-800">{formatINR(auction.currentPrice)}</strong>
+                        </span>
+                        <span>•</span>
+                        <span>Ends: {new Date(auction.endsAt).toLocaleDateString()}</span>
+                        {reminderMinutesBefore && (
+                          <>
+                            <span>•</span>
+                            <span className="text-indigo-600 font-medium">
+                              {reminderMinutesBefore}m reminder set
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <Link
+                    to={`/auctions/${auction.id}`}
+                    className="flex items-center gap-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition shadow-sm"
+                  >
+                    <span>View & Bid</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
               ))}
             </div>

@@ -14,6 +14,8 @@ import { auctionRouter } from './modules/auctions/auction.routes.js';
 import { uploadRouter } from './modules/uploads/upload.routes.js';
 import { adminRouter } from './modules/admin/admin.routes.js';
 import { paymentRouter, PaymentController } from './modules/payments/payment.routes.js';
+import { watchlistRouter } from './modules/watchlist/watchlist.routes.js';
+import { notificationRouter } from './modules/notifications/notification.routes.js';
 import { NotFoundError } from './lib/errors.js';
 
 export function createApp(): Express {
@@ -68,6 +70,8 @@ export function createApp(): Express {
   app.use('/api/auctions', auctionRouter);
   app.use('/api/uploads', uploadRouter);
   app.use('/api/payments', paymentRouter);
+  app.use('/api/watchlist', watchlistRouter);
+  app.use('/api/notifications', notificationRouter);
   app.use('/api/admin', adminRouter);
   app.use('/', healthRouter);
 

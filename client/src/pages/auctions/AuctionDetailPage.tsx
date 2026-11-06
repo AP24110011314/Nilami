@@ -8,6 +8,7 @@ import { useAuctionSocket } from '../../hooks/useAuctionSocket.js';
 import { useCountdown } from '../../hooks/useCountdown.js';
 import { BidForm } from '../../components/bids/BidForm.js';
 import { BidHistory } from '../../components/bids/BidHistory.js';
+import { WatchlistButton } from '../../components/watchlist/WatchlistButton.js';
 import {
   Gavel,
   ShieldCheck,
@@ -168,6 +169,8 @@ export const AuctionDetailPage: React.FC = () => {
             <Users className="w-3.5 h-3.5 text-slate-500" />
             <span>{viewerCount} {viewerCount === 1 ? 'viewer' : 'viewers'}</span>
           </div>
+
+          <WatchlistButton auctionId={auction.id} />
 
           {canEdit && (
             <Link

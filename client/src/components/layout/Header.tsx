@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router';
 import { Gavel, Activity, User, LogOut, PlusCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/auth.js';
 import { apiClient } from '../../api/client.js';
+import { NotificationBell } from '../notifications/NotificationBell.js';
 
 export const Header: React.FC = () => {
   const { user, clearAuth } = useAuthStore();
@@ -64,6 +65,7 @@ export const Header: React.FC = () => {
 
           {user ? (
             <div className="flex items-center gap-3">
+              <NotificationBell />
               <Link
                 to="/dashboard"
                 className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition"

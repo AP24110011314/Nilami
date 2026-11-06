@@ -12,6 +12,10 @@ import { runReconciliation } from './queues/reconciliation.service.js';
 import { processOutboxBatch } from './queues/outbox.dispatcher.js';
 import { Auction } from './modules/auctions/auction.model.js';
 import { Payment } from './modules/payments/payment.model.js';
+import { WatchlistService } from './modules/watchlist/watchlist.service.js';
+import { sendEmail } from './config/mailer.js';
+import { renderEmailTemplate } from './queues/email.templates.js';
+import type { NotificationType } from './modules/notifications/notification.model.js';
 import { emitAuctionEnding } from './realtime/events.js';
 
 let isShuttingDown = false;
@@ -82,6 +86,15 @@ async function startWorker(): Promise<void> {
             return { status: 'closed', result: res };
           }
 
+          case 'watch-reminder': {
+            const { auctionId: aid, userId, remindMinutesBefore } = job.data as {
+              auctionId: string;
+              userId: string;
+              remindMinutesBefore: number;
+            };
+            return await WatchlistService.handleWatchReminder(aid, userId, remindMinutesBefore);
+          }
+
           default:
             logger.warn({ jobName: job.name }, 'Unknown auction job name');
             return { status: 'ignored' };
@@ -146,7 +159,38 @@ async function startWorker(): Promise<void> {
       },
     );
 
-    activeWorkers.push(auctionWorker, maintenanceWorker, paymentsWorker);
+    // 6. Notifications Worker: processes email dispatch
+    const notificationsWorker = new Worker(
+      'notifications',
+      async (job: Job) => {
+        const { to, type, title, body, name, auctionId } = job.data as {
+          to: string;
+          type: NotificationType;
+          title: string;
+          body: string;
+          name?: string;
+          auctionId?: string;
+        };
+        logger.debug({ jobId: job.id, to, type }, 'Processing email notification job');
+
+        const template = renderEmailTemplate({ type, title, body, name, auctionId });
+        await sendEmail({
+          to,
+          subject: template.subject,
+          html: template.html,
+          text: template.text,
+        });
+
+        return { status: 'sent', to, type };
+      },
+      {
+        connection: redis,
+        prefix: QUEUE_PREFIX,
+        concurrency: 5,
+      },
+    );
+
+    activeWorkers.push(auctionWorker, maintenanceWorker, paymentsWorker, notificationsWorker);
 
     for (const worker of activeWorkers) {
       worker.on('failed', (job, err) => {

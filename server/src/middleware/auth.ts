@@ -76,3 +76,28 @@ export function requireRole(...allowedRoles: UserRole[]) {
   };
 }
 
+export async function optionalAuth(req: Request, _res: Response, next: NextFunction): Promise<void> {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) {
+    return next();
+  }
+
+  const token = authHeader.substring(7);
+  try {
+    const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as TokenPayload;
+    const user = await User.findById(decoded.sub).lean();
+    if (user && user.status !== 'suspended') {
+      req.user = {
+        id: user._id.toString(),
+        email: user.email,
+        roles: user.roles,
+        status: user.status,
+        emailVerifiedAt: user.emailVerifiedAt,
+      };
+    }
+  } catch {
+    // Ignore invalid token in optional auth
+  }
+  next();
+}
+
