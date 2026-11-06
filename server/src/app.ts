@@ -23,6 +23,9 @@ import { NotFoundError } from './lib/errors.js';
 export function createApp(): Express {
   const app = express();
 
+  // Trust reverse proxy (Render, Fly, Nginx) in production
+  app.set('trust proxy', 1);
+
   // Security headers (allow loading uploaded images locally)
   app.use(
     helmet({

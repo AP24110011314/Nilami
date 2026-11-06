@@ -73,8 +73,8 @@ Estimated total: **6–7 weeks** part-time (about 4–5 full-time). Each phase i
 - **Gate:** all T1–T30 green; `npm run check` clean.
 
 ## Phase 10 — Deployment and demo (2–3 days)
-- [ ] Follow `DEPLOYMENT.md`; register the production webhook
-- [ ] Record demo using `TESTING.md` §6; finish `INTERVIEW_GUIDE.md` with real numbers
+- [x] Follow `DEPLOYMENT.md`; register the production webhook
+- [x] Record demo using `TESTING.md` §6; finish `INTERVIEW_GUIDE.md` with real numbers
 - **Gate:** public URL works end-to-end in Stripe test mode.
 
 ## Cut-line if time runs short
