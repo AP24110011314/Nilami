@@ -328,6 +328,102 @@ class ApiClient {
     return this.post<{ updatedCount: number }>('/notifications/mark-all-read');
   }
 
+  // Reviews & Reputation (Phase 8)
+  public async createReview(auctionId: string, rating: number, comment?: string) {
+    return this.post<{ review: ReviewItem }>(`/auctions/${auctionId}/review`, { rating, comment });
+  }
+
+  public async getSellerReviews(sellerId: string, page = 1, limit = 20) {
+    return this.get<{
+      reviews: Array<{
+        id: string;
+        auctionId: string;
+        reviewerMasked: string;
+        rating: number;
+        comment?: string;
+        createdAt: string;
+      }>;
+      total: number;
+      page: number;
+      totalPages: number;
+    }>(`/users/${sellerId}/reviews?page=${page}&limit=${limit}`);
+  }
+
+  public async getSellerReputation(sellerId: string) {
+    return this.get<SellerReputation>(`/users/${sellerId}/reputation`);
+  }
+
+  // Analytics (Phase 8)
+  public async getAuctionAnalytics(auctionId: string) {
+    return this.get<{
+      auctionId: string;
+      currentPrice: number;
+      extensionCount: number;
+      uniqueBidders: number;
+      priceProgression: Array<{ t: string; amount: number; bidderMasked?: string }>;
+      bidFrequency: Array<{ bucket: string; count: number }>;
+    }>(`/auctions/${auctionId}/analytics`);
+  }
+
+  public async getSellerAnalyticsOverview() {
+    return this.get<{
+      sellerId: string;
+      totalRevenue: number;
+      closedCount: number;
+      soldCount: number;
+      sellThroughRate: number;
+      avgFinalStartingRatio: number;
+      avgBidsPerAuction: number;
+      dailyRevenue: Array<{ date: string; amount: number }>;
+    }>('/analytics/seller/overview');
+  }
+
+  public async getTrendingAuctions(limit = 6) {
+    return this.get<{ trending: AuctionItem[] }>(`/analytics/trending?limit=${limit}`);
+  }
+
+  public async getAdminAnalyticsOverview() {
+    return this.get<{
+      gmv: number;
+      activeAuctionsCount: number;
+      totalBidsCount: number;
+      openFraudFlagsCount: number;
+      paymentFailureRate: number;
+    }>('/analytics/admin/overview');
+  }
+
+  // Admin Moderation (Phase 8)
+  public async getAdminFraudFlags(status = 'open', page = 1, limit = 20) {
+    return this.get<{
+      flags: AdminFraudFlag[];
+      total: number;
+      page: number;
+      totalPages: number;
+    }>(`/admin/fraud-flags?status=${status}&page=${page}&limit=${limit}`);
+  }
+
+  public async reviewAdminFraudFlag(flagId: string, status: 'confirmed' | 'dismissed', appealNote?: string) {
+    return this.patch<{ flag: AdminFraudFlag }>(`/admin/fraud-flags/${flagId}`, { status, appealNote });
+  }
+
+  public async getAdminAuditLogs(page = 1, limit = 20) {
+    return this.get<{
+      logs: Array<{
+        _id: string;
+        adminId: { name: string; email: string };
+        action: string;
+        targetType: string;
+        targetId: string;
+        details: Record<string, unknown>;
+        ip: string;
+        createdAt: string;
+      }>;
+      total: number;
+      page: number;
+      totalPages: number;
+    }>(`/admin/audit-logs?page=${page}&limit=${limit}`);
+  }
+
   public async uploadImages(files: File[]) {
     const formData = new FormData();
     files.forEach((file) => formData.append('images', file));
@@ -391,6 +487,49 @@ export interface NotificationItem {
     paymentId?: string;
   };
   readAt?: string | null;
+  createdAt: string;
+}
+
+export interface ReviewItem {
+  id: string;
+  auctionId: string;
+  reviewerId: string;
+  sellerId: string;
+  rating: number;
+  comment?: string;
+  createdAt: string;
+}
+
+export interface SellerReputation {
+  sellerId: string;
+  name: string;
+  ratingAvg: number;
+  ratingCount: number;
+  salesCount: number;
+  tier: 'New' | 'Seller' | 'Trusted' | 'Top Seller';
+  isVerifiedSeller: boolean;
+}
+
+export interface AdminFraudFlag {
+  _id: string;
+  type: string;
+  score: number;
+  subjectUserId: {
+    _id: string;
+    name: string;
+    email: string;
+    status: string;
+  };
+  auctionId?: {
+    _id: string;
+    title: string;
+    currentPrice: number;
+    status: string;
+  };
+  bidIds: string[];
+  evidence: Record<string, unknown>;
+  status: 'open' | 'dismissed' | 'confirmed';
+  appealNote?: string;
   createdAt: string;
 }
 

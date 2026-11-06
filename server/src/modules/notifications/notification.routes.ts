@@ -12,3 +12,4 @@ notificationRouter.patch('/:id/read', requireAuth, NotificationController.markRe
 
 // Mark all notifications as read
 notificationRouter.post('/mark-all-read', requireAuth, NotificationController.markAllRead);
+

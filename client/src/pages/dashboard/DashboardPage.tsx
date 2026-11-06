@@ -13,7 +13,18 @@ import {
   TrendingUp,
   ArrowUpRight,
   Bookmark,
+  Star,
+  BarChart3,
 } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
+import { ReviewModal } from '../../components/reviews/ReviewModal.js';
 
 interface MyBidItem {
   auction: AuctionItem;
@@ -35,11 +46,21 @@ interface MyWatchItem {
 
 export const DashboardPage: React.FC = () => {
   const { user, setUser } = useAuthStore();
-  const [activeTab, setActiveTab] = useState<'overview' | 'bids' | 'wins' | 'watchlist'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'bids' | 'wins' | 'watchlist' | 'analytics'>('overview');
 
   const [myBids, setMyBids] = useState<MyBidItem[]>([]);
   const [myWins, setMyWins] = useState<MyWinItem[]>([]);
   const [myWatchlist, setMyWatchlist] = useState<MyWatchItem[]>([]);
+  const [sellerAnalytics, setSellerAnalytics] = useState<{
+    totalRevenue: number;
+    closedCount: number;
+    soldCount: number;
+    sellThroughRate: number;
+    avgFinalStartingRatio: number;
+    avgBidsPerAuction: number;
+    dailyRevenue: Array<{ date: string; amount: number }>;
+  } | null>(null);
+  const [reviewModalAuction, setReviewModalAuction] = useState<{ id: string; title: string } | null>(null);
   const [loadingActivities, setLoadingActivities] = useState(false);
 
   const [becomingSeller, setBecomingSeller] = useState(false);
@@ -50,14 +71,28 @@ export const DashboardPage: React.FC = () => {
     const fetchActivities = async () => {
       setLoadingActivities(true);
       try {
-        const [bidsRes, winsRes, watchRes] = await Promise.all([
+        const promises: [
+          Promise<{ bids: MyBidItem[] }>,
+          Promise<{ wins: MyWinItem[] }>,
+          Promise<{ watchlist: MyWatchItem[] }>,
+          Promise<unknown>?,
+        ] = [
           apiClient.getMyBids(),
           apiClient.getMyWins(),
           apiClient.getWatchlist(),
-        ]);
+        ];
+
+        if (user?.roles.includes('seller')) {
+          promises.push(apiClient.getSellerAnalyticsOverview());
+        }
+
+        const [bidsRes, winsRes, watchRes, analyticsRes] = await Promise.all(promises);
         setMyBids(bidsRes.bids);
         setMyWins(winsRes.wins);
         setMyWatchlist(watchRes.watchlist);
+        if (analyticsRes) {
+          setSellerAnalytics(analyticsRes as typeof sellerAnalytics);
+        }
       } catch {
         // Soft fail
       } finally {
@@ -207,6 +242,19 @@ export const DashboardPage: React.FC = () => {
             {myWatchlist.length}
           </span>
         </button>
+        {isSeller && (
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
+              activeTab === 'analytics'
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <BarChart3 className="w-3.5 h-3.5" />
+            <span>Seller Analytics</span>
+          </button>
+        )}
       </div>
 
       {/* Tab: Overview */}
@@ -346,9 +394,18 @@ export const DashboardPage: React.FC = () => {
                   </div>
 
                   {auction.status === 'completed' ? (
-                    <span className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
-                      Paid ✓
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
+                        Paid ✓
+                      </span>
+                      <button
+                        onClick={() => setReviewModalAuction({ id: auction.id, title: auction.title })}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold border border-amber-200 transition cursor-pointer"
+                      >
+                        <Star className="w-3.5 h-3.5 fill-amber-500" />
+                        <span>Review Seller</span>
+                      </button>
+                    </div>
                   ) : (
                     <button
                       onClick={async () => {
@@ -454,6 +511,69 @@ export const DashboardPage: React.FC = () => {
             </div>
           )}
         </div>
+      )}
+
+      {/* Tab: Seller Analytics */}
+      {activeTab === 'analytics' && sellerAnalytics && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
+              <span className="text-[11px] font-bold uppercase text-slate-400">Total Succeeded Revenue</span>
+              <p className="text-xl font-black text-slate-900">{formatINR(sellerAnalytics.totalRevenue)}</p>
+            </div>
+
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
+              <span className="text-[11px] font-bold uppercase text-slate-400">Sell-Through Rate</span>
+              <p className="text-xl font-black text-emerald-600">{sellerAnalytics.sellThroughRate}%</p>
+            </div>
+
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
+              <span className="text-[11px] font-bold uppercase text-slate-400">Avg Final / Starting Ratio</span>
+              <p className="text-xl font-black text-indigo-600">{sellerAnalytics.avgFinalStartingRatio}x</p>
+            </div>
+
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
+              <span className="text-[11px] font-bold uppercase text-slate-400">Avg Bids Per Auction</span>
+              <p className="text-xl font-black text-slate-900">{sellerAnalytics.avgBidsPerAuction}</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+            <h3 className="text-sm font-bold text-slate-900">14-Day Daily Revenue Progression</h3>
+            {sellerAnalytics.dailyRevenue.length === 0 ? (
+              <p className="text-xs text-slate-400 py-8 text-center">No payment data recorded in the last 14 days.</p>
+            ) : (
+              <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={sellerAnalytics.dailyRevenue.map((d) => ({ ...d, amountRupees: Math.round(d.amount / 100) }))}>
+                    <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                    <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} tickFormatter={(val: number) => `₹${val.toLocaleString('en-IN')}`} />
+                    <Tooltip
+                      formatter={(val: number | string | readonly (string | number)[] | undefined) => [
+                        typeof val === 'number' || typeof val === 'string' ? formatINR(Number(val) * 100) : '',
+                        'Revenue',
+                      ]}
+                      contentStyle={{ backgroundColor: '#0f172a', color: '#fff', borderRadius: '0.75rem', fontSize: '12px', border: 'none' }}
+                    />
+                    <Bar dataKey="amountRupees" fill="#4f46e5" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Review Modal */}
+      {reviewModalAuction && (
+        <ReviewModal
+          auctionId={reviewModalAuction.id}
+          auctionTitle={reviewModalAuction.title}
+          onClose={() => setReviewModalAuction(null)}
+          onSuccess={() => {
+            setSuccessMsg('Thank you for rating your seller!');
+          }}
+        />
       )}
     </div>
   );

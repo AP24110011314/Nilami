@@ -91,3 +91,4 @@ export const PaymentSettingsPage: React.FC = () => {
     </div>
   );
 };
+

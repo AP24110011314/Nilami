@@ -128,3 +128,4 @@ export const WatchlistButton: React.FC<WatchlistButtonProps> = ({ auctionId, cla
     </div>
   );
 };
+

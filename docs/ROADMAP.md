@@ -59,10 +59,10 @@ Estimated total: **6–7 weeks** part-time (about 4–5 full-time). Each phase i
 - **Gate:** T29 passes; every event type in `DATABASE.md` notifications has a template.
 
 ## Phase 8 — Advanced: analytics, fraud, reviews, admin (FR-G2, G4, G5) (5–6 days)
-- [ ] Aggregation endpoints + Recharts dashboards (seller, public, admin)
-- [ ] Fraud rules + queue + admin review UI + bid block
-- [ ] Reviews, rating aggregates, badges
-- [ ] Admin audit log
+- [x] Aggregation endpoints + Recharts dashboards (seller, public, admin)
+- [x] Fraud rules + queue + admin review UI + bid block
+- [x] Reviews, rating aggregates, badges
+- [x] Admin audit log
 - **Gate:** T28 passes; seller dashboard charts render real data.
 
 ## Phase 9 — Hardening and polish (3–4 days)

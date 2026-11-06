@@ -9,6 +9,7 @@ import { useCountdown } from '../../hooks/useCountdown.js';
 import { BidForm } from '../../components/bids/BidForm.js';
 import { BidHistory } from '../../components/bids/BidHistory.js';
 import { WatchlistButton } from '../../components/watchlist/WatchlistButton.js';
+import { AuctionPriceChart } from '../../components/analytics/AuctionPriceChart.js';
 import {
   Gavel,
   ShieldCheck,
@@ -241,6 +242,9 @@ export const AuctionDetailPage: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Price Progression Analytics Chart */}
+          <AuctionPriceChart auctionId={auction.id} />
 
           {/* Bid History Component */}
           <BidHistory auctionId={auction.id} />

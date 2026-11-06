@@ -44,6 +44,11 @@ export const Header: React.FC = () => {
                 Dashboard
               </Link>
             )}
+            {user?.roles.includes('admin') && (
+              <Link to="/admin" className="text-rose-600 font-semibold hover:text-rose-700 transition-colors">
+                Admin
+              </Link>
+            )}
           </nav>
         </div>
 

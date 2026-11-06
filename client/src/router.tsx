@@ -14,6 +14,7 @@ import { ResetPasswordPage } from './pages/auth/ResetPasswordPage.js';
 import { DashboardPage } from './pages/dashboard/DashboardPage.js';
 import { PaymentSuccessPage } from './pages/payments/PaymentSuccessPage.js';
 import { PaymentSettingsPage } from './pages/settings/PaymentSettingsPage.js';
+import { AdminPage } from './pages/admin/AdminPage.js';
 import { ProtectedRoute } from './components/auth/ProtectedRoute.js';
 import { useAuthStore } from './store/auth.js';
 import { apiClient } from './api/client.js';
@@ -79,6 +80,14 @@ export const AppRouter: React.FC = () => {
             element={
               <ProtectedRoute>
                 <PaymentSettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminPage />
               </ProtectedRoute>
             }
           />

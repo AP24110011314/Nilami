@@ -1,16 +1,26 @@
-import { Router, type Request, type Response } from 'express';
+import { Router } from 'express';
+import { AdminController } from './admin.controller.js';
 import { requireAuth, requireRole } from '../../middleware/auth.js';
 
 export const adminRouter = Router();
 
-adminRouter.use(requireAuth);
-adminRouter.use(requireRole('admin'));
+// Protect all admin routes
+adminRouter.use(requireAuth, requireRole('admin'));
 
-adminRouter.get('/queues', (_req: Request, res: Response) => {
-  res.status(200).json({ ok: true, message: 'Admin queues status' });
+// Audit logs
+adminRouter.get('/audit-logs', AdminController.getAuditLogs);
+
+// User moderation
+adminRouter.post('/users/:id/suspend', AdminController.suspendUser);
+
+// Auction moderation
+adminRouter.post('/auctions/:id/cancel', AdminController.cancelAuction);
+
+// Fraud review queue
+adminRouter.get('/fraud-flags', AdminController.getFraudFlags);
+adminRouter.patch('/fraud-flags/:id', AdminController.reviewFraudFlag);
+
+// Queues dev inspection (docs/API.md §Admin)
+adminRouter.get('/queues', (_req, res) => {
+  res.json({ ok: true, status: 'healthy' });
 });
-
-adminRouter.get('/fraud-flags', (_req: Request, res: Response) => {
-  res.status(200).json({ flags: [] });
-});
-

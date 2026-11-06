@@ -16,6 +16,7 @@ import { WatchlistService } from './modules/watchlist/watchlist.service.js';
 import { sendEmail } from './config/mailer.js';
 import { renderEmailTemplate } from './queues/email.templates.js';
 import type { NotificationType } from './modules/notifications/notification.model.js';
+import { FraudService, type EvaluateBidParams } from './modules/fraud/fraud.service.js';
 import { emitAuctionEnding } from './realtime/events.js';
 
 let isShuttingDown = false;
@@ -190,7 +191,31 @@ async function startWorker(): Promise<void> {
       },
     );
 
-    activeWorkers.push(auctionWorker, maintenanceWorker, paymentsWorker, notificationsWorker);
+    // 7. Fraud Worker: processes async fraud rule evaluations
+    const fraudWorker = new Worker(
+      'fraud',
+      async (job: Job) => {
+        logger.debug({ jobId: job.id, name: job.name }, 'Processing fraud job');
+        if (job.name === 'evaluate-bid') {
+          const res = await FraudService.evaluateBid(job.data as EvaluateBidParams);
+          return { status: 'evaluated', result: res };
+        }
+        return { status: 'ignored' };
+      },
+      {
+        connection: redis,
+        prefix: QUEUE_PREFIX,
+        concurrency: 5,
+      },
+    );
+
+    activeWorkers.push(
+      auctionWorker,
+      maintenanceWorker,
+      paymentsWorker,
+      notificationsWorker,
+      fraudWorker,
+    );
 
     for (const worker of activeWorkers) {
       worker.on('failed', (job, err) => {

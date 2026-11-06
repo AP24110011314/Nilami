@@ -3,6 +3,8 @@ import { Bid, type BidDocument } from './bid.model.js';
 import { Auction, type AuctionDocument } from '../auctions/auction.model.js';
 import { User } from '../users/user.model.js';
 import { Notification } from '../notifications/notification.model.js';
+import { FraudService } from '../fraud/fraud.service.js';
+import { fraudQueue } from '../../queues/queues.js';
 import { sanitizeAuction, type SanitizedAuction } from '../auctions/auction.service.js';
 import {
   NotFoundError,
@@ -49,6 +51,12 @@ export class BidService {
   public static async placeBid(p: PlaceBidParams): Promise<PlaceBidResult> {
     if (!Number.isSafeInteger(p.amount) || p.amount <= 0) {
       throw new ConflictError('Bid amount must be a positive safe integer', 'INVALID_AMOUNT');
+    }
+
+    // Check if user is temporarily blocked pending fraud review
+    const isBlocked = await FraudService.isUserBlocked(p.bidderId);
+    if (isBlocked) {
+      throw new ForbiddenError('Bidding is temporarily blocked on your account pending security review', 'FRAUD_BID_BLOCK');
     }
 
     const auctionObjectId = new mongoose.Types.ObjectId(p.auctionId);
@@ -291,6 +299,20 @@ export class BidService {
         }
       } catch (emitErr) {
         logger.error({ emitErr, auctionId: p.auctionId }, 'Failed to emit realtime events for bid');
+      }
+
+      // Enqueue async fraud detection check
+      try {
+        await fraudQueue.add('evaluate-bid', {
+          auctionId: p.auctionId,
+          bidderId: p.bidderId,
+          bidId: resBid._id.toString(),
+          amount: p.amount,
+          ip: p.ip,
+          userAgentHash: p.userAgentHash,
+        });
+      } catch (queueErr) {
+        logger.warn({ queueErr, auctionId: p.auctionId }, 'Failed to enqueue fraud evaluation job');
       }
 
       logger.info(
