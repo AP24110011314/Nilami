@@ -1,0 +1,72 @@
+# Nilami — Real-Time Bidding / Auction Platform
+
+An eBay-style live auction marketplace built to demonstrate real-time systems engineering: safe concurrent bidding, server-authoritative countdowns, crash-proof auction closure, and webhook-verified payments.
+
+**Stack:** React 19 + Vite + TypeScript + Tailwind CSS · Node.js + Express 5 + TypeScript · MongoDB (replica set) + Mongoose · Socket.IO · Redis + BullMQ · Stripe · Mailpit (dev email)
+
+**Scope: Complete** — every feature below is in scope and has a phase in `docs/ROADMAP.md`.
+
+## Feature list
+
+| Area | Features |
+|---|---|
+| Accounts | Register/login, JWT access + rotating refresh cookie, email verification, password reset, buyer/seller/admin roles |
+| Auctions | Create/edit/cancel, up to 6 images, scheduled start, reserve price, categories, search + filters |
+| Bidding | Atomic conditional bidding, min increment, idempotent retries, seller self-bid block, bid history |
+| Real time | Socket.IO rooms, live price, live countdown, outbid alerts, viewer count, reconnect resync |
+| Automation | BullMQ delayed close jobs, idempotent closing, reconciliation worker, outbox dispatcher |
+| Payments | Stripe Checkout, webhook-verified status, optional automatic off-session charge with checkout fallback |
+| Notifications | Persistent in-app + Socket.IO + email (outbid, won, payment, reminders) |
+| Advanced | Anti-sniping, analytics dashboards, watchlist + reminders, rule-based fraud detection, seller ratings |
+
+## Hard constraints (read these first)
+
+1. **No Docker.** Everything runs natively on macOS via Homebrew (`mongod`, `redis-server`, `mailpit`, `stripe` CLI).
+2. **Never use port 5000** (or 7000). macOS Control Center's AirPlay Receiver listens there. The server refuses to boot if `PORT=5000`.
+3. **Money is stored as integer paise** (₹80,000 = `8000000`). No floats anywhere.
+
+## Ports
+
+| Service | Port |
+|---|---|
+| API + Socket.IO | **4000** |
+| React (Vite) | **5173** |
+| MongoDB (replica set `rs0`) | **27018** |
+| Redis | **6380** |
+| Mailpit SMTP / UI | **1025 / 8025** |
+
+## Quick start
+
+```bash
+brew install mongodb-community mongosh redis mailpit stripe/stripe-cli/stripe
+npm install
+cp server/.env.example server/.env   # fill Stripe keys
+npm run infra:up                     # mongod + redis + mailpit, no Docker
+npm run dev                          # api + worker + client
+```
+
+Details: `docs/LOCAL_SETUP.md`.
+
+## Documentation map
+
+| File | Purpose |
+|---|---|
+| `AGENTS.md` / `CLAUDE.md` | Rules for OpenCode / Claude Code — read first |
+| `docs/RESEARCH.md` | Research findings and what changed vs the original brief |
+| `docs/PRD.md` | Product requirements, rules, user stories |
+| `docs/ARCHITECTURE.md` | Processes, flows, failure modes, decisions |
+| `docs/DATABASE.md` | Collections, fields, indexes, invariants |
+| `docs/BIDDING_ENGINE.md` | Atomic bid algorithm, anti-sniping, errors |
+| `docs/BACKGROUND_JOBS.md` | BullMQ queues, closing, reconciliation, outbox |
+| `docs/REALTIME.md` | Socket.IO design |
+| `docs/PAYMENTS.md` | Stripe Checkout, webhooks, auto-charge, India caveats |
+| `docs/API.md` | REST + socket contract |
+| `docs/ADVANCED_FEATURES.md` | Analytics, watchlist, fraud, ratings |
+| `docs/SECURITY.md` | Threat model and controls |
+| `docs/FRONTEND.md` | Pages, state, countdown, UX |
+| `docs/LOCAL_SETUP.md` | No-Docker macOS setup, scripts, env |
+| `docs/TESTING.md` | Test plan, concurrency tests, demo script |
+| `docs/ROADMAP.md` | Phase-by-phase tasks with acceptance criteria |
+| `docs/AGENT_PROMPTS.md` | Copy-paste prompts per phase |
+| `docs/DEPLOYMENT.md` | Vercel / Render / Atlas / Redis Cloud |
+| `docs/INTERVIEW_GUIDE.md` | How to explain the project to recruiters |

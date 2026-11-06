@@ -1,0 +1,25 @@
+# System
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env*.local
+!.env.example
+
+# Runtime & database data
+.data/
+uploads/
+
+# Logs & PIDs
+*.log
+*.pid
