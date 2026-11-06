@@ -56,3 +56,4 @@ export const AuthToken: Model<IAuthToken> = mongoose.model<IAuthToken>(
   'AuthToken',
   authTokenSchema,
 );
+

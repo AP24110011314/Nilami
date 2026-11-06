@@ -215,3 +215,4 @@ export const EditAuctionPage: React.FC = () => {
     </div>
   );
 };
+

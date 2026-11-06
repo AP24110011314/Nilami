@@ -84,3 +84,4 @@ export const VerifyEmailPage: React.FC = () => {
     </div>
   );
 };
+

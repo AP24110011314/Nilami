@@ -52,3 +52,4 @@ export class CloudinaryStorageProvider implements StorageProvider {
     logger.info({ publicId }, 'File deleted from Cloudinary');
   }
 }
+

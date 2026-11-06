@@ -7,3 +7,4 @@ export interface StorageProvider {
   upload(fileBuffer: Buffer, filename: string, mimetype: string): Promise<StorageResult>;
   delete(publicId: string): Promise<void>;
 }
+

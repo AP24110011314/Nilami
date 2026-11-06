@@ -22,7 +22,7 @@ describe('Phase 2 — Auction Management Integration Suite', () => {
     // Setup dedicated test seller and buyer
     sellerUser = (await User.create({
       name: 'Auction Test Seller',
-      email: 'auctionseller@test.nilami.local',
+      email: 'auctionseller@auction.test.nilami.local',
       passwordHash: 'dummy',
       roles: ['seller', 'buyer'],
       status: 'active',
@@ -31,7 +31,7 @@ describe('Phase 2 — Auction Management Integration Suite', () => {
 
     buyerUser = (await User.create({
       name: 'Auction Test Buyer',
-      email: 'auctionbuyer@test.nilami.local',
+      email: 'auctionbuyer@auction.test.nilami.local',
       passwordHash: 'dummy',
       roles: ['buyer'],
       status: 'active',
@@ -43,7 +43,7 @@ describe('Phase 2 — Auction Management Integration Suite', () => {
   });
 
   afterAll(async () => {
-    await User.deleteMany({ email: /@test\.nilami\.local$/ });
+    await User.deleteMany({ email: /@auction\.test\.nilami\.local$/ });
     await Auction.deleteMany({ title: /^Test Auction/ });
     await disconnectRedis();
     await disconnectDB();

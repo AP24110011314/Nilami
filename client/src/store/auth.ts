@@ -38,3 +38,4 @@ export const useAuthStore = create<AuthState>((set) => ({
   clearAuth: () => set({ user: null, accessToken: null, isInitialized: true }),
   setInitialized: (isInitialized) => set({ isInitialized }),
 }));
+

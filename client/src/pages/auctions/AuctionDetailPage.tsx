@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router';
 import { apiClient, type AuctionItem, ApiError } from '../../api/client.js';
 import { formatINR } from '../../lib/money.js';
 import { useAuthStore } from '../../store/auth.js';
+import { BidForm } from '../../components/bids/BidForm.js';
+import { BidHistory } from '../../components/bids/BidHistory.js';
 import {
   Gavel,
   ShieldCheck,
@@ -25,30 +27,27 @@ export const AuctionDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchAuction = async () => {
     if (!id) return;
-
-    const fetchAuction = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await apiClient.getAuction(id);
-        setAuction(res.auction);
-        setServerTime(res.serverTime);
-        if (res.auction.images[0]) {
-          setSelectedImage(res.auction.images[0].url);
-        }
-      } catch (err) {
-        if (err instanceof ApiError) {
-          setError(err.message);
-        } else {
-          setError('Failed to load auction lot');
-        }
-      } finally {
-        setLoading(false);
+    try {
+      const res = await apiClient.getAuction(id);
+      setAuction(res.auction);
+      setServerTime(res.serverTime);
+      if (res.auction.images[0] && !selectedImage) {
+        setSelectedImage(res.auction.images[0].url);
       }
-    };
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else {
+        setError('Failed to load auction lot');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     void fetchAuction();
   }, [id]);
 
@@ -105,32 +104,34 @@ export const AuctionDetailPage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left: Gallery (7 Cols) */}
-        <div className="lg:col-span-7 space-y-4">
-          <div className="aspect-4/3 bg-slate-100 rounded-3xl overflow-hidden border border-slate-200">
-            <img
-              src={selectedImage || auction.images[0]?.url}
-              alt={auction.title}
-              className="w-full h-full object-cover"
-            />
-          </div>
-
-          {/* Thumbnails */}
-          {auction.images.length > 1 && (
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              {auction.images.map((img, i) => (
-                <button
-                  key={i}
-                  onClick={() => setSelectedImage(img.url)}
-                  className={`w-20 h-20 rounded-2xl overflow-hidden border-2 transition flex-shrink-0 cursor-pointer ${
-                    selectedImage === img.url ? 'border-indigo-600 shadow-md' : 'border-slate-200 opacity-70 hover:opacity-100'
-                  }`}
-                >
-                  <img src={img.url} alt="" className="w-full h-full object-cover" />
-                </button>
-              ))}
+        {/* Left: Gallery & Specs (7 Cols) */}
+        <div className="lg:col-span-7 space-y-6">
+          <div className="space-y-4">
+            <div className="aspect-4/3 bg-slate-100 rounded-3xl overflow-hidden border border-slate-200">
+              <img
+                src={selectedImage || auction.images[0]?.url}
+                alt={auction.title}
+                className="w-full h-full object-cover"
+              />
             </div>
-          )}
+
+            {/* Thumbnails */}
+            {auction.images.length > 1 && (
+              <div className="flex gap-3 overflow-x-auto pb-2">
+                {auction.images.map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedImage(img.url)}
+                    className={`w-20 h-20 rounded-2xl overflow-hidden border-2 transition flex-shrink-0 cursor-pointer ${
+                      selectedImage === img.url ? 'border-indigo-600 shadow-md' : 'border-slate-200 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    <img src={img.url} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Description Section */}
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 space-y-4">
@@ -156,9 +157,12 @@ export const AuctionDetailPage: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Bid History Component */}
+          <BidHistory auctionId={auction.id} onNewBidCount={(c) => setAuction((prev) => prev ? { ...prev, bidCount: c } : null)} />
         </div>
 
-        {/* Right: Bidding Panel & Seller (5 Cols) */}
+        {/* Right: Bidding Form & Seller Card (5 Cols) */}
         <div className="lg:col-span-5 space-y-6">
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-md space-y-6">
             {/* Status & Title */}
@@ -216,26 +220,25 @@ export const AuctionDetailPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Bid Action */}
-            <div className="space-y-3">
-              {user ? (
-                <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-100 text-center space-y-2">
-                  <p className="text-xs font-semibold text-indigo-900">
-                    Live Real-Time Bidding opens in Phase 3
-                  </p>
-                  <p className="text-[11px] text-indigo-700">
-                    Atomic MongoDB pipeline updates with anti-sniping extensions and instant socket push.
-                  </p>
-                </div>
-              ) : (
+            {/* Active Bidding Form */}
+            {user ? (
+              <BidForm auction={auction} onBidSuccess={(updated) => setAuction(updated)} />
+            ) : (
+              <div className="space-y-3">
                 <Link
                   to="/login"
-                  className="block w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm text-center shadow-md transition"
+                  className="block w-full py-3.5 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm text-center shadow-md transition"
                 >
                   Sign In to Place a Bid
                 </Link>
-              )}
-            </div>
+                <p className="text-center text-xs text-slate-400">
+                  New to Nilami?{' '}
+                  <Link to="/register" className="text-indigo-600 font-semibold">
+                    Create free account
+                  </Link>
+                </p>
+              </div>
+            )}
 
             {serverTime && (
               <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pt-2 border-t border-slate-100">

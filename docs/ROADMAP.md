@@ -26,10 +26,10 @@ Estimated total: **6–7 weeks** part-time (about 4–5 full-time). Each phase i
 - **Gate:** seller creates an auction with images; buyers browse and filter; reserve price never leaks.
 
 ## Phase 3 — Bidding engine (FR-C1–C5, FR-G1 backend) (5–6 days)
-- [ ] Bid model + unique indexes, `placeBid` per `BIDDING_ENGINE.md`, rejection diagnosis
-- [ ] Idempotency, rate limit, anti-sniping inside the pipeline update
-- [ ] Bid history endpoint (masked), my-bids, my-wins
-- [ ] Bid form + history UI (polling refresh for now)
+- [x] Bid model + unique indexes, `placeBid` per `BIDDING_ENGINE.md`, rejection diagnosis
+- [x] Idempotency, rate limit, anti-sniping inside the pipeline update
+- [x] Bid history endpoint (masked), my-bids, my-wins
+- [x] Bid form + history UI (polling refresh for now)
 - **Gate:** T1–T10 pass; concurrency suite stable across 20 runs.
 
 ## Phase 4 — Real time (FR-D1–D7) (3–4 days)

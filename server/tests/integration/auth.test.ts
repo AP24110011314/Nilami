@@ -14,13 +14,13 @@ describe('Phase 1 — Auth and Users Integration Suite', () => {
     await connectDB();
     getRedisClient();
     // Clean up test data
-    await User.deleteMany({ email: /@test\.nilami\.local$/ });
+    await User.deleteMany({ email: /@auth\.test\.nilami\.local$/ });
     await RefreshToken.deleteMany({});
     await AuthToken.deleteMany({});
   });
 
   afterAll(async () => {
-    await User.deleteMany({ email: /@test\.nilami\.local$/ });
+    await User.deleteMany({ email: /@auth\.test\.nilami\.local$/ });
     await RefreshToken.deleteMany({});
     await AuthToken.deleteMany({});
     await disconnectRedis();
@@ -29,13 +29,13 @@ describe('Phase 1 — Auth and Users Integration Suite', () => {
 
   const testBuyer = {
     name: 'Aarav Sharma',
-    email: 'aarav@test.nilami.local',
+    email: 'aarav@auth.test.nilami.local',
     password: 'Password123!',
   };
 
   const testSeller = {
     name: 'Priya Patel',
-    email: 'priya@test.nilami.local',
+    email: 'priya@auth.test.nilami.local',
     password: 'Password123!',
     role: 'seller' as const,
   };
@@ -243,7 +243,7 @@ describe('Phase 1 — Auth and Users Integration Suite', () => {
     // Create an admin user to verify valid admin access
     const adminUser = await User.create({
       name: 'System Admin',
-      email: 'admin@test.nilami.local',
+      email: 'admin@auth.test.nilami.local',
       passwordHash: 'dummy',
       roles: ['admin', 'buyer'],
       status: 'active',

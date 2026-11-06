@@ -97,3 +97,4 @@ export async function resetPassword(req: Request, res: Response): Promise<void> 
   clearRefreshCookie(res);
   res.status(200).json({ message: 'Password reset successfully' });
 }
+

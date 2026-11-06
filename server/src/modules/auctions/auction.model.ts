@@ -241,3 +241,4 @@ auctionSchema.index({ highestBidderId: 1, status: 1 });
 auctionSchema.index({ winnerId: 1 });
 
 export const Auction: Model<IAuction> = mongoose.model<IAuction>('Auction', auctionSchema);
+

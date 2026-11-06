@@ -23,3 +23,42 @@ export const authRateLimiter = rateLimit({
           prefix: 'rl:auth:',
         }),
 });
+
+export async function bidRateLimiter(req: import('express').Request, res: import('express').Response, next: import('express').NextFunction): Promise<void> {
+  if (env.NODE_ENV === 'test') {
+    return next();
+  }
+
+  const userId = req.user?.id;
+  const rawAuctionId = req.params.id;
+  const auctionId = Array.isArray(rawAuctionId) ? rawAuctionId[0] : rawAuctionId;
+
+  if (!userId || !auctionId) {
+    return next();
+  }
+
+  const redis = getRedisClient();
+  const key = `rl:bid:${userId}:${auctionId}`;
+
+  try {
+    const count = await redis.incr(key);
+    if (count === 1) {
+      await redis.expire(key, 10); // 10-second window
+    }
+
+    if (count > 5) {
+      res.status(429).json({
+        error: {
+          code: 'RATE_LIMITED',
+          message: 'Bid rate limit exceeded (maximum 5 bids per 10 seconds)',
+        },
+      });
+      return;
+    }
+
+    next();
+  } catch {
+    // If Redis encounters issues, allow bid through
+    next();
+  }
+}

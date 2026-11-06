@@ -214,6 +214,50 @@ class ApiClient {
     return this.post<{ auction: AuctionItem }>(`/auctions/${id}/cancel`);
   }
 
+  // Bidding Endpoints (Phase 3)
+  public async placeBid(auctionId: string, amount: number, idempotencyKey: string) {
+    return this.post<{
+      replayed: boolean;
+      bid: { id: string; amount: number; at: string };
+      auction: AuctionItem;
+      serverTime: string;
+    }>(`/auctions/${auctionId}/bid`, { amount, idempotencyKey });
+  }
+
+  public async getAuctionBids(auctionId: string, page = 1, limit = 20) {
+    return this.get<{
+      items: Array<{
+        id: string;
+        amount: number;
+        bidderMasked: string;
+        createdAt: string;
+        extended: boolean;
+      }>;
+      total: number;
+      page: number;
+      limit: number;
+    }>(`/auctions/${auctionId}/bids?page=${page}&limit=${limit}`);
+  }
+
+  public async getMyBids() {
+    return this.get<{
+      bids: Array<{
+        auction: AuctionItem;
+        myHighestBid: number;
+        leading: boolean;
+      }>;
+    }>('/users/my-bids');
+  }
+
+  public async getMyWins() {
+    return this.get<{
+      wins: Array<{
+        auction: AuctionItem;
+        finalPrice: number;
+      }>;
+    }>('/users/my-wins');
+  }
+
   public async uploadImages(files: File[]) {
     const formData = new FormData();
     files.forEach((file) => formData.append('images', file));

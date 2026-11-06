@@ -308,3 +308,4 @@ export const CreateAuctionPage: React.FC = () => {
     </div>
   );
 };
+

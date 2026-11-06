@@ -102,3 +102,4 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ auction }) => {
     </Link>
   );
 };
+

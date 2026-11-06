@@ -68,3 +68,4 @@ export async function listAuctions(req: Request, res: Response): Promise<void> {
   const result = await AuctionService.list(validated);
   res.status(200).json(result);
 }
+
