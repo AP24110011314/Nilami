@@ -5,3 +5,4 @@ export const logger = pino({
   level: env.NODE_ENV === 'test' ? 'silent' : env.LOG_LEVEL || 'info',
   timestamp: pino.stdTimeFunctions.isoTime,
 });
+

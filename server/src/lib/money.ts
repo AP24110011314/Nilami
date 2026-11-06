@@ -42,3 +42,4 @@ export function rupeesToPaise(rupeeString: string | number): number {
   const fracInt = parseInt(frac.padEnd(2, '0').slice(0, 2), 10);
   return whole.startsWith('-') ? wholeInt * 100 - fracInt : wholeInt * 100 + fracInt;
 }
+

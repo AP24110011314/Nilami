@@ -36,3 +36,4 @@ export async function getHealth(_req: Request, res: Response): Promise<void> {
     serverTime: new Date().toISOString(),
   });
 }
+

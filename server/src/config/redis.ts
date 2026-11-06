@@ -30,3 +30,4 @@ export async function disconnectRedis(): Promise<void> {
     logger.info('Redis disconnected');
   }
 }
+

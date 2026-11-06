@@ -20,3 +20,4 @@ export async function disconnectDB(): Promise<void> {
     logger.info('MongoDB disconnected');
   }
 }
+

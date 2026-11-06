@@ -11,10 +11,10 @@ Estimated total: **6–7 weeks** part-time (about 4–5 full-time). Each phase i
 - **Gate:** `npm run infra:up && npm run dev` boots api/worker/web; `/api/health` shows mongo+redis ok; nothing listens on 5000.
 
 ## Phase 1 — Auth and users (FR-A1–A5) (3–4 days)
-- [ ] User model, register/login, bcrypt, JWT access + rotating refresh cookie, reuse detection
-- [ ] Email verification + password reset via Mailpit
-- [ ] Roles, `requireAuth`/`requireRole`/`requireVerified`, become-seller
-- [ ] Auth pages, protected routes, token refresh interceptor
+- [x] User model, register/login, bcrypt, JWT access + rotating refresh cookie, reuse detection
+- [x] Email verification + password reset via Mailpit
+- [x] Roles, `requireAuth`/`requireRole`/`requireVerified`, become-seller
+- [x] Auth pages, protected routes, token refresh interceptor
 - **Gate:** tests T26, T27, T30 pass; verification email visible in Mailpit.
 
 ## Phase 2 — Auction management (FR-B1–B4) (4–5 days)

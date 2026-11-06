@@ -1,11 +1,15 @@
 import express, { type Express } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import { pinoHttp } from 'pino-http';
 import { env } from './config/env.js';
 import { logger } from './config/logger.js';
 import { errorHandler } from './middleware/error.js';
 import { healthRouter } from './modules/health/health.routes.js';
+import { authRouter } from './modules/auth/auth.routes.js';
+import { userRouter } from './modules/users/user.routes.js';
+import { adminRouter } from './modules/admin/admin.routes.js';
 import { NotFoundError } from './lib/errors.js';
 
 export function createApp(): Express {
@@ -32,12 +36,18 @@ export function createApp(): Express {
     }),
   );
 
+  // Cookie parser
+  app.use(cookieParser());
+
   // Body parsers
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
   // Routes
   app.use('/api', healthRouter);
+  app.use('/api/auth', authRouter);
+  app.use('/api/users', userRouter);
+  app.use('/api/admin', adminRouter);
   app.use('/', healthRouter);
 
   // Catch-all for undefined routes

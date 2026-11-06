@@ -34,3 +34,4 @@ describe('Money Utilities (Integer Paise)', () => {
     expect(() => paiseToRupees(100.5)).toThrow(TypeError);
   });
 });
+

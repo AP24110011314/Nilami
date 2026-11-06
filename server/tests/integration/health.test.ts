@@ -36,3 +36,4 @@ describe('Health Check API', () => {
     expect(res.body.ok).toBe(true);
   });
 });
+

@@ -31,3 +31,4 @@ describe('Environment Configuration', () => {
     }).toThrow(/PORT cannot be 5000 or 7000/);
   });
 });
+
