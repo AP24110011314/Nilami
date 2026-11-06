@@ -2,6 +2,7 @@ import mongoose, { type FilterQuery } from 'mongoose';
 import { Auction, type IAuction, type AuctionDocument } from './auction.model.js';
 import { NotFoundError, ForbiddenError, ConflictError } from '../../lib/errors.js';
 import type { CreateAuctionInput, UpdateAuctionInput, AuctionListQuery } from './auction.schema.js';
+import { scheduleAuctionJobs } from '../../queues/queues.js';
 
 export interface SanitizedAuction extends Omit<IAuction, 'reservePrice'> {
   id: string;
@@ -62,6 +63,9 @@ export class AuctionService {
         maxExtensions: 20,
       },
     });
+
+    // Schedule BullMQ lifecycle jobs (activate, ending-soon, close)
+    void scheduleAuctionJobs(auction._id.toString(), startsAt, endsAt);
 
     return sanitizeAuction(auction);
   }

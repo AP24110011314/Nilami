@@ -287,6 +287,8 @@ export interface AuctionItem {
   minNextBid: number;
   highestBidderId?: string | null;
   highestBidderMasked?: string;
+  winnerId?: string | null;
+  finalPrice?: number | null;
   bidCount: number;
   startsAt: string;
   endsAt: string;

@@ -23,6 +23,8 @@ import {
   Radio,
   Wifi,
   WifiOff,
+  Trophy,
+  AlertCircle,
 } from 'lucide-react';
 
 export const AuctionDetailPage: React.FC = () => {
@@ -299,8 +301,44 @@ export const AuctionDetailPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Active Bidding Form */}
-            {user ? (
+            {/* Ended / Winner / Unsold / Bidding State */}
+            {user && (auction.status === 'payment_pending' || auction.status === 'completed') && auction.winnerId === user.id ? (
+              <div className="p-6 rounded-2xl bg-emerald-500/10 border-2 border-emerald-500/30 text-emerald-950 space-y-3">
+                <div className="flex items-center gap-2 text-emerald-700 font-extrabold text-base">
+                  <Trophy className="w-5 h-5 text-emerald-600" />
+                  <span>You Won This Auction!</span>
+                </div>
+                <p className="text-xs text-emerald-800 leading-relaxed">
+                  Congratulations! Your winning bid was{' '}
+                  <strong className="font-bold">{formatINR(auction.finalPrice || auction.currentPrice)}</strong>. Complete
+                  payment to initiate shipping and claim your item.
+                </p>
+                <Link
+                  to="/dashboard"
+                  className="block w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs text-center shadow transition"
+                >
+                  Proceed to Pay Now
+                </Link>
+              </div>
+            ) : auction.status === 'unsold' ? (
+              <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-2">
+                <AlertCircle className="w-6 h-6 text-slate-400 mx-auto" />
+                <h3 className="font-bold text-sm text-slate-800">Auction Ended Unsold</h3>
+                <p className="text-xs text-slate-500">
+                  This lot ended without meeting the reserve price or receiving qualifying bids.
+                </p>
+              </div>
+            ) : auction.status === 'payment_pending' || auction.status === 'completed' || auction.status === 'payment_failed' ? (
+              <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-2">
+                <h3 className="font-bold text-sm text-slate-800">Auction Closed</h3>
+                <p className="text-xs text-slate-500">
+                  Winning Bid:{' '}
+                  <strong className="font-bold text-slate-900">
+                    {formatINR(auction.finalPrice || auction.currentPrice)}
+                  </strong>
+                </p>
+              </div>
+            ) : user ? (
               <BidForm auction={auction} />
             ) : (
               <div className="space-y-3">

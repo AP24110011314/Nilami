@@ -2,6 +2,17 @@ import { Worker, type Job } from 'bullmq';
 import { logger } from './config/logger.js';
 import { connectDB, disconnectDB } from './config/db.js';
 import { getRedisClient, disconnectRedis } from './config/redis.js';
+import {
+  QUEUE_PREFIX,
+  maintenanceQueue,
+  closeAuction,
+  closeAllQueues,
+} from './queues/queues.js';
+import { runReconciliation } from './queues/reconciliation.service.js';
+import { processOutboxBatch } from './queues/outbox.dispatcher.js';
+import { Auction } from './modules/auctions/auction.model.js';
+import { Payment } from './modules/payments/payment.model.js';
+import { emitAuctionEnding } from './realtime/events.js';
 
 let isShuttingDown = false;
 const activeWorkers: Worker[] = [];
@@ -11,37 +22,142 @@ async function startWorker(): Promise<void> {
     await connectDB();
     const redis = getRedisClient();
 
-    logger.info('Initializing BullMQ workers...');
+    logger.info('Initializing Nilami BullMQ background workers...');
 
-    // Phase 0 Worker skeleton (queues will be expanded in Phase 5)
-    // BullMQ requires maxRetriesPerRequest: null, which is configured in redis.ts
-    const maintenanceWorker = new Worker(
-      'nilami-maintenance',
+    // 1. Run recovery reconciliation once immediately on boot
+    logger.info('Running boot-time recovery reconciliation...');
+    const bootStats = await runReconciliation();
+    logger.info({ bootStats }, 'Boot-time recovery reconciliation complete');
+
+    // 2. Setup periodic schedulers
+    await maintenanceQueue.upsertJobScheduler(
+      'reconcile-scheduler',
+      { every: 30000 },
+      { name: 'reconcile', data: {} },
+    );
+
+    await maintenanceQueue.upsertJobScheduler(
+      'outbox-scheduler',
+      { every: 5000 },
+      { name: 'outbox-dispatch', data: {} },
+    );
+
+    // 3. Auction Worker: processes activate, ending-soon, close
+    const auctionWorker = new Worker(
+      'auction',
       async (job: Job) => {
-        logger.info({ jobId: job.id, name: job.name }, 'Processing maintenance job');
-        return { status: 'completed' };
+        const { auctionId } = job.data as { auctionId: string };
+        logger.debug({ jobId: job.id, name: job.name, auctionId }, 'Processing auction job');
+
+        switch (job.name) {
+          case 'activate': {
+            await Auction.updateOne(
+              { _id: auctionId, status: 'scheduled' },
+              { $set: { status: 'active' }, $inc: { version: 1 } },
+            );
+            return { status: 'activated' };
+          }
+
+          case 'ending-soon': {
+            const auction = await Auction.findById(auctionId);
+            if (!auction || auction.status !== 'active') return { status: 'noop' };
+
+            const now = Date.now();
+            const endsAtMs = auction.endsAt.getTime();
+            const secondsLeft = Math.round((endsAtMs - now) / 1000);
+
+            if (secondsLeft <= 65 && secondsLeft > 0) {
+              emitAuctionEnding({
+                auctionId,
+                endsAt: auction.endsAt.toISOString(),
+                secondsLeft,
+                serverTime: new Date().toISOString(),
+              });
+            }
+            return { status: 'broadcasted', secondsLeft };
+          }
+
+          case 'close': {
+            const res = await closeAuction(auctionId);
+            return { status: 'closed', result: res };
+          }
+
+          default:
+            logger.warn({ jobName: job.name }, 'Unknown auction job name');
+            return { status: 'ignored' };
+        }
       },
       {
         connection: redis,
+        prefix: QUEUE_PREFIX,
+        concurrency: 10,
+      },
+    );
+
+    // 4. Maintenance Worker: processes reconcile & outbox dispatch
+    const maintenanceWorker = new Worker(
+      'maintenance',
+      async (job: Job) => {
+        logger.debug({ jobId: job.id, name: job.name }, 'Processing maintenance job');
+        if (job.name === 'reconcile') {
+          const stats = await runReconciliation();
+          return { status: 'reconciled', stats };
+        }
+        if (job.name === 'outbox-dispatch') {
+          const count = await processOutboxBatch(20);
+          return { status: 'outbox_dispatched', count };
+        }
+        return { status: 'noop' };
+      },
+      {
+        connection: redis,
+        prefix: QUEUE_PREFIX,
         concurrency: 1,
       },
     );
 
-    maintenanceWorker.on('completed', (job) => {
-      logger.debug({ jobId: job.id }, 'Job completed');
-    });
+    // 5. Payments Worker: processes payment-expiry
+    const paymentsWorker = new Worker(
+      'payments',
+      async (job: Job) => {
+        const { auctionId } = job.data as { auctionId: string };
+        logger.debug({ jobId: job.id, name: job.name, auctionId }, 'Processing payments job');
 
-    maintenanceWorker.on('failed', (job, err) => {
-      logger.error({ jobId: job?.id, err }, 'Job failed');
-    });
+        if (job.name === 'payment-expiry') {
+          const payment = await Payment.findOne({ auctionId });
+          if (payment && !['succeeded', 'processing'].includes(payment.status)) {
+            await Payment.updateOne(
+              { _id: payment._id },
+              { $set: { status: 'expired' } },
+            );
+            await Auction.updateOne(
+              { _id: auctionId, status: 'payment_pending' },
+              { $set: { status: 'payment_failed' }, $inc: { version: 1 } },
+            );
+            return { status: 'expired' };
+          }
+        }
+        return { status: 'noop' };
+      },
+      {
+        connection: redis,
+        prefix: QUEUE_PREFIX,
+        concurrency: 5,
+      },
+    );
 
-    maintenanceWorker.on('error', (err) => {
-      logger.error({ err }, 'Worker error occurred');
-    });
+    activeWorkers.push(auctionWorker, maintenanceWorker, paymentsWorker);
 
-    activeWorkers.push(maintenanceWorker);
+    for (const worker of activeWorkers) {
+      worker.on('failed', (job, err) => {
+        logger.error({ jobId: job?.id, name: job?.name, err }, 'Worker job failed');
+      });
+      worker.on('error', (err) => {
+        logger.error({ err }, 'Worker system error');
+      });
+    }
 
-    logger.info('BullMQ worker process started and waiting for jobs');
+    logger.info('Nilami BullMQ workers started and actively processing queues');
   } catch (error) {
     logger.fatal({ error }, 'Failed to start BullMQ worker process');
     process.exit(1);
@@ -57,14 +173,14 @@ async function shutdown(signal: string): Promise<void> {
     for (const worker of activeWorkers) {
       await worker.close();
     }
-    logger.info('All BullMQ workers stopped');
-
+    await closeAllQueues();
+    logger.info('All BullMQ workers and queues stopped');
     await disconnectRedis();
     await disconnectDB();
-    logger.info('Worker process exited cleanly');
+    logger.info('Worker connections closed cleanly. Exiting.');
     process.exit(0);
   } catch (error) {
-    logger.error({ error }, 'Error during worker shutdown');
+    logger.error({ error }, 'Error during graceful shutdown');
     process.exit(1);
   }
 }
@@ -73,12 +189,12 @@ process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
 
 process.on('unhandledRejection', (reason) => {
-  logger.fatal({ reason }, 'Worker unhandled rejection');
+  logger.fatal({ reason }, 'Worker Unhandled Promise Rejection');
   process.exit(1);
 });
 
 process.on('uncaughtException', (error) => {
-  logger.fatal({ error }, 'Worker uncaught exception');
+  logger.fatal({ error }, 'Worker Uncaught Exception');
   process.exit(1);
 });
 

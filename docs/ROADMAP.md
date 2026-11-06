@@ -39,10 +39,10 @@ Estimated total: **6–7 weeks** part-time (about 4–5 full-time). Each phase i
 - **Gate:** T22–T24 pass; four windows update within ~200 ms; countdown stays accurate with a deliberately wrong system clock.
 
 ## Phase 5 — Background processing (FR-E1, E2, E7) (4–5 days)
-- [ ] BullMQ queues, schedule on create, `activate`/`ending-soon`/`close` jobs
-- [ ] Idempotent `closeAuction`, outbox + dispatcher, redis-emitter in worker
-- [ ] Reconciliation scheduler + boot recovery, payment row creation
-- [ ] Winner/ended UI states, "You won" banner
+- [x] BullMQ queues, schedule on create, `activate`/`ending-soon`/`close` jobs
+- [x] Idempotent `closeAuction`, outbox + dispatcher, redis-emitter in worker
+- [x] Reconciliation scheduler + boot recovery, payment row creation
+- [x] Winner/ended UI states, "You won" banner
 - **Gate:** T11–T15, T25 pass; kill-worker chaos test passes.
 
 ## Phase 6 — Payments (FR-E3–E6) (5–6 days)
