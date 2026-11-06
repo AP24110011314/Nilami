@@ -59,3 +59,4 @@ reviewSchema.index({ auctionId: 1, reviewerId: 1 }, { unique: true });
 reviewSchema.index({ sellerId: 1, createdAt: -1 });
 
 export const Review = mongoose.model<IReview>('Review', reviewSchema);
+

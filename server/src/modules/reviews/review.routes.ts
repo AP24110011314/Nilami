@@ -10,3 +10,4 @@ reviewRouter.post('/auctions/:id/review', requireAuth, requireVerified, ReviewCo
 // Get reviews and reputation for a seller
 reviewRouter.get('/users/:id/reviews', ReviewController.getSellerReviews);
 reviewRouter.get('/users/:id/reputation', ReviewController.getSellerReputation);
+

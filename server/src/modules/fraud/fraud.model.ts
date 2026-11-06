@@ -101,3 +101,4 @@ fraudFlagSchema.index({ subjectUserId: 1, auctionId: 1 });
 fraudFlagSchema.index({ auctionId: 1 });
 
 export const FraudFlag = mongoose.model<IFraudFlag>('FraudFlag', fraudFlagSchema);
+

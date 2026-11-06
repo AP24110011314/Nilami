@@ -25,3 +25,4 @@ analyticsRouter.get(
   requireRole('admin'),
   AnalyticsController.getAdminOverview,
 );
+
