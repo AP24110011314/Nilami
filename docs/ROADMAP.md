@@ -26,31 +26,31 @@ Estimated total: **6–7 weeks** part-time (about 4–5 full-time). Each phase i
 - **Gate:** seller creates an auction with images; buyers browse and filter; reserve price never leaks.
 
 ## Phase 3 — Bidding engine (FR-C1–C5, FR-G1 backend) (5–6 days)
-- [x] Bid model + unique indexes, `placeBid` per `BIDDING_ENGINE.md`, rejection diagnosis
-- [x] Idempotency, rate limit, anti-sniping inside the pipeline update
-- [x] Bid history endpoint (masked), my-bids, my-wins
-- [x] Bid form + history UI (polling refresh for now)
+- [ ] Bid model + unique indexes, `placeBid` per `BIDDING_ENGINE.md`, rejection diagnosis
+- [ ] Idempotency, rate limit, anti-sniping inside the pipeline update
+- [ ] Bid history endpoint (masked), my-bids, my-wins
+- [ ] Bid form + history UI (polling refresh for now)
 - **Gate:** T1–T10 pass; concurrency suite stable across 20 runs.
 
 ## Phase 4 — Real time (FR-D1–D7) (3–4 days)
-- [x] Socket.IO server, JWT handshake, Redis adapter, rooms, event helpers
-- [x] `useAuctionSocket`, `useServerClock`, `useCountdown`, live price/bid list, viewer count
-- [x] Outbid notification events, extension banner, reconnect resync
+- [ ] Socket.IO server, JWT handshake, Redis adapter, rooms, event helpers
+- [ ] `useAuctionSocket`, `useServerClock`, `useCountdown`, live price/bid list, viewer count
+- [ ] Outbid notification events, extension banner, reconnect resync
 - **Gate:** T22–T24 pass; four windows update within ~200 ms; countdown stays accurate with a deliberately wrong system clock.
 
 ## Phase 5 — Background processing (FR-E1, E2, E7) (4–5 days)
-- [x] BullMQ queues, schedule on create, `activate`/`ending-soon`/`close` jobs
-- [x] Idempotent `closeAuction`, outbox + dispatcher, redis-emitter in worker
-- [x] Reconciliation scheduler + boot recovery, payment row creation
-- [x] Winner/ended UI states, "You won" banner
+- [ ] BullMQ queues, schedule on create, `activate`/`ending-soon`/`close` jobs
+- [ ] Idempotent `closeAuction`, outbox + dispatcher, redis-emitter in worker
+- [ ] Reconciliation scheduler + boot recovery, payment row creation
+- [ ] Winner/ended UI states, "You won" banner
 - **Gate:** T11–T15, T25 pass; kill-worker chaos test passes.
 
 ## Phase 6 — Payments (FR-E3–E6) (5–6 days)
-- [ ] Stripe customer + Checkout Session, mock provider
-- [ ] Webhook with raw body, `stripe_events` idempotency, state machine, amount verification
-- [ ] Payment expiry job, strikes
-- [ ] Save card + consent, `autocharge` job + fallback
-- [ ] Pay Now UI, success polling page, payment settings page
+- [x] Stripe customer + Checkout Session, mock provider
+- [x] Webhook with raw body, `stripe_events` idempotency, state machine, amount verification
+- [x] Payment expiry job, strikes
+- [x] Save card + consent, `autocharge` job + fallback
+- [x] Pay Now UI, success polling page, payment settings page
 - **Gate:** T16–T21 pass with Stripe CLI; auto-charge fallback demonstrated.
 
 ## Phase 7 — Notifications and watchlist (FR-F1–F3, FR-G3) (3–4 days)

@@ -25,3 +25,4 @@ export const useClockStore = create<ClockState>((set, get) => ({
     }
   },
 }));
+

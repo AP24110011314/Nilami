@@ -13,6 +13,7 @@ import { userRouter } from './modules/users/user.routes.js';
 import { auctionRouter } from './modules/auctions/auction.routes.js';
 import { uploadRouter } from './modules/uploads/upload.routes.js';
 import { adminRouter } from './modules/admin/admin.routes.js';
+import { paymentRouter, PaymentController } from './modules/payments/payment.routes.js';
 import { NotFoundError } from './lib/errors.js';
 
 export function createApp(): Express {
@@ -46,6 +47,13 @@ export function createApp(): Express {
   // Cookie parser
   app.use(cookieParser());
 
+  // Stripe webhook with raw body MUST be mounted before express.json()
+  app.post(
+    '/api/payments/webhook',
+    express.raw({ type: 'application/json' }),
+    PaymentController.handleWebhook,
+  );
+
   // Body parsers
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
@@ -59,6 +67,7 @@ export function createApp(): Express {
   app.use('/api/users', userRouter);
   app.use('/api/auctions', auctionRouter);
   app.use('/api/uploads', uploadRouter);
+  app.use('/api/payments', paymentRouter);
   app.use('/api/admin', adminRouter);
   app.use('/', healthRouter);
 

@@ -321,9 +321,27 @@ export const DashboardPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <span className="text-xs font-semibold text-slate-500">
-                    Payment opens in Phase 6 (Stripe Checkout)
-                  </span>
+                  {auction.status === 'completed' ? (
+                    <span className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
+                      Paid ✓
+                    </span>
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        try {
+                          const res = await apiClient.createCheckoutSession(auction.id);
+                          if (res.checkoutUrl) {
+                            window.location.href = res.checkoutUrl;
+                          }
+                        } catch {
+                          alert('Failed to open checkout session. Please try again.');
+                        }
+                      }}
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow transition cursor-pointer"
+                    >
+                      Pay Now ({formatINR(finalPrice)})
+                    </button>
+                  )}
                 </div>
               ))}
             </div>

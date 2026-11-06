@@ -258,6 +258,25 @@ class ApiClient {
     }>('/users/my-wins');
   }
 
+  // Payments Endpoints (Phase 6)
+  public async createCheckoutSession(auctionId: string) {
+    return this.post<{ checkoutUrl: string; sessionId: string }>(`/payments/checkout/${auctionId}`);
+  }
+
+  public async getPaymentStatus(auctionId: string) {
+    return this.get<{
+      status: string;
+      amount: number;
+      paidAt?: string | null;
+      auctionStatus: string;
+      isWinner: boolean;
+    }>(`/payments/status/${auctionId}`);
+  }
+
+  public async mockCompletePayment(auctionId: string) {
+    return this.post<{ ok: boolean; message: string }>(`/payments/mock-complete/${auctionId}`);
+  }
+
   public async uploadImages(files: File[]) {
     const formData = new FormData();
     files.forEach((file) => formData.append('images', file));

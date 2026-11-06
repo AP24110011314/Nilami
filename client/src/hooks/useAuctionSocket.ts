@@ -260,3 +260,4 @@ export function useAuctionSocket(auctionId: string | undefined): UseAuctionSocke
     extensionFlash,
   };
 }
+

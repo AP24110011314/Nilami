@@ -14,3 +14,4 @@ export function getEmitter(): Emitter {
 export function resetEmitter(): void {
   emitter = null;
 }
+

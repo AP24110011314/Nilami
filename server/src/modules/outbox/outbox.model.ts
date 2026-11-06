@@ -65,3 +65,4 @@ OutboxSchema.index({ status: 1, lockedUntil: 1 });
 
 export const Outbox: Model<IOutbox> =
   mongoose.models.Outbox || mongoose.model<IOutbox>('Outbox', OutboxSchema);
+

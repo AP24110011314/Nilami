@@ -70,3 +70,11 @@ Details: `docs/LOCAL_SETUP.md`.
 | `docs/AGENT_PROMPTS.md` | Copy-paste prompts per phase |
 | `docs/DEPLOYMENT.md` | Vercel / Render / Atlas / Redis Cloud |
 | `docs/INTERVIEW_GUIDE.md` | How to explain the project to recruiters |
+
+## Payments & India Off-Session Regulations (RBI)
+
+Nilami supports verified Stripe Checkout and automatic off-session settlement:
+- **Integer Paise Accounting**: All monetary values are integer paise (₹80,000 = `8000000` paise). Floats are strictly prohibited.
+- **Webhook Authority**: Payment success is confirmed only through signed Stripe webhook events (`stripe_events` idempotency table), never client redirect query parameters.
+- **India RBI E-Mandate Limitation**: Under Reserve Bank of India (RBI) e-mandate guidelines, off-session recurring / deferred auto-debit without OTP is restricted for transactions exceeding ₹15,000. In such scenarios or when a bank requires customer interaction (`authentication_required`), Nilami automatically cascades to on-session 3-D Secure Stripe Checkout via immediate fallback notifications (`PAYMENT_DUE` with direct Pay Now links).
+- **Dual Provider Architecture**: `PAYMENT_PROVIDER=stripe|mock` allows full offline test execution and recruiter demos without live network credentials.

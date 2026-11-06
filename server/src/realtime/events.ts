@@ -145,3 +145,4 @@ export function emitPaymentSuccess(userId: string, payload: PaymentSuccessPayloa
 export function emitFraudAlert(payload: FraudAlertPayload): void {
   emitToRoom(ADMIN_ROOM, 'fraud-alert', payload);
 }
+

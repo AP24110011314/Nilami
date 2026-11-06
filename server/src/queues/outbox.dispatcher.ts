@@ -217,3 +217,4 @@ async function handleOutboxEvent(event: OutboxDocument): Promise<void> {
       logger.warn({ type: event.type, outboxId: event._id }, 'Unknown outbox event type');
   }
 }
+

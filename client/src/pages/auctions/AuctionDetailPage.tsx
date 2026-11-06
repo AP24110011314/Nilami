@@ -313,12 +313,21 @@ export const AuctionDetailPage: React.FC = () => {
                   <strong className="font-bold">{formatINR(auction.finalPrice || auction.currentPrice)}</strong>. Complete
                   payment to initiate shipping and claim your item.
                 </p>
-                <Link
-                  to="/dashboard"
-                  className="block w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs text-center shadow transition"
+                <button
+                  onClick={async () => {
+                    try {
+                      const res = await apiClient.createCheckoutSession(auction.id);
+                      if (res.checkoutUrl) {
+                        window.location.href = res.checkoutUrl;
+                      }
+                    } catch {
+                      alert('Failed to initiate checkout session. Please try again.');
+                    }
+                  }}
+                  className="block w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs text-center shadow transition cursor-pointer"
                 >
-                  Proceed to Pay Now
-                </Link>
+                  Proceed to Pay Now ({formatINR(auction.finalPrice || auction.currentPrice)})
+                </button>
               </div>
             ) : auction.status === 'unsold' ? (
               <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-2">

@@ -34,3 +34,4 @@ export function useServerClock() {
 
   return { offset, now, syncWithServer };
 }
+
