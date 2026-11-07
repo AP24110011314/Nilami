@@ -40,25 +40,6 @@ export const ForgotPasswordPage: React.FC = () => {
             If an account exists with <strong className="text-slate-800">{email}</strong>, you will receive a password reset link shortly.
           </p>
         </div>
-        <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-left text-xs text-slate-600 space-y-2">
-          <p className="font-semibold text-slate-800">Where to find your reset link:</p>
-          <ul className="list-disc pl-4 space-y-1 text-[11px]">
-            <li>
-              <strong>Real Gmail:</strong> If Gmail SMTP is configured in <code>server/.env</code>, check your Gmail inbox (and Spam folder).
-            </li>
-            <li>
-              <strong>Local Development:</strong> If using default local dev, check your Mailpit inbox at{' '}
-              <a
-                href="http://localhost:8025"
-                target="_blank"
-                rel="noreferrer"
-                className="underline font-bold text-indigo-600"
-              >
-                http://localhost:8025
-              </a>.
-            </li>
-          </ul>
-        </div>
         <Link
           to="/login"
           className="inline-block w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm transition"

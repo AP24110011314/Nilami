@@ -43,25 +43,6 @@ export const RegisterPage: React.FC = () => {
             We sent an email verification link to <strong className="text-slate-800">{registeredEmail}</strong>.
           </p>
         </div>
-        <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-100 text-left text-xs text-indigo-900 space-y-2">
-          <p className="font-semibold">Where to find your verification email:</p>
-          <ul className="list-disc pl-4 space-y-1 text-[11px] text-indigo-800">
-            <li>
-              <strong>Real Gmail:</strong> If Gmail SMTP is configured in <code>server/.env</code>, check your Gmail inbox (and Spam folder).
-            </li>
-            <li>
-              <strong>Local Development:</strong> If using default local dev, all emails are captured in Mailpit at{' '}
-              <a
-                href="http://localhost:8025"
-                target="_blank"
-                rel="noreferrer"
-                className="underline font-bold text-indigo-600"
-              >
-                http://localhost:8025
-              </a>.
-            </li>
-          </ul>
-        </div>
         <Link
           to="/login"
           className="inline-block w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm transition"
