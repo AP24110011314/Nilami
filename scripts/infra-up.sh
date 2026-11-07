@@ -14,8 +14,10 @@ done
 
 # MongoDB single-node replica set (needed for transactions)
 if ! port_busy 27018; then
-  mongod --replSet rs0 --port 27018 --bind_ip 127.0.0.1 \
-    --dbpath "$DATA/mongo" --logpath "$DATA/logs/mongod.log" --fork >/dev/null
+  nohup mongod --replSet rs0 --port 27018 --bind_ip 127.0.0.1 \
+    --dbpath "$DATA/mongo" --logpath "$DATA/logs/mongod.log" >/dev/null 2>&1 &
+  echo $! >"$DATA/pids/mongod.pid"
+  sleep 1
   echo "mongod started on 27018"
 fi
 mongosh --quiet --port 27018 --eval '
