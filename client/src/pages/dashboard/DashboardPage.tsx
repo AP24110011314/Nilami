@@ -82,14 +82,14 @@ export const DashboardPage: React.FC = () => {
           apiClient.getWatchlist(),
         ];
 
-        if (user?.roles.includes('seller')) {
+        if (user?.roles?.includes('seller')) {
           promises.push(apiClient.getSellerAnalyticsOverview());
         }
 
         const [bidsRes, winsRes, watchRes, analyticsRes] = await Promise.all(promises);
-        setMyBids(bidsRes.bids);
-        setMyWins(winsRes.wins);
-        setMyWatchlist(watchRes.watchlist);
+        setMyBids(Array.isArray(bidsRes?.bids) ? bidsRes.bids : []);
+        setMyWins(Array.isArray(winsRes?.wins) ? winsRes.wins : []);
+        setMyWatchlist(Array.isArray(watchRes?.watchlist) ? watchRes.watchlist : []);
         if (analyticsRes) {
           setSellerAnalytics(analyticsRes as typeof sellerAnalytics);
         }
@@ -101,11 +101,11 @@ export const DashboardPage: React.FC = () => {
     };
 
     void fetchActivities();
-  }, []);
+  }, [user]);
 
   if (!user) return null;
 
-  const isSeller = user.roles.includes('seller');
+  const isSeller = Boolean(user.roles?.includes('seller'));
   const isVerified = Boolean(user.emailVerifiedAt);
 
   const handleBecomeSeller = async () => {
@@ -153,7 +153,7 @@ export const DashboardPage: React.FC = () => {
             </div>
             <p className="text-sm text-slate-500">{user.email}</p>
             <div className="flex gap-2 mt-2">
-              {user.roles.map((role) => (
+              {(user?.roles || []).map((role) => (
                 <span
                   key={role}
                   className="px-2 py-0.5 rounded-md text-[11px] font-semibold uppercase tracking-wider bg-slate-100 text-slate-700"
@@ -213,7 +213,7 @@ export const DashboardPage: React.FC = () => {
         >
           <span>Active Bids</span>
           <span className="px-1.5 py-0.2 bg-indigo-200 text-indigo-900 rounded-full text-[10px]">
-            {myBids.length}
+            {(myBids || []).length}
           </span>
         </button>
         <button
@@ -226,7 +226,7 @@ export const DashboardPage: React.FC = () => {
         >
           <span>Won Lots</span>
           <span className="px-1.5 py-0.2 bg-emerald-200 text-emerald-900 rounded-full text-[10px]">
-            {myWins.length}
+            {(myWins || []).length}
           </span>
         </button>
         <button
@@ -239,7 +239,7 @@ export const DashboardPage: React.FC = () => {
         >
           <span>Watchlist</span>
           <span className="px-1.5 py-0.2 bg-amber-200 text-amber-900 rounded-full text-[10px]">
-            {myWatchlist.length}
+            {(myWatchlist || []).length}
           </span>
         </button>
         {isSeller && (
@@ -265,7 +265,7 @@ export const DashboardPage: React.FC = () => {
               <span>BIDS PLACED</span>
               <Gavel className="w-4 h-4 text-indigo-500" />
             </div>
-            <p className="text-3xl font-extrabold text-slate-900">{myBids.length}</p>
+            <p className="text-3xl font-extrabold text-slate-900">{(myBids || []).length}</p>
           </div>
 
           <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-2">
@@ -273,7 +273,7 @@ export const DashboardPage: React.FC = () => {
               <span>AUCTIONS WON</span>
               <Award className="w-4 h-4 text-emerald-500" />
             </div>
-            <p className="text-3xl font-extrabold text-slate-900">{myWins.length}</p>
+            <p className="text-3xl font-extrabold text-slate-900">{(myWins || []).length}</p>
           </div>
 
           <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-2">
@@ -281,7 +281,7 @@ export const DashboardPage: React.FC = () => {
               <span>AUCTIONS SOLD</span>
               <TrendingUp className="w-4 h-4 text-amber-500" />
             </div>
-            <p className="text-3xl font-extrabold text-slate-900">{user.stats.auctionsSold}</p>
+            <p className="text-3xl font-extrabold text-slate-900">{user?.stats?.auctionsSold ?? 0}</p>
           </div>
         </div>
       )}
@@ -291,7 +291,7 @@ export const DashboardPage: React.FC = () => {
         <div className="space-y-4">
           {loadingActivities ? (
             <div className="py-12 text-center text-xs text-slate-400">Loading your bids...</div>
-          ) : myBids.length === 0 ? (
+          ) : (myBids || []).length === 0 ? (
             <div className="py-16 text-center bg-white rounded-3xl border border-slate-200 space-y-2">
               <Gavel className="w-8 h-8 text-slate-300 mx-auto" />
               <p className="font-bold text-slate-800 text-sm">No bids placed yet</p>
@@ -305,7 +305,7 @@ export const DashboardPage: React.FC = () => {
             </div>
           ) : (
             <div className="divide-y divide-slate-100 bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
-              {myBids.map(({ auction, myHighestBid, leading }) => (
+              {(myBids || []).map(({ auction, myHighestBid, leading }) => (
                 <div
                   key={auction.id}
                   className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-slate-50 transition"
@@ -361,7 +361,7 @@ export const DashboardPage: React.FC = () => {
         <div className="space-y-4">
           {loadingActivities ? (
             <div className="py-12 text-center text-xs text-slate-400">Loading wins...</div>
-          ) : myWins.length === 0 ? (
+          ) : (myWins || []).length === 0 ? (
             <div className="py-16 text-center bg-white rounded-3xl border border-slate-200 space-y-2">
               <Award className="w-8 h-8 text-slate-300 mx-auto" />
               <p className="font-bold text-slate-800 text-sm">No won auctions yet</p>
@@ -369,7 +369,7 @@ export const DashboardPage: React.FC = () => {
             </div>
           ) : (
             <div className="divide-y divide-slate-100 bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
-              {myWins.map(({ auction, finalPrice }) => (
+              {(myWins || []).map(({ auction, finalPrice }) => (
                 <div
                   key={auction.id}
                   className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-slate-50 transition"
@@ -436,13 +436,13 @@ export const DashboardPage: React.FC = () => {
           <div className="p-6 border-b border-slate-100 flex items-center justify-between">
             <h2 className="text-base font-bold text-slate-900">Watched Auctions</h2>
             <span className="text-xs text-slate-500">
-              {myWatchlist.length} {myWatchlist.length === 1 ? 'item' : 'items'}
+              {(myWatchlist || []).length} {(myWatchlist || []).length === 1 ? 'item' : 'items'}
             </span>
           </div>
 
           {loadingActivities ? (
             <div className="p-8 text-center text-xs text-slate-400">Loading watchlist...</div>
-          ) : myWatchlist.length === 0 ? (
+          ) : (myWatchlist || []).length === 0 ? (
             <div className="p-12 text-center space-y-3">
               <Bookmark className="w-8 h-8 text-slate-300 mx-auto" />
               <p className="text-sm font-medium text-slate-600">Your watchlist is empty</p>
@@ -458,7 +458,7 @@ export const DashboardPage: React.FC = () => {
             </div>
           ) : (
             <div className="divide-y divide-slate-100">
-              {myWatchlist.map(({ id, auction, reminderMinutesBefore }) => (
+              {(myWatchlist || []).map(({ id, auction, reminderMinutesBefore }) => (
                 <div
                   key={id}
                   className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-slate-50 transition"
@@ -540,12 +540,12 @@ export const DashboardPage: React.FC = () => {
 
           <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
             <h3 className="text-sm font-bold text-slate-900">14-Day Daily Revenue Progression</h3>
-            {sellerAnalytics.dailyRevenue.length === 0 ? (
+            {!sellerAnalytics.dailyRevenue || sellerAnalytics.dailyRevenue.length === 0 ? (
               <p className="text-xs text-slate-400 py-8 text-center">No payment data recorded in the last 14 days.</p>
             ) : (
               <div className="h-64 w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={sellerAnalytics.dailyRevenue.map((d) => ({ ...d, amountRupees: Math.round(d.amount / 100) }))}>
+                  <BarChart data={(sellerAnalytics.dailyRevenue || []).map((d) => ({ ...d, amountRupees: Math.round(d.amount / 100) }))}>
                     <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#94a3b8' }} />
                     <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} tickFormatter={(val: number) => `₹${val.toLocaleString('en-IN')}`} />
                     <Tooltip

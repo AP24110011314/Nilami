@@ -240,22 +240,37 @@ class ApiClient {
   }
 
   public async getMyBids() {
-    return this.get<{
-      bids: Array<{
+    const res = await this.get<{
+      bids?: Array<{
+        auction: AuctionItem;
+        myHighestBid: number;
+        leading: boolean;
+      }>;
+      items?: Array<{
         auction: AuctionItem;
         myHighestBid: number;
         leading: boolean;
       }>;
     }>('/users/my-bids');
+    return {
+      bids: Array.isArray(res.bids) ? res.bids : Array.isArray(res.items) ? res.items : [],
+    };
   }
 
   public async getMyWins() {
-    return this.get<{
-      wins: Array<{
+    const res = await this.get<{
+      wins?: Array<{
+        auction: AuctionItem;
+        finalPrice: number;
+      }>;
+      items?: Array<{
         auction: AuctionItem;
         finalPrice: number;
       }>;
     }>('/users/my-wins');
+    return {
+      wins: Array.isArray(res.wins) ? res.wins : Array.isArray(res.items) ? res.items : [],
+    };
   }
 
   // Payments Endpoints (Phase 6)
@@ -279,14 +294,31 @@ class ApiClient {
 
   // Watchlist Endpoints (Phase 7)
   public async getWatchlist() {
-    return this.get<{
-      watchlist: Array<{
-        id: string;
+    const res = await this.get<{
+      items?: Array<{
+        watchlistId?: string;
+        id?: string;
         auction: AuctionItem;
         reminderMinutesBefore?: number | null;
-        createdAt: string;
+        createdAt?: string;
+      }>;
+      watchlist?: Array<{
+        watchlistId?: string;
+        id?: string;
+        auction: AuctionItem;
+        reminderMinutesBefore?: number | null;
+        createdAt?: string;
       }>;
     }>('/watchlist');
+    const raw = res.watchlist || res.items || [];
+    return {
+      watchlist: raw.map((item) => ({
+        id: item.watchlistId || item.id || '',
+        auction: item.auction,
+        reminderMinutesBefore: item.reminderMinutesBefore,
+        createdAt: item.createdAt || '',
+      })),
+    };
   }
 
   public async getWatchlistStatus(auctionId: string) {
@@ -311,13 +343,21 @@ class ApiClient {
 
   // Notifications Endpoints (Phase 7)
   public async getNotifications(page = 1, limit = 20) {
-    return this.get<{
-      notifications: NotificationItem[];
+    const res = await this.get<{
+      items?: NotificationItem[];
+      notifications?: NotificationItem[];
       total: number;
       page: number;
-      totalPages: number;
+      totalPages?: number;
       unreadCount: number;
     }>(`/notifications?page=${page}&limit=${limit}`);
+    return {
+      notifications: res.notifications || res.items || [],
+      total: res.total || 0,
+      page: res.page || 1,
+      totalPages: res.totalPages || Math.ceil((res.total || 0) / limit),
+      unreadCount: res.unreadCount || 0,
+    };
   }
 
   public async markNotificationRead(id: string) {

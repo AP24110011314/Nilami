@@ -55,7 +55,7 @@ export async function getMyBids(req: Request, res: Response): Promise<void> {
   }
 
   const result = await BidService.getMyBids(req.user.id);
-  res.status(200).json({ bids: result });
+  res.status(200).json({ bids: result, items: result });
 }
 
 export async function getMyWins(req: Request, res: Response): Promise<void> {
@@ -64,6 +64,6 @@ export async function getMyWins(req: Request, res: Response): Promise<void> {
   }
 
   const result = await BidService.getMyWins(req.user.id);
-  res.status(200).json({ wins: result });
+  res.status(200).json({ wins: result, items: result });
 }
 

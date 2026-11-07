@@ -17,6 +17,16 @@ export class NotificationService {
       readAt?: Date | null;
       createdAt: string;
     }>;
+    notifications?: Array<{
+      id: string;
+      type: string;
+      title: string;
+      body: string;
+      data?: Record<string, unknown>;
+      read: boolean;
+      readAt?: Date | null;
+      createdAt: string;
+    }>;
     total: number;
     unreadCount: number;
     page: number;
@@ -48,6 +58,7 @@ export class NotificationService {
 
     return {
       items: formatted,
+      notifications: formatted,
       total,
       unreadCount,
       page,

@@ -1,7 +1,11 @@
 import { io, type Socket } from 'socket.io-client';
 import { useAuthStore } from '../store/auth';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const SOCKET_URL =
+  import.meta.env.VITE_SOCKET_URL ||
+  (import.meta.env.VITE_API_URL
+    ? String(import.meta.env.VITE_API_URL).replace(/\/api\/?$/, '')
+    : 'http://localhost:4000');
 
 let socket: Socket | null = null;
 
@@ -9,7 +13,7 @@ export function getSocket(): Socket {
   if (!socket) {
     const token = useAuthStore.getState().accessToken;
 
-    socket = io(API_URL, {
+    socket = io(SOCKET_URL, {
       auth: token ? { token } : undefined,
       transports: ['websocket', 'polling'],
       autoConnect: true,

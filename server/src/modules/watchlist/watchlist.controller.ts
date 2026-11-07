@@ -61,7 +61,7 @@ export class WatchlistController {
     try {
       const userId = req.user!.id;
       const items = await WatchlistService.getMyWatchlist(userId);
-      res.status(200).json({ items });
+      res.status(200).json({ items, watchlist: items });
     } catch (err) {
       next(err);
     }

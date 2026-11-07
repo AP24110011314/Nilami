@@ -15,8 +15,8 @@ export const NotificationBell: React.FC = () => {
     try {
       setLoading(true);
       const res = await apiClient.getNotifications(1, 10);
-      setNotifications(res.notifications);
-      setUnreadCount(res.unreadCount);
+      setNotifications(Array.isArray(res.notifications) ? res.notifications : []);
+      setUnreadCount(typeof res.unreadCount === 'number' ? res.unreadCount : 0);
     } catch {
       // Soft fail if unauthenticated or network error
     } finally {
@@ -115,12 +115,12 @@ export const NotificationBell: React.FC = () => {
           </div>
 
           <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
-            {loading && notifications.length === 0 ? (
+            {loading && (!notifications || notifications.length === 0) ? (
               <div className="py-8 text-center text-xs text-slate-400">Loading notifications...</div>
-            ) : notifications.length === 0 ? (
+            ) : !notifications || notifications.length === 0 ? (
               <div className="py-8 text-center text-xs text-slate-400">No notifications yet</div>
             ) : (
-              notifications.map((notif) => {
+              (notifications || []).map((notif) => {
                 const isRead = Boolean(notif.readAt);
                 return (
                   <div
