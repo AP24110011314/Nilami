@@ -30,5 +30,12 @@ describe('Environment Configuration', () => {
       });
     }).toThrow(/PORT cannot be 5000 or 7000/);
   });
+
+  it('normalizes Atlas Cloud mongodb+srv URIs by removing accidental replicaSet=rs0', () => {
+    const config = validateEnv({
+      MONGODB_URI: 'mongodb+srv://user:pass@cluster0.mongodb.net/nilami?replicaSet=rs0',
+    });
+    expect(config.MONGODB_URI).toBe('mongodb+srv://user:pass@cluster0.mongodb.net/nilami');
+  });
 });
 

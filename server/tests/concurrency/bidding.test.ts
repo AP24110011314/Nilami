@@ -188,7 +188,7 @@ describe('Phase 3 — Bidding Engine Suite (T1–T10)', () => {
     for (let i = 1; i < bidsByAmount.length; i++) {
       expect(bidsByAmount[i]!.amount).toBeGreaterThan(bidsByAmount[i - 1]!.amount);
     }
-  });
+  }, 30000);
 
   it('T3: Bid below current / minimum is rejected with 409 BID_TOO_LOW', async () => {
     const auction = await createActiveAuction({

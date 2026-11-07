@@ -6,7 +6,8 @@ export async function connectDB(): Promise<typeof mongoose> {
   mongoose.set('strictQuery', true);
   try {
     const conn = await mongoose.connect(env.MONGODB_URI);
-    logger.info({ uri: env.MONGODB_URI }, 'MongoDB connected');
+    const sanitizedUri = env.MONGODB_URI.replace(/:[^:@]+@/, ':****@');
+    logger.info({ uri: sanitizedUri }, 'MongoDB connected');
     return conn;
   } catch (error) {
     logger.error({ error }, 'MongoDB connection error');

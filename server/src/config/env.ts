@@ -18,7 +18,20 @@ export const envSchema = z.object({
       message: 'PORT cannot be 5000 or 7000 (reserved for macOS AirPlay Receiver)',
     }),
   CLIENT_URL: z.string().url().default('http://localhost:5173'),
-  MONGODB_URI: z.string().min(1).default('mongodb://127.0.0.1:27018/nilami?replicaSet=rs0'),
+  MONGODB_URI: z
+    .string()
+    .min(1)
+    .default('mongodb://127.0.0.1:27018/nilami?replicaSet=rs0')
+    .transform((val) => {
+      // If user copied an Atlas connection string with local replicaSet=rs0 appended,
+      // strip replicaSet=rs0 so Atlas can resolve its internal shard replica sets
+      if (val.startsWith('mongodb+srv://') && val.includes('replicaSet=rs0')) {
+        return val
+          .replace(/[?&]replicaSet=rs0(&|$)/, (_, p1) => (p1 === '&' ? '?' : ''))
+          .replace(/\?$/, '');
+      }
+      return val;
+    }),
   REDIS_URL: z.string().min(1).default('redis://127.0.0.1:6380'),
   JWT_ACCESS_SECRET: z.string().min(16).default('change-me-32+chars-change-me-32+chars'),
   JWT_REFRESH_SECRET: z.string().min(16).default('change-me-too-32+chars-change-me-too'),

@@ -130,9 +130,9 @@ export const HomePage: React.FC = () => {
               <div className="flex items-center justify-between text-xs font-medium text-slate-500">
                 <span className="flex items-center gap-1.5">
                   <Database className="w-4 h-4 text-emerald-600" />
-                  MongoDB (rs0)
+                  MongoDB
                 </span>
-                <span className="font-mono text-[11px] text-slate-400">port 27018</span>
+                <span className="font-mono text-[11px] text-slate-400">Database</span>
               </div>
               <div className="flex items-center gap-2">
                 {health?.mongo === 'ok' ? (
