@@ -43,20 +43,24 @@ export const RegisterPage: React.FC = () => {
             We sent an email verification link to <strong className="text-slate-800">{registeredEmail}</strong>.
           </p>
         </div>
-        <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-100 text-left text-xs text-indigo-900 space-y-1">
-          <p className="font-semibold">Local Development Note:</p>
-          <p>
-            Emails are captured by Mailpit. Open{' '}
-            <a
-              href="http://localhost:8025"
-              target="_blank"
-              rel="noreferrer"
-              className="underline font-bold text-indigo-600"
-            >
-              http://localhost:8025
-            </a>{' '}
-            to view the verification email and click the link.
-          </p>
+        <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-100 text-left text-xs text-indigo-900 space-y-2">
+          <p className="font-semibold">Where to find your verification email:</p>
+          <ul className="list-disc pl-4 space-y-1 text-[11px] text-indigo-800">
+            <li>
+              <strong>Real Gmail:</strong> If Gmail SMTP is configured in <code>server/.env</code>, check your Gmail inbox (and Spam folder).
+            </li>
+            <li>
+              <strong>Local Development:</strong> If using default local dev, all emails are captured in Mailpit at{' '}
+              <a
+                href="http://localhost:8025"
+                target="_blank"
+                rel="noreferrer"
+                className="underline font-bold text-indigo-600"
+              >
+                http://localhost:8025
+              </a>.
+            </li>
+          </ul>
         </div>
         <Link
           to="/login"

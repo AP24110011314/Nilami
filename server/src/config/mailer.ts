@@ -1,12 +1,43 @@
-import nodemailer from 'nodemailer';
+import nodemailer, { type Transporter } from 'nodemailer';
 import { env } from './env.js';
 import { logger } from './logger.js';
 
-export const transporter = nodemailer.createTransport({
-  host: env.SMTP_HOST,
-  port: env.SMTP_PORT,
-  secure: false, // port 1025 does not use TLS
-});
+export function createTransporter(): Transporter {
+  const isGmail =
+    env.SMTP_SERVICE?.toLowerCase() === 'gmail' ||
+    env.SMTP_HOST.toLowerCase().includes('gmail');
+
+  if (isGmail && env.SMTP_USER && env.SMTP_PASS) {
+    return nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: env.SMTP_USER,
+        pass: env.SMTP_PASS,
+      },
+    });
+  }
+
+  if (env.SMTP_USER && env.SMTP_PASS) {
+    return nodemailer.createTransport({
+      host: env.SMTP_HOST,
+      port: env.SMTP_PORT,
+      secure: env.SMTP_SECURE ?? (env.SMTP_PORT === 465),
+      auth: {
+        user: env.SMTP_USER,
+        pass: env.SMTP_PASS,
+      },
+    });
+  }
+
+  // Local development / testing Mailpit fallback
+  return nodemailer.createTransport({
+    host: env.SMTP_HOST,
+    port: env.SMTP_PORT,
+    secure: false, // port 1025 does not use TLS
+  });
+}
+
+export const transporter = createTransporter();
 
 export interface SendMailOptions {
   to: string;
@@ -16,9 +47,16 @@ export interface SendMailOptions {
 }
 
 export async function sendEmail(options: SendMailOptions): Promise<void> {
+  const isGmail =
+    env.SMTP_SERVICE?.toLowerCase() === 'gmail' ||
+    env.SMTP_HOST.toLowerCase().includes('gmail');
+
+  const fromAddress =
+    isGmail && env.SMTP_USER ? `Nilami <${env.SMTP_USER}>` : env.MAIL_FROM;
+
   try {
     const info = await transporter.sendMail({
-      from: env.MAIL_FROM,
+      from: fromAddress,
       to: options.to,
       subject: options.subject,
       text: options.text,
@@ -33,6 +71,7 @@ export async function sendEmail(options: SendMailOptions): Promise<void> {
 
 export async function sendVerificationEmail(email: string, token: string): Promise<void> {
   const verifyUrl = `${env.CLIENT_URL}/verify-email?token=${token}`;
+  logger.info({ to: email, verifyUrl }, `[EMAIL DISPATCH] Verification link for ${email}: ${verifyUrl}`);
   await sendEmail({
     to: email,
     subject: 'Verify your Nilami Account',
@@ -55,6 +94,7 @@ export async function sendVerificationEmail(email: string, token: string): Promi
 
 export async function sendPasswordResetEmail(email: string, token: string): Promise<void> {
   const resetUrl = `${env.CLIENT_URL}/reset-password?token=${token}`;
+  logger.info({ to: email, resetUrl }, `[EMAIL DISPATCH] Password reset link for ${email}: ${resetUrl}`);
   await sendEmail({
     to: email,
     subject: 'Reset your Nilami Password',

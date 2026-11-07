@@ -27,6 +27,15 @@ export const envSchema = z.object({
   IP_HASH_SECRET: z.string().default('change-me-3'),
   SMTP_HOST: z.string().default('127.0.0.1'),
   SMTP_PORT: z.coerce.number().default(1025),
+  SMTP_USER: z.string().optional().default(''),
+  SMTP_PASS: z.string().optional().default(''),
+  SMTP_SECURE: z
+    .preprocess((val) => {
+      if (typeof val === 'string') return val.toLowerCase() === 'true';
+      return val;
+    }, z.boolean())
+    .optional(),
+  SMTP_SERVICE: z.string().optional().default(''),
   MAIL_FROM: z.string().default('Nilami <no-reply@nilami.local>'),
   STORAGE_DRIVER: z.enum(['local', 'cloudinary']).default('local'),
   UPLOAD_DIR: z.string().default('./uploads'),
