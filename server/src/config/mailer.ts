@@ -3,6 +3,15 @@ import { env } from './env.js';
 import { logger } from './logger.js';
 
 export function createTransporter(): Transporter {
+  // During automated tests, always route to local Mailpit so integration tests can assert messages
+  if (env.NODE_ENV === 'test') {
+    return nodemailer.createTransport({
+      host: '127.0.0.1',
+      port: 1025,
+      secure: false,
+    });
+  }
+
   const isGmail =
     env.SMTP_SERVICE?.toLowerCase() === 'gmail' ||
     env.SMTP_HOST.toLowerCase().includes('gmail');
@@ -12,7 +21,7 @@ export function createTransporter(): Transporter {
       service: 'gmail',
       auth: {
         user: env.SMTP_USER,
-        pass: env.SMTP_PASS,
+        pass: env.SMTP_PASS.replace(/\s+/g, ''),
       },
     });
   }
@@ -24,7 +33,7 @@ export function createTransporter(): Transporter {
       secure: env.SMTP_SECURE ?? (env.SMTP_PORT === 465),
       auth: {
         user: env.SMTP_USER,
-        pass: env.SMTP_PASS,
+        pass: env.SMTP_PASS.replace(/\s+/g, ''),
       },
     });
   }
@@ -48,8 +57,9 @@ export interface SendMailOptions {
 
 export async function sendEmail(options: SendMailOptions): Promise<void> {
   const isGmail =
-    env.SMTP_SERVICE?.toLowerCase() === 'gmail' ||
-    env.SMTP_HOST.toLowerCase().includes('gmail');
+    env.NODE_ENV !== 'test' &&
+    (env.SMTP_SERVICE?.toLowerCase() === 'gmail' ||
+      env.SMTP_HOST.toLowerCase().includes('gmail'));
 
   const fromAddress =
     isGmail && env.SMTP_USER ? `Nilami <${env.SMTP_USER}>` : env.MAIL_FROM;
