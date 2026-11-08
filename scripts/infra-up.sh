@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Starts MongoDB (replica set rs0 on 27018), Redis (6380) and Mailpit (1025/8025). No Docker.
 set -euo pipefail
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DATA="$ROOT/.data"
 mkdir -p "$DATA/mongo" "$DATA/redis" "$DATA/logs" "$DATA/pids"
@@ -14,10 +15,22 @@ done
 
 # MongoDB single-node replica set (needed for transactions)
 if ! port_busy 27018; then
-  nohup mongod --replSet rs0 --port 27018 --bind_ip 127.0.0.1 \
-    --dbpath "$DATA/mongo" --logpath "$DATA/logs/mongod.log" >/dev/null 2>&1 &
-  echo $! >"$DATA/pids/mongod.pid"
-  sleep 1
+  python3 -c "
+import os, subprocess, sys
+if os.fork() == 0:
+    os.setsid()
+    proc = subprocess.Popen([
+        'mongod', '--replSet', 'rs0', '--port', '27018', '--bind_ip', '127.0.0.1',
+        '--dbpath', '$DATA/mongo', '--logpath', '$DATA/logs/mongod.log'
+    ])
+    with open('$DATA/pids/mongod.pid', 'w') as f:
+        f.write(str(proc.pid))
+    sys.exit(0)
+"
+  for i in {1..25}; do
+    if port_busy 27018; then break; fi
+    sleep 0.2
+  done
   echo "mongod started on 27018"
 fi
 mongosh --quiet --port 27018 --eval '

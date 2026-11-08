@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -uo pipefail
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DATA="$ROOT/.data"
 mongosh --quiet --port 27018 admin --eval 'db.shutdownServer()' >/dev/null 2>&1 && echo "mongod stopped"

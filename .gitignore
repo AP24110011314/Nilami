@@ -18,7 +18,8 @@ coverage/
 
 # Runtime & database data
 .data/
-uploads/
+/uploads/
+server/uploads/
 
 # Logs & PIDs
 *.log
