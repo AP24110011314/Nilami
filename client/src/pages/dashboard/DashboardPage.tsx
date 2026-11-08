@@ -314,6 +314,9 @@ export const DashboardPage: React.FC = () => {
                     <img
                       src={auction.images[0]?.url || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100'}
                       alt=""
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100';
+                      }}
                       className="w-16 h-16 rounded-xl object-cover border border-slate-200 flex-shrink-0"
                     />
                     <div className="space-y-1">
@@ -378,6 +381,9 @@ export const DashboardPage: React.FC = () => {
                     <img
                       src={auction.images[0]?.url || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100'}
                       alt=""
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100';
+                      }}
                       className="w-16 h-16 rounded-xl object-cover border border-slate-200 flex-shrink-0"
                     />
                     <div className="space-y-1">
@@ -467,6 +473,9 @@ export const DashboardPage: React.FC = () => {
                     <img
                       src={auction.images[0]?.url || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100'}
                       alt=""
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100';
+                      }}
                       className="w-16 h-16 rounded-xl object-cover border border-slate-200 flex-shrink-0"
                     />
                     <div className="space-y-1">

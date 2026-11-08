@@ -29,10 +29,22 @@ import {
   AlertCircle,
 } from 'lucide-react';
 
+const DEFAULT_FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800';
+
+const CATEGORY_FALLBACKS: Record<string, string> = {
+  electronics: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800',
+  collectibles: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=800',
+  art: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800',
+  fashion: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800',
+  vehicles: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800',
+  other: DEFAULT_FALLBACK_IMAGE,
+};
+
 export const AuctionDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuthStore();
   const [selectedImage, setSelectedImage] = useState<string>('');
+  const [detailImgError, setDetailImgError] = useState<boolean>(false);
 
   // Realtime Socket.IO synchronization
   const { isConnected, viewerCount, extensionFlash } = useAuctionSocket(id);
@@ -190,12 +202,37 @@ export const AuctionDetailPage: React.FC = () => {
         <div className="lg:col-span-7 space-y-6">
           <div className="space-y-4">
             <div className="aspect-4/3 bg-slate-100 rounded-3xl overflow-hidden border border-slate-200 relative">
-              <img
-                src={selectedImage || auction.images[0]?.url}
-                alt={auction.title}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute top-4 left-4">{getUrgencyBadge()}</div>
+              {detailImgError ? (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-100 via-indigo-50/40 to-slate-200 text-slate-400 p-8 select-none">
+                  <Gavel className="w-16 h-16 text-indigo-400 mb-3 opacity-50" />
+                  <span className="text-base font-bold text-slate-700 text-center line-clamp-2 max-w-md">
+                    {auction.title}
+                  </span>
+                  <span className="text-xs font-semibold text-indigo-600/70 uppercase tracking-widest mt-2">
+                    {auction.category} Lot
+                  </span>
+                </div>
+              ) : (
+                <img
+                  src={
+                    selectedImage ||
+                    auction.images[0]?.url ||
+                    CATEGORY_FALLBACKS[auction.category] ||
+                    DEFAULT_FALLBACK_IMAGE
+                  }
+                  alt={auction.title}
+                  onError={() => {
+                    const fallback = CATEGORY_FALLBACKS[auction.category] ?? DEFAULT_FALLBACK_IMAGE;
+                    if (selectedImage !== fallback && (!auction.images[0] || auction.images[0].url !== fallback)) {
+                      setSelectedImage(fallback);
+                    } else {
+                      setDetailImgError(true);
+                    }
+                  }}
+                  className="w-full h-full object-cover"
+                />
+              )}
+              <div className="absolute top-4 left-4 z-10">{getUrgencyBadge()}</div>
             </div>
 
             {/* Thumbnails */}
@@ -211,7 +248,15 @@ export const AuctionDetailPage: React.FC = () => {
                         : 'border-slate-200 opacity-70 hover:opacity-100'
                     }`}
                   >
-                    <img src={img.url} alt="" className="w-full h-full object-cover" />
+                    <img
+                      src={img.url}
+                      alt=""
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src =
+                          CATEGORY_FALLBACKS[auction.category] ?? DEFAULT_FALLBACK_IMAGE;
+                      }}
+                      className="w-full h-full object-cover"
+                    />
                   </button>
                 ))}
               </div>

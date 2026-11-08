@@ -130,8 +130,8 @@ async function runSeed() {
         category: 'collectibles',
         condition: 'new',
         images: [
-          { url: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800' },
-          { url: 'https://images.unsplash.com/photo-1547996160-71dfabb1d0fa?w=800' },
+          { url: 'https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?w=800' },
+          { url: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=800' },
         ],
         startingPrice: 115000000, // ₹11,50,000
         reservePrice: 125000000, // ₹12,50,000
@@ -152,7 +152,8 @@ async function runSeed() {
         category: 'art',
         condition: 'used_good',
         images: [
-          { url: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=800' },
+          { url: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800' },
+          { url: 'https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?w=800' },
         ],
         startingPrice: 7500000, // ₹75,000
         reservePrice: 8500000,
@@ -291,7 +292,7 @@ async function runSeed() {
         category: 'collectibles',
         condition: 'like_new',
         images: [
-          { url: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800' },
+          { url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800' },
         ],
         startingPrice: 280000000,
         reservePrice: 310000000,
@@ -311,7 +312,8 @@ async function runSeed() {
         category: 'art',
         condition: 'used_good',
         images: [
-          { url: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=800' },
+          { url: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800' },
+          { url: 'https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?w=800' },
         ],
         startingPrice: 450000000,
         minIncrement: 2500000,
@@ -373,7 +375,7 @@ async function runSeed() {
         category: 'collectibles',
         condition: 'like_new',
         images: [
-          { url: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800' },
+          { url: 'https://images.unsplash.com/photo-1587836374828-4dbafa94cf0e?w=800' },
         ],
         startingPrice: 58000000,
         minIncrement: 500000,
@@ -395,7 +397,7 @@ async function runSeed() {
         category: 'collectibles',
         condition: 'used_good',
         images: [
-          { url: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=800' },
+          { url: 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?w=800' },
         ],
         startingPrice: 4200000,
         minIncrement: 100000,
@@ -441,7 +443,7 @@ async function runSeed() {
         category: 'collectibles',
         condition: 'used_good',
         images: [
-          { url: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800' },
+          { url: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800' },
         ],
         startingPrice: 180000000,
         reservePrice: 220000000,
@@ -462,7 +464,7 @@ async function runSeed() {
         category: 'collectibles',
         condition: 'used_good',
         images: [
-          { url: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=800' },
+          { url: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800' },
         ],
         startingPrice: 9500000,
         minIncrement: 200000,
