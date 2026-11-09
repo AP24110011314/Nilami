@@ -1,8 +1,167 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-nilami-green: var(--nilami-green);
+  --color-nilami-green-dark: var(--nilami-green-dark);
+  --color-nilami-green-pressed: var(--nilami-green-pressed);
+  --color-nilami-green-light: var(--nilami-green-light);
+  --color-nilami-green-surface: var(--nilami-green-surface);
+
+  --color-nilami-tan: var(--nilami-tan);
+  --color-nilami-tan-dark: var(--nilami-tan-dark);
+  --color-nilami-tan-light: var(--nilami-tan-light);
+
+  --color-nilami-sand: var(--nilami-sand);
+  --color-nilami-sand-dark: var(--nilami-sand-dark);
+  --color-nilami-sand-surface: var(--nilami-sand-surface);
+  --color-nilami-sand-light: var(--nilami-sand-light);
+
+  --color-nilami-ivory: var(--nilami-ivory);
+  --color-nilami-ivory-surface: var(--nilami-ivory-surface);
+  --color-nilami-border: var(--nilami-border);
+  --color-nilami-border-subtle: var(--nilami-border-subtle);
+
+  --color-nilami-text: var(--nilami-text);
+  --color-nilami-text-secondary: var(--nilami-text-secondary);
+  --color-nilami-text-muted: var(--nilami-text-muted);
+
+  --color-nilami-danger: var(--nilami-danger);
+  --color-nilami-danger-dark: var(--nilami-danger-dark);
+  --color-nilami-danger-surface: var(--nilami-danger-surface);
+  --color-nilami-danger-border: var(--nilami-danger-border);
+
+  --color-nilami-warning: var(--nilami-warning);
+  --color-nilami-warning-dark: var(--nilami-warning-dark);
+  --color-nilami-warning-surface: var(--nilami-warning-surface);
+  --color-nilami-warning-border: var(--nilami-warning-border);
+
+  --color-nilami-success: var(--nilami-success);
+  --color-nilami-success-surface: var(--nilami-success-surface);
+  --color-nilami-success-border: var(--nilami-success-border);
+
+  --font-serif: var(--font-serif);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+:root {
+  /* Brand Core Palette (Hex values per brief) */
+  --nilami-green: #5D866C;
+  --nilami-tan: #C2A68C;
+  --nilami-sand: #E6D8C3;
+  --nilami-ivory: #F5F5F0;
+
+  /* Derived Green Tokens */
+  --nilami-green-dark: #3F5F4B;
+  --nilami-green-pressed: #314B3B;
+  --nilami-green-light: #CBD8D0;
+  --nilami-green-surface: #EEF3EF;
+
+  /* Derived Text & Dark Green-Black */
+  --nilami-text: #1F2A24;
+  --nilami-text-secondary: #4A5B51;
+  --nilami-text-muted: #6B7C72;
+
+  /* Derived Tan Tokens */
+  --nilami-tan-dark: #8D6C4F;
+  --nilami-tan-light: #F2EAE1;
+
+  /* Derived Sand Tokens */
+  --nilami-sand-dark: #CBB99F;
+  --nilami-sand-surface: #EDE3D4;
+  --nilami-sand-light: #F7F2EB;
+
+  /* Derived Ivory / Surface Tokens */
+  --nilami-ivory-surface: #FFFFFF;
+  --nilami-border: #E3DDD1;
+  --nilami-border-subtle: #EDE8DF;
+
+  /* Semantic - Danger (Muted Terracotta) */
+  --nilami-danger: #B5523B;
+  --nilami-danger-dark: #8F3C28;
+  --nilami-danger-surface: #FBF0ED;
+  --nilami-danger-border: #F0D0C8;
+
+  /* Semantic - Warning (Warm Amber) */
+  --nilami-warning: #C47D2B;
+  --nilami-warning-dark: #8C5212;
+  --nilami-warning-surface: #FDF4EA;
+  --nilami-warning-border: #F5DEC2;
+
+  /* Semantic - Success (Brand Green) */
+  --nilami-success: #3F5F4B;
+  --nilami-success-surface: #EEF3EF;
+  --nilami-success-border: #CBD8D0;
+
+  /* Typography */
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+.dark {
+  /* Dark Mode Surfaces */
+  --nilami-ivory: #151D18;
+  --nilami-ivory-surface: #1E2822;
+  --nilami-sand: #28362E;
+  --nilami-sand-surface: #223027;
+  --nilami-border: #33443A;
+  --nilami-border-subtle: #293830;
+
+  /* Dark Mode Text */
+  --nilami-text: #F5F5F0;
+  --nilami-text-secondary: #C2A68C;
+  --nilami-text-muted: #8E9F94;
+
+  /* Dark Mode Green */
+  --nilami-green: #6D9E7E;
+  --nilami-green-dark: #5D866C;
+  --nilami-green-pressed: #4A7A5B;
+  --nilami-green-light: #2A4234;
+  --nilami-green-surface: #1B2C21;
+
+  /* Dark Mode Tan */
+  --nilami-tan: #D4BBA5;
+  --nilami-tan-dark: #C2A68C;
+  --nilami-tan-light: #2B2520;
+
+  /* Dark Mode Semantic */
+  --nilami-danger: #D9745E;
+  --nilami-danger-dark: #F09B88;
+  --nilami-danger-surface: #2D1A16;
+  --nilami-danger-border: #4D261E;
+
+  --nilami-warning: #E09848;
+  --nilami-warning-dark: #F2B470;
+  --nilami-warning-surface: #2D2114;
+  --nilami-warning-border: #4D351D;
+
+  --nilami-success: #6D9E7E;
+  --nilami-success-surface: #1B2C21;
+  --nilami-success-border: #2A4234;
+}
+
 @layer base {
+  * {
+    border-color: var(--nilami-border);
+  }
+
   body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: var(--font-sans);
+    background-color: var(--nilami-ivory);
+    color: var(--nilami-text);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  h1, h2, h3, .font-serif {
+    font-family: var(--font-serif);
   }
 }
 
+/* Accessible focus ring styling */
+:focus-visible {
+  outline: 2px solid var(--nilami-green);
+  outline-offset: 2px;
+}
