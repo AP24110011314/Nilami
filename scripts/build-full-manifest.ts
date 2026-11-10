@@ -1326,3 +1326,4 @@ const items: SeedItem[] = [
 const outputPath = path.resolve(process.cwd(), 'scripts/seed-manifest.json');
 fs.writeFileSync(outputPath, JSON.stringify(items, null, 2), 'utf-8');
 console.log(`Successfully generated ${items.length} items in ${outputPath}`);
+
