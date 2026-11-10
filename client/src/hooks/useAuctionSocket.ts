@@ -2,6 +2,12 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { getSocket } from '../lib/socket';
 import { useClockStore } from '../store/clock';
+import type { AuctionItem } from '../api/client';
+
+interface CachedAuctionData {
+  auction?: AuctionItem;
+  [key: string]: unknown;
+}
 
 export interface BidUpdatedEvent {
   auctionId: string;
@@ -87,8 +93,17 @@ export function useAuctionSocket(auctionId: string | undefined): UseAuctionSocke
           // Patch auction cache
           queryClient.setQueryData(
             ['auction', auctionId],
-            (old: Record<string, unknown> | undefined) => {
+            (old: CachedAuctionData | undefined) => {
               if (!old) return old;
+              if (old.auction) {
+                return {
+                  ...old,
+                  auction: {
+                    ...old.auction,
+                    ...res.snapshot?.auction,
+                  },
+                };
+              }
               return {
                 ...old,
                 ...res.snapshot?.auction,
@@ -132,19 +147,21 @@ export function useAuctionSocket(auctionId: string | undefined): UseAuctionSocke
       // Drop stale events based on bidCount
       queryClient.setQueryData(
         ['auction', auctionId],
-        (old: { bidCount?: number } & Record<string, unknown> | undefined) => {
+        (old: CachedAuctionData | undefined) => {
           if (!old) return old;
-          if (typeof old.bidCount === 'number' && old.bidCount >= payload.bidCount) {
+          const currentAuction = (old.auction || old) as unknown as AuctionItem;
+          if (typeof currentAuction.bidCount === 'number' && currentAuction.bidCount >= payload.bidCount) {
             return old; // ignore stale update
           }
-          return {
-            ...old,
+          const updatedAuction = {
+            ...currentAuction,
             currentPrice: payload.currentPrice,
             minNextBid: payload.minNextBid,
             bidCount: payload.bidCount,
             highestBidderMasked: payload.highestBidderMasked,
             endsAt: payload.endsAt,
           };
+          return old.auction ? { ...old, auction: updatedAuction } : updatedAuction;
         },
       );
 
