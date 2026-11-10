@@ -18,10 +18,16 @@ import {
 const CATEGORIES = [
   { id: '', label: 'All Categories' },
   { id: 'electronics', label: 'Electronics' },
-  { id: 'collectibles', label: 'Collectibles' },
+  { id: 'watches', label: 'Horology & Watches' },
   { id: 'art', label: 'Fine Art' },
-  { id: 'fashion', label: 'Fashion' },
-  { id: 'vehicles', label: 'Vehicles' },
+  { id: 'collectibles', label: 'Rare Collectibles' },
+  { id: 'fashion', label: 'Fashion & Luxury' },
+  { id: 'vehicles', label: 'Vehicles & Accessories' },
+  { id: 'furniture', label: 'Heritage Furniture' },
+  { id: 'books', label: 'Books & First Editions' },
+  { id: 'musical', label: 'Musical Instruments' },
+  { id: 'appliances', label: 'Home Appliances' },
+  { id: 'sports', label: 'Sports & Memorabilia' },
   { id: 'other', label: 'Other Items' },
 ];
 

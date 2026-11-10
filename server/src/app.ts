@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import express, { type Express } from 'express';
 import helmet from 'helmet';
@@ -26,10 +27,17 @@ export function createApp(): Express {
   // Trust reverse proxy (Render, Fly, Nginx) in production
   app.set('trust proxy', 1);
 
-  // Security headers (allow loading uploaded images locally)
+  // Security headers (allow loading uploaded images locally and external CDNs)
   app.use(
     helmet({
       crossOriginResourcePolicy: { policy: 'cross-origin' },
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          imgSrc: ["'self'", 'data:', 'blob:', 'http:', 'https:'],
+          connectSrc: ["'self'", 'ws:', 'wss:', 'http:', 'https:'],
+        },
+      },
     }),
   );
 
@@ -65,8 +73,18 @@ export function createApp(): Express {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  // Static uploads directory
-  app.use('/uploads', express.static(path.resolve(process.cwd(), env.UPLOAD_DIR)));
+  // Static uploads directory with caching headers
+  const uploadRoot = fs.existsSync(path.resolve(process.cwd(), env.UPLOAD_DIR))
+    ? path.resolve(process.cwd(), env.UPLOAD_DIR)
+    : path.resolve(process.cwd(), 'server', env.UPLOAD_DIR);
+  app.use(
+    '/uploads',
+    express.static(uploadRoot, {
+      maxAge: '7d',
+      etag: true,
+      lastModified: true,
+    }),
+  );
 
   // Routes
   app.use('/api', healthRouter);

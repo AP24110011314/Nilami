@@ -11,7 +11,9 @@
     "infra:down": "bash scripts/infra-down.sh",
     "dev": "concurrently -n api,worker,web -c blue,magenta,green \"npm run dev -w server\" \"npm run dev:worker -w server\" \"npm run dev -w client\"",
     "stripe:listen": "stripe listen --forward-to localhost:4000/api/payments/webhook",
-    "seed": "npm run seed -w server",
+    "seed": "npm run seed -w server --",
+    "seed:verify": "npm run seed:verify -w server",
+    "seed:bots": "npm run seed:bots -w server",
     "test": "npm run test -w server && npm run test -w client",
     "check": "npm run typecheck -ws && npm run lint -ws && npm test"
   },

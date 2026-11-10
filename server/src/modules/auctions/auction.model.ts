@@ -2,10 +2,16 @@ import mongoose, { Schema, type Document, type Model } from 'mongoose';
 
 export type AuctionCategory =
   | 'electronics'
-  | 'collectibles'
-  | 'art'
+  | 'watches'
   | 'fashion'
+  | 'art'
+  | 'collectibles'
+  | 'books'
+  | 'furniture'
   | 'vehicles'
+  | 'musical'
+  | 'appliances'
+  | 'sports'
   | 'other';
 
 export type AuctionCondition = 'new' | 'like_new' | 'used_good' | 'used_fair';
@@ -91,7 +97,20 @@ const auctionSchema = new Schema<IAuction>(
     },
     category: {
       type: String,
-      enum: ['electronics', 'collectibles', 'art', 'fashion', 'vehicles', 'other'],
+      enum: [
+        'electronics',
+        'watches',
+        'fashion',
+        'art',
+        'collectibles',
+        'books',
+        'furniture',
+        'vehicles',
+        'musical',
+        'appliances',
+        'sports',
+        'other',
+      ],
       required: true,
     },
     condition: {

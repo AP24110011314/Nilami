@@ -1,10 +1,25 @@
 import { z } from 'zod';
 
+export const AUCTION_CATEGORIES = [
+  'electronics',
+  'watches',
+  'fashion',
+  'art',
+  'collectibles',
+  'books',
+  'furniture',
+  'vehicles',
+  'musical',
+  'appliances',
+  'sports',
+  'other',
+] as const;
+
 export const createAuctionSchema = z
   .object({
     title: z.string().trim().min(3).max(120),
     description: z.string().trim().min(10).max(5000),
-    category: z.enum(['electronics', 'collectibles', 'art', 'fashion', 'vehicles', 'other']),
+    category: z.enum(AUCTION_CATEGORIES),
     condition: z.enum(['new', 'like_new', 'used_good', 'used_fair']),
     images: z
       .array(
@@ -66,7 +81,7 @@ export const updateAuctionSchema = z
   .object({
     title: z.string().trim().min(3).max(120).optional(),
     description: z.string().trim().min(10).max(5000).optional(),
-    category: z.enum(['electronics', 'collectibles', 'art', 'fashion', 'vehicles', 'other']).optional(),
+    category: z.enum(AUCTION_CATEGORIES).optional(),
     condition: z.enum(['new', 'like_new', 'used_good', 'used_fair']).optional(),
     images: z
       .array(
@@ -88,7 +103,7 @@ export const updateAuctionSchema = z
 
 export const auctionListQuerySchema = z.object({
   q: z.string().trim().optional(),
-  category: z.enum(['electronics', 'collectibles', 'art', 'fashion', 'vehicles', 'other']).optional(),
+  category: z.enum(AUCTION_CATEGORIES).optional(),
   status: z
     .enum([
       'scheduled',

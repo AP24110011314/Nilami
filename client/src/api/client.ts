@@ -478,12 +478,26 @@ class ApiClient {
   }
 }
 
+export type AuctionCategory =
+  | 'electronics'
+  | 'watches'
+  | 'fashion'
+  | 'art'
+  | 'collectibles'
+  | 'books'
+  | 'furniture'
+  | 'vehicles'
+  | 'musical'
+  | 'appliances'
+  | 'sports'
+  | 'other';
+
 export interface AuctionItem {
   id: string;
   sellerId: string;
   title: string;
   description: string;
-  category: 'electronics' | 'collectibles' | 'art' | 'fashion' | 'vehicles' | 'other';
+  category: AuctionCategory;
   condition: 'new' | 'like_new' | 'used_good' | 'used_fair';
   images: Array<{ url: string; publicId?: string }>;
   currency: 'INR';

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { apiClient, ApiError, type AuctionItem } from '../../api/client.js';
+import { apiClient, ApiError, type AuctionItem, type AuctionCategory } from '../../api/client.js';
 import { rupeesToPaise, paiseToRupees } from '../../lib/money.js';
 import { AlertCircle, ArrowRight, Loader2, Gavel } from 'lucide-react';
 
@@ -11,9 +11,7 @@ export const EditAuctionPage: React.FC = () => {
   const [auction, setAuction] = useState<AuctionItem | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState<
-    'electronics' | 'collectibles' | 'art' | 'fashion' | 'vehicles' | 'other'
-  >('electronics');
+  const [category, setCategory] = useState<AuctionCategory>('electronics');
   const [condition, setCondition] = useState<'new' | 'like_new' | 'used_good' | 'used_fair'>('new');
   const [startingPriceRupees, setStartingPriceRupees] = useState('');
   const [minIncrementRupees, setMinIncrementRupees] = useState('');
@@ -149,10 +147,16 @@ export const EditAuctionPage: React.FC = () => {
                 className="w-full px-4 py-2.5 rounded-xl bg-nilami-sand/40 dark:bg-nilami-dark-bg border border-nilami-border dark:border-nilami-dark-border text-sm text-nilami-text dark:text-nilami-dark-text focus:outline-none focus:border-nilami-green-dark"
               >
                 <option value="electronics">Electronics</option>
-                <option value="collectibles">Collectibles</option>
+                <option value="watches">Horology & Watches</option>
                 <option value="art">Art & Antiques</option>
+                <option value="collectibles">Collectibles & Memorabilia</option>
                 <option value="fashion">Fashion & Luxury</option>
                 <option value="vehicles">Vehicles & Automotive</option>
+                <option value="furniture">Heritage Furniture</option>
+                <option value="books">Books & First Editions</option>
+                <option value="musical">Musical Instruments</option>
+                <option value="appliances">Home Appliances</option>
+                <option value="sports">Sports & Memorabilia</option>
                 <option value="other">Other</option>
               </select>
             </div>
