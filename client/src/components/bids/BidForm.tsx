@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { apiClient, ApiError, type AuctionItem } from '../../api/client.js';
 import { paiseToRupees, rupeesToPaise, formatINR } from '../../lib/money.js';
 import { useAuthStore } from '../../store/auth.js';
-import { Gavel, AlertCircle, CheckCircle2, AlertTriangle, ArrowRight, Loader2 } from 'lucide-react';
+import { Gavel, AlertCircle, CheckCircle2, AlertTriangle, ArrowRight, Loader2, Sparkles } from 'lucide-react';
 
 interface BidFormProps {
   auction: AuctionItem;
@@ -28,7 +28,6 @@ export const BidForm: React.FC<BidFormProps> = ({ auction, onBidSuccess }) => {
 
   const isSeller = user && user.id === auction.sellerId;
   const isHighestBidder = Boolean(user && auction.highestBidderId === user.id);
-  const isVerified = Boolean(user?.emailVerifiedAt);
 
   const handleQuickAdd = (multiplier: number) => {
     const currentVal = parseFloat(amountRupees) || minNextRupees;
@@ -51,7 +50,6 @@ export const BidForm: React.FC<BidFormProps> = ({ auction, onBidSuccess }) => {
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
-        // If error included updated minNextBid in details, adjust form input
         const details = err.details as { minNextBid?: number } | undefined;
         if (details?.minNextBid) {
           setAmountRupees(String(paiseToRupees(details.minNextBid)));
@@ -93,136 +91,123 @@ export const BidForm: React.FC<BidFormProps> = ({ auction, onBidSuccess }) => {
 
   if (isSeller) {
     return (
-      <div className="p-4 rounded-2xl bg-slate-100 border border-slate-200 text-xs text-slate-600 text-center">
+      <div className="p-4 rounded-2xl bg-nilami-sand/50 dark:bg-nilami-dark-surface-elevated border border-nilami-border dark:border-nilami-dark-border text-xs text-nilami-text/70 dark:text-nilami-dark-text/70 text-center">
         You are the seller of this auction lot. Self-bidding is strictly prohibited.
       </div>
     );
   }
 
-  if (user && !isVerified) {
+  if (isHighestBidder) {
     return (
-      <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
-        <p className="font-bold flex items-center gap-1.5">
-          <AlertTriangle className="w-4 h-4 text-amber-600" />
-          Email Verification Required
+      <div className="p-4 rounded-2xl bg-nilami-green-subtle/70 dark:bg-nilami-green-dark/30 border border-nilami-green/40 text-nilami-green-dark dark:text-nilami-sand space-y-1.5 text-center">
+        <div className="flex items-center justify-center gap-1.5 font-bold text-xs uppercase tracking-wider">
+          <CheckCircle2 className="w-4 h-4 text-nilami-green-dark dark:text-nilami-green" />
+          <span>You are currently the highest bidder</span>
+        </div>
+        <p className="text-xs opacity-90">
+          Your bid of <strong className="font-bold">{formatINR(auction.currentPrice)}</strong> leads this auction.
         </p>
-        <p>You must verify your email address before participating in competitive bidding.</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      {error && (
-        <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      {successMsg && (
-        <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-          <span>{successMsg}</span>
-        </div>
-      )}
-
-      <form onSubmit={handleFormSubmit} className="space-y-4">
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
-            <span>Your Bid (₹ INR)</span>
-            <span className="text-[11px] text-slate-400">Min: {formatINR(auction.minNextBid)}</span>
+      {/* Fat finger confirmation modal / alert */}
+      {showFatFingerConfirm && (
+        <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 space-y-3">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
+            <h4 className="font-bold text-xs">High Bid Confirmation</h4>
           </div>
+          <p className="text-xs leading-relaxed">
+            Your bid of <strong>₹{parseFloat(amountRupees).toLocaleString('en-IN')}</strong> is more than double the current price ({formatINR(auction.currentPrice)}). Are you sure you want to proceed?
+          </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => void executeBid()}
+              disabled={submitting}
+              className="flex-1 py-2 rounded-xl bg-nilami-green-dark hover:bg-nilami-green-pressed text-white text-xs font-bold transition cursor-pointer"
+            >
+              {submitting ? 'Submitting...' : 'Yes, Confirm Bid'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowFatFingerConfirm(false)}
+              className="px-4 py-2 rounded-xl bg-nilami-sand dark:bg-nilami-dark-surface hover:bg-nilami-sand/80 text-xs font-semibold text-nilami-text dark:text-nilami-dark-text transition cursor-pointer"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
+      <form onSubmit={handleFormSubmit} className="space-y-3">
+        <div>
+          <label htmlFor="bid-amount-input" className="block text-xs font-bold text-nilami-text dark:text-nilami-dark-text mb-1">
+            Your Bid (₹ INR)
+          </label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-sm text-nilami-text/40 dark:text-nilami-dark-text/40">
               ₹
             </span>
             <input
-              type="text"
-              required
-              disabled={submitting}
+              id="bid-amount-input"
+              type="number"
+              min={minNextRupees}
+              step={minIncrementRupees}
               value={amountRupees}
               onChange={(e) => setAmountRupees(e.target.value)}
-              className="w-full pl-8 pr-4 py-3 rounded-2xl border border-slate-300 text-lg font-black text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+              disabled={submitting}
+              className="w-full pl-8 pr-4 py-3 rounded-2xl bg-nilami-sand-surface dark:bg-nilami-dark-surface border-2 border-nilami-border dark:border-nilami-dark-border focus:border-nilami-green-dark text-lg font-mono font-black text-nilami-text dark:text-nilami-dark-text focus:outline-none"
             />
           </div>
         </div>
 
-        {/* Quick Bid Increment Buttons */}
-        <div className="grid grid-cols-3 gap-2">
-          <button
-            type="button"
-            disabled={submitting}
-            onClick={() => handleQuickAdd(1)}
-            className="py-1.5 px-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition cursor-pointer"
-          >
-            +{formatINR(auction.minIncrement)}
-          </button>
-          <button
-            type="button"
-            disabled={submitting}
-            onClick={() => handleQuickAdd(2)}
-            className="py-1.5 px-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition cursor-pointer"
-          >
-            +{formatINR(auction.minIncrement * 2)}
-          </button>
-          <button
-            type="button"
-            disabled={submitting}
-            onClick={() => handleQuickAdd(5)}
-            className="py-1.5 px-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition cursor-pointer"
-          >
-            +{formatINR(auction.minIncrement * 5)}
-          </button>
+        {/* Quick Increment Buttons */}
+        <div className="flex gap-2">
+          {[1, 2, 5].map((multiplier) => (
+            <button
+              key={multiplier}
+              type="button"
+              onClick={() => handleQuickAdd(multiplier)}
+              disabled={submitting}
+              className="flex-1 py-1.5 rounded-xl bg-nilami-sand/50 dark:bg-nilami-dark-surface-elevated hover:bg-nilami-sand border border-nilami-border dark:border-nilami-dark-border text-xs font-semibold text-nilami-text dark:text-nilami-dark-text transition cursor-pointer"
+            >
+              +{formatINR(auction.minIncrement * multiplier)}
+            </button>
+          ))}
         </div>
 
-        {/* Fat-Finger Confirmation Dialog */}
-        {showFatFingerConfirm && (
-          <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs space-y-3">
-            <div className="flex items-start gap-2">
-              <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
-              <div>
-                <p className="font-bold text-sm">High Bid Confirmation</p>
-                <p>
-                  You are bidding <strong>{formatINR(rupeesToPaise(amountRupees))}</strong>, which is
-                  more than double the current price of {formatINR(auction.currentPrice)}. Are you sure?
-                </p>
-              </div>
-            </div>
-            <div className="flex justify-end gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => setShowFatFingerConfirm(false)}
-                className="px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-slate-700 font-semibold cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => void executeBid()}
-                className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold cursor-pointer"
-              >
-                Confirm High Bid
-              </button>
-            </div>
+        {error && (
+          <div className="p-3 rounded-xl bg-nilami-danger-subtle border border-nilami-danger/30 text-nilami-danger-dark dark:text-nilami-danger-light text-xs flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {successMsg && (
+          <div className="p-3 rounded-xl bg-nilami-green-subtle/80 border border-nilami-green/40 text-nilami-green-dark dark:text-nilami-sand text-xs flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-nilami-green-dark shrink-0" />
+            <span>{successMsg}</span>
           </div>
         )}
 
         <button
           type="submit"
-          disabled={submitting || showFatFingerConfirm || isHighestBidder}
-          className="w-full py-3.5 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+          disabled={submitting}
+          className="w-full py-3.5 px-4 rounded-2xl bg-nilami-green-dark hover:bg-nilami-green-pressed active:scale-[0.99] text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition-all disabled:opacity-60 cursor-pointer"
         >
           {submitting ? (
-            <div className="flex items-center gap-2">
+            <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Placing bid…</span>
-            </div>
+              <span>Transacting Bid...</span>
+            </>
           ) : (
             <>
-              <Gavel className="w-4 h-4" />
-              <span>Place Authoritative Bid</span>
+              <Gavel className="w-4 h-4 text-nilami-sand" />
+              <span>Place Bid of ₹{parseFloat(amountRupees || '0').toLocaleString('en-IN')}</span>
               <ArrowRight className="w-4 h-4" />
             </>
           )}
@@ -231,4 +216,3 @@ export const BidForm: React.FC<BidFormProps> = ({ auction, onBidSuccess }) => {
     </div>
   );
 };
-

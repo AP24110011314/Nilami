@@ -58,13 +58,17 @@ export const PaymentSuccessPage: React.FC = () => {
 
   if (!auctionId) {
     return (
-      <div className="max-w-md mx-auto my-16 p-8 bg-white rounded-3xl border border-slate-200 text-center space-y-4">
+      <div className="max-w-md mx-auto my-16 p-8 bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl border border-nilami-border dark:border-nilami-dark-border text-center space-y-4">
         <AlertCircle className="w-10 h-10 text-amber-500 mx-auto" />
-        <h2 className="text-xl font-bold text-slate-800">Invalid Payment Link</h2>
-        <p className="text-xs text-slate-500">No auction identifier was provided.</p>
+        <h2 className="font-display font-black text-xl text-nilami-text dark:text-nilami-dark-text">
+          Invalid Payment Link
+        </h2>
+        <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60">
+          No auction identifier was provided.
+        </p>
         <Link
           to="/dashboard"
-          className="inline-block px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs transition"
+          className="inline-block px-5 py-2.5 rounded-xl bg-nilami-green-dark hover:bg-nilami-green-pressed text-white font-bold text-xs transition"
         >
           Return to Dashboard
         </Link>
@@ -74,9 +78,11 @@ export const PaymentSuccessPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="max-w-md mx-auto my-16 p-8 bg-white rounded-3xl border border-slate-200 text-center space-y-4">
-        <Loader2 className="w-8 h-8 text-indigo-600 animate-spin mx-auto" />
-        <p className="text-xs text-slate-500">Checking payment settlement...</p>
+      <div className="max-w-md mx-auto my-16 p-8 bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl border border-nilami-border dark:border-nilami-dark-border text-center space-y-4">
+        <Loader2 className="w-8 h-8 text-nilami-green-dark animate-spin mx-auto" />
+        <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60">
+          Checking payment webhook verification...
+        </p>
       </div>
     );
   }
@@ -85,84 +91,98 @@ export const PaymentSuccessPage: React.FC = () => {
 
   return (
     <div className="max-w-lg mx-auto my-12">
-      <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xl text-center space-y-6">
+      <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl p-8 border border-nilami-border dark:border-nilami-dark-border shadow-xl text-center space-y-6">
         {isSucceeded ? (
           <>
-            <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto border-2 border-emerald-200 shadow-sm">
+            <div className="w-16 h-16 bg-nilami-green-subtle text-nilami-green-dark dark:text-nilami-sand rounded-3xl flex items-center justify-center mx-auto border-2 border-nilami-green/30 shadow-sm">
               <CheckCircle2 className="w-10 h-10" />
             </div>
 
-            <div className="space-y-2">
-              <h1 className="text-2xl font-extrabold text-slate-900">Payment Succeeded!</h1>
-              <p className="text-xs text-slate-500">
-                Your payment has been verified by the bank webhook and the auction is now completed.
+            <div className="space-y-1.5">
+              <h1 className="font-display font-black text-2xl text-nilami-text dark:text-nilami-dark-text">
+                Payment Succeeded!
+              </h1>
+              <p className="text-xs text-nilami-text/70 dark:text-nilami-dark-text/70 leading-relaxed">
+                Your payment has been verified by the Stripe webhook and the lot is now marked complete.
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 text-left space-y-2.5 text-xs">
-              <div className="flex justify-between items-center text-slate-500">
+            <div className="p-5 rounded-2xl bg-nilami-sand/30 dark:bg-nilami-dark-surface-elevated border border-nilami-border/60 dark:border-nilami-dark-border text-left space-y-2.5 text-xs">
+              <div className="flex justify-between items-center text-nilami-text/60 dark:text-nilami-dark-text/60">
                 <span>Amount Paid</span>
-                <span className="font-bold text-slate-900 text-sm font-mono">{formatINR(amount)}</span>
+                <span className="font-bold text-nilami-text dark:text-nilami-dark-text text-sm font-mono">
+                  {formatINR(amount)}
+                </span>
               </div>
-              <div className="flex justify-between items-center text-slate-500">
-                <span>Payment Method</span>
-                <span className="font-semibold text-slate-700">INR Direct Settlement</span>
+              <div className="flex justify-between items-center text-nilami-text/60 dark:text-nilami-dark-text/60">
+                <span>Payment Rail</span>
+                <span className="font-semibold text-nilami-text dark:text-nilami-dark-text">
+                  Stripe INR Direct Webhook
+                </span>
               </div>
               {paidAt && (
-                <div className="flex justify-between items-center text-slate-500">
+                <div className="flex justify-between items-center text-nilami-text/60 dark:text-nilami-dark-text/60">
                   <span>Settled At</span>
-                  <span className="font-mono text-slate-700">{new Date(paidAt).toLocaleTimeString()}</span>
+                  <span className="font-mono text-nilami-text dark:text-nilami-dark-text">
+                    {new Date(paidAt).toLocaleTimeString()}
+                  </span>
                 </div>
               )}
             </div>
 
-            <div className="flex items-center justify-center gap-2 text-xs text-emerald-700 font-semibold bg-emerald-50/60 py-2 rounded-xl">
-              <ShieldCheck className="w-4 h-4" />
-              <span>Seller notified — item will be dispatched</span>
+            <div className="flex items-center justify-center gap-2 text-xs text-nilami-green-dark dark:text-nilami-sand font-bold bg-nilami-green-subtle/80 dark:bg-nilami-green-dark/30 py-2.5 rounded-xl border border-nilami-green/30">
+              <ShieldCheck className="w-4 h-4 text-nilami-green" />
+              <span>Seller notified — item will be dispatched under escrow protection</span>
             </div>
 
             <div className="pt-2">
               <Link
                 to="/dashboard"
-                className="w-full py-3.5 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md transition"
+                className="w-full py-3.5 px-4 rounded-2xl bg-nilami-green-dark hover:bg-nilami-green-pressed text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition cursor-pointer"
               >
                 <span>Go to My Dashboard</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 text-nilami-sand" />
               </Link>
             </div>
           </>
         ) : (
           <>
-            <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-3xl flex items-center justify-center mx-auto border-2 border-indigo-200">
+            <div className="w-16 h-16 bg-nilami-sand dark:bg-nilami-dark-surface-elevated text-nilami-green-dark dark:text-nilami-sand rounded-3xl flex items-center justify-center mx-auto border-2 border-nilami-border">
               <Loader2 className="w-8 h-8 animate-spin" />
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-xl font-bold text-slate-900">Confirming Payment...</h1>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Waiting for the official bank / Stripe webhook to confirm transaction settlement. Do not close this window.
+              <h1 className="font-display font-black text-xl text-nilami-text dark:text-nilami-dark-text">
+                Confirming Webhook Settlement...
+              </h1>
+              <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60 leading-relaxed">
+                Waiting for the official Stripe webhook to confirm transaction settlement. Never trust client redirects alone.
               </p>
             </div>
 
             {isMock && (
-              <div className="pt-4 border-t border-slate-100 space-y-3">
-                <p className="text-[11px] text-amber-600 font-medium">
-                  Running in Demo/Mock Mode: simulate instant webhook callback
+              <div className="pt-4 border-t border-nilami-border/60 dark:border-nilami-dark-border/60 space-y-3">
+                <p className="text-[11px] text-amber-700 dark:text-amber-400 font-semibold">
+                  Demo Mode: simulate instant webhook callback
                 </p>
                 <button
+                  type="button"
                   onClick={handleMockComplete}
                   disabled={completingMock}
-                  className="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs shadow transition disabled:opacity-50 cursor-pointer"
+                  className="w-full py-3 px-4 rounded-xl bg-nilami-green-dark hover:bg-nilami-green-pressed text-white font-bold text-xs shadow transition disabled:opacity-50 cursor-pointer"
                 >
-                  {completingMock ? 'Simulating...' : 'Complete Mock Payment Instantly'}
+                  {completingMock ? 'Simulating...' : 'Complete Mock Webhook Instantly'}
                 </button>
-                {error && <p className="text-xs text-rose-600">{error}</p>}
+                {error && <p className="text-xs text-nilami-danger-dark">{error}</p>}
               </div>
             )}
 
             <div className="pt-2 text-center">
-              <Link to={`/auctions/${auctionId}`} className="text-xs text-indigo-600 font-medium hover:underline">
-                Return to Auction
+              <Link
+                to={`/auctions/${auctionId}`}
+                className="text-xs text-nilami-green-dark dark:text-nilami-sand font-bold hover:underline"
+              >
+                Return to Auction Lot
               </Link>
             </div>
           </>

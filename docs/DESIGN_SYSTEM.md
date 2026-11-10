@@ -129,3 +129,4 @@ In dark mode (`.dark`), surfaces transition to deep green-black, while Ivory and
 ### 4.4 Form Controls
 - Inputs: `bg-nilami-ivory-surface dark:bg-nilami-sand-surface border border-nilami-border focus:border-nilami-green focus:ring-1 focus:ring-nilami-green text-nilami-text rounded-xl px-4 py-2.5 text-sm transition placeholder:text-nilami-text-muted`
 - Visible focus rings strictly enforced with `:focus-visible`.
+

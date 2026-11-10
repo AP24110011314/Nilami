@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router';
 import { apiClient, ApiError } from '../../api/client.js';
-import { User, Mail, Lock, ArrowRight, CheckCircle2, AlertCircle, ShoppingBag, Store } from 'lucide-react';
+import { User, Mail, Lock, ArrowRight, CheckCircle2, AlertCircle, ShoppingBag, Store, Gavel } from 'lucide-react';
 
 export const RegisterPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -33,19 +33,23 @@ export const RegisterPage: React.FC = () => {
 
   if (registeredEmail) {
     return (
-      <div className="max-w-md mx-auto my-12 bg-white rounded-3xl p-8 border border-slate-200 shadow-xl text-center space-y-6">
-        <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto border border-emerald-100">
+      <div className="max-w-md mx-auto my-12 bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl p-8 border border-nilami-border dark:border-nilami-dark-border shadow-xl text-center space-y-6">
+        <div className="w-16 h-16 bg-nilami-green-subtle text-nilami-green-dark dark:text-nilami-sand rounded-full flex items-center justify-center mx-auto border border-nilami-green/30">
           <CheckCircle2 className="w-8 h-8" />
         </div>
         <div className="space-y-2">
-          <h2 className="text-2xl font-bold text-slate-900">Check Your Email</h2>
-          <p className="text-sm text-slate-600">
-            We sent an email verification link to <strong className="text-slate-800">{registeredEmail}</strong>.
+          <h2 className="font-display font-black text-2xl text-nilami-text dark:text-nilami-dark-text">
+            Verify Your Email
+          </h2>
+          <p className="text-xs text-nilami-text/70 dark:text-nilami-dark-text/70 leading-relaxed">
+            We sent an email verification link to{' '}
+            <strong className="text-nilami-text dark:text-nilami-dark-text font-bold">{registeredEmail}</strong>.
+            Check your Mailpit inbox (port 8025) to activate your account.
           </p>
         </div>
         <Link
           to="/login"
-          className="inline-block w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm transition"
+          className="inline-block w-full py-3 px-4 rounded-xl bg-nilami-green-dark hover:bg-nilami-green-pressed text-white font-bold text-xs transition shadow-sm"
         >
           Go to Sign In
         </Link>
@@ -54,88 +58,103 @@ export const RegisterPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-md mx-auto my-12 bg-white rounded-3xl p-8 border border-slate-200 shadow-xl space-y-6">
+    <div className="max-w-md mx-auto my-12 bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl p-8 border border-nilami-border dark:border-nilami-dark-border shadow-xl space-y-6">
       <div className="text-center space-y-2">
-        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Create your Nilami account</h1>
-        <p className="text-sm text-slate-500">Join the live auction community</p>
+        <div className="w-12 h-12 rounded-2xl bg-nilami-green-dark text-white flex items-center justify-center mx-auto shadow-sm">
+          <Gavel className="w-6 h-6 text-nilami-sand" />
+        </div>
+        <h1 className="font-display font-black text-2xl text-nilami-text dark:text-nilami-dark-text tracking-tight">
+          Create Nilami Account
+        </h1>
+        <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60">
+          Join the authoritative real-time live auction platform
+        </p>
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center gap-3 text-sm">
-          <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0" />
+        <div className="p-3.5 rounded-xl bg-nilami-danger-subtle border border-nilami-danger/30 text-nilami-danger-dark dark:text-nilami-danger-light flex items-center gap-2.5 text-xs font-semibold">
+          <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Role toggle */}
-        <div className="grid grid-cols-2 gap-3 p-1 bg-slate-100 rounded-2xl">
+        <div className="grid grid-cols-2 gap-2 p-1 bg-nilami-sand/50 dark:bg-nilami-dark-bg rounded-2xl border border-nilami-border/60">
           <button
             type="button"
             onClick={() => setRole('buyer')}
-            className={`flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
-              role === 'buyer' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-600 hover:text-slate-900'
+            className={`flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+              role === 'buyer'
+                ? 'bg-nilami-green-dark text-white shadow-sm'
+                : 'text-nilami-text/70 dark:text-nilami-dark-text/70 hover:text-nilami-text'
             }`}
           >
-            <ShoppingBag className="w-4 h-4" />
+            <ShoppingBag className="w-3.5 h-3.5" />
             <span>Buyer</span>
           </button>
           <button
             type="button"
             onClick={() => setRole('seller')}
-            className={`flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
-              role === 'seller' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-600 hover:text-slate-900'
+            className={`flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+              role === 'seller'
+                ? 'bg-nilami-green-dark text-white shadow-sm'
+                : 'text-nilami-text/70 dark:text-nilami-dark-text/70 hover:text-nilami-text'
             }`}
           >
-            <Store className="w-4 h-4" />
+            <Store className="w-3.5 h-3.5" />
             <span>Seller</span>
           </button>
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">Full Name</label>
+          <label className="text-[11px] font-bold uppercase tracking-wider text-nilami-text/60 dark:text-nilami-dark-text/60">
+            Full Name
+          </label>
           <div className="relative">
-            <User className="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <User className="w-4 h-4 text-nilami-text/40 dark:text-nilami-dark-text/40 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               required
-              minLength={2}
-              maxLength={60}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Aarav Sharma"
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+              placeholder="Amartya Kumar"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-nilami-sand/40 dark:bg-nilami-dark-bg border border-nilami-border dark:border-nilami-dark-border text-sm text-nilami-text dark:text-nilami-dark-text focus:outline-none focus:border-nilami-green-dark"
             />
           </div>
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">Email Address</label>
+          <label className="text-[11px] font-bold uppercase tracking-wider text-nilami-text/60 dark:text-nilami-dark-text/60">
+            Email Address
+          </label>
           <div className="relative">
-            <Mail className="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Mail className="w-4 h-4 text-nilami-text/40 dark:text-nilami-dark-text/40 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+              placeholder="user@example.com"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-nilami-sand/40 dark:bg-nilami-dark-bg border border-nilami-border dark:border-nilami-dark-border text-sm text-nilami-text dark:text-nilami-dark-text focus:outline-none focus:border-nilami-green-dark"
             />
           </div>
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">Password</label>
+          <label className="text-[11px] font-bold uppercase tracking-wider text-nilami-text/60 dark:text-nilami-dark-text/60">
+            Password (min 8 chars)
+          </label>
           <div className="relative">
-            <Lock className="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Lock className="w-4 h-4 text-nilami-text/40 dark:text-nilami-dark-text/40 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="password"
               required
               minLength={8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="At least 8 characters"
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+              placeholder="Password123!"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-nilami-sand/40 dark:bg-nilami-dark-bg border border-nilami-border dark:border-nilami-dark-border text-sm text-nilami-text dark:text-nilami-dark-text focus:outline-none focus:border-nilami-green-dark"
             />
           </div>
         </div>
@@ -143,26 +162,19 @@ export const RegisterPage: React.FC = () => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full mt-4 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-md transition disabled:opacity-50 cursor-pointer"
+          className="w-full mt-4 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-nilami-green-dark hover:bg-nilami-green-pressed text-white font-bold text-xs shadow-md transition disabled:opacity-50 cursor-pointer"
         >
-          {loading ? (
-            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          ) : (
-            <>
-              <span>Create Account</span>
-              <ArrowRight className="w-4 h-4" />
-            </>
-          )}
+          <span>{loading ? 'Creating Account...' : 'Register Account'}</span>
+          <ArrowRight className="w-4 h-4 text-nilami-sand" />
         </button>
       </form>
 
-      <div className="text-center text-xs text-slate-500">
+      <div className="text-center text-xs text-nilami-text/60 dark:text-nilami-dark-text/60 pt-2 border-t border-nilami-border/60 dark:border-nilami-dark-border/60">
         Already have an account?{' '}
-        <Link to="/login" className="font-semibold text-indigo-600 hover:text-indigo-800">
+        <Link to="/login" className="font-bold text-nilami-green-dark dark:text-nilami-sand hover:underline">
           Sign In
         </Link>
       </div>
     </div>
   );
 };
-
