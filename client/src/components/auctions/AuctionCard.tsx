@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
 import type { AuctionItem } from '../../api/client.js';
 import { formatINR } from '../../lib/money.js';
+import { getCategoryFallbackImage, resolveImageUrl } from '../../lib/media.js';
 import { Clock, Gavel, ShieldCheck, Bookmark, BookmarkCheck, Star } from 'lucide-react';
 import { useCountdown } from '../../hooks/useCountdown.js';
 import { useAuthStore } from '../../store/auth.js';
@@ -13,22 +14,6 @@ interface AuctionCardProps {
   onWatchToggle?: (auctionId: string, newState: boolean) => void;
 }
 
-const DEFAULT_FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800';
-
-const CATEGORY_FALLBACKS: Record<string, string> = {
-  electronics: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800',
-  collectibles: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=800',
-  art: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800',
-  fashion: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800',
-  vehicles: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800',
-  watches: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800',
-  furniture: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800',
-  books: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800',
-  musical: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800',
-  sports: 'https://images.unsplash.com/photo-1517649763962-0c623266ddc0?w=800',
-  other: DEFAULT_FALLBACK_IMAGE,
-};
-
 export const AuctionCard: React.FC<AuctionCardProps> = ({
   auction,
   isWatching: initialWatching = false,
@@ -37,13 +22,18 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({
   const { user } = useAuthStore();
   const navigate = useNavigate();
 
-  const categoryDefault = CATEGORY_FALLBACKS[auction.category] ?? DEFAULT_FALLBACK_IMAGE;
-  const initialImage = auction.images && auction.images[0]?.url ? auction.images[0].url : categoryDefault;
+  const categoryDefault = getCategoryFallbackImage(auction.category);
+  const initialImage = resolveImageUrl(auction.images?.[0]?.url) || categoryDefault;
 
   const [imgSrc, setImgSrc] = useState<string>(initialImage);
   const [imgError, setImgError] = useState<boolean>(false);
   const [watching, setWatching] = useState<boolean>(initialWatching);
   const [watchLoading, setWatchLoading] = useState(false);
+
+  useEffect(() => {
+    setImgSrc(initialImage);
+    setImgError(false);
+  }, [initialImage]);
 
   // Authoritative synced countdown
   const countdown = useCountdown(auction.endsAt);
@@ -92,7 +82,7 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({
   const renderCountdownChip = () => {
     if (countdown.isEnded || auction.status === 'completed' || auction.status === 'unsold') {
       return (
-        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-nilami-sand dark:bg-nilami-dark-surface-elevated text-nilami-text/70 dark:text-nilami-dark-text/70 shadow-sm">
+        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-nilami-sand text-nilami-text shadow-sm">
           Ended
         </span>
       );
@@ -100,7 +90,7 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({
 
     if (auction.status === 'scheduled') {
       return (
-        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-nilami-tan/30 text-nilami-tan-dark dark:text-nilami-sand border border-nilami-tan/50 shadow-sm backdrop-blur-md">
+        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-nilami-tan/90 text-nilami-text border border-nilami-border-strong shadow-sm backdrop-blur-md">
           Upcoming
         </span>
       );
@@ -108,7 +98,7 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({
 
     if (countdown.phase === 'red') {
       return (
-        <span className="px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-nilami-danger-dark text-white border border-red-400 shadow-md animate-pulse flex items-center gap-1.5">
+        <span className="px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-nilami-danger-dark text-white border border-nilami-danger-border shadow-md animate-pulse flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
           <span>{countdown.formatted}</span>
         </span>
@@ -117,7 +107,7 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({
 
     if (countdown.phase === 'amber') {
       return (
-        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-amber-600 text-white shadow-md flex items-center gap-1">
+        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-nilami-warning-dark text-white shadow-md flex items-center gap-1">
           <Clock className="w-3 h-3" />
           <span>{countdown.formatted}</span>
         </span>
@@ -126,7 +116,7 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({
 
     return (
       <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-nilami-green-dark text-white shadow-sm flex items-center gap-1">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
+        <span className="w-1.5 h-1.5 rounded-full bg-nilami-tan animate-pulse" />
         <span>{countdown.formatted}</span>
       </span>
     );
@@ -135,17 +125,17 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({
   return (
     <Link
       to={`/auctions/${auction.id}`}
-      className="group bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-2xl border border-nilami-border dark:border-nilami-dark-border overflow-hidden shadow-sm hover:shadow-xl hover:border-nilami-tan dark:hover:border-nilami-sand/50 hover:-translate-y-1 transition-all duration-300 flex flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-nilami-green"
+      className="group bg-nilami-ivory-surface rounded-2xl border border-nilami-border overflow-hidden shadow-sm hover:shadow-xl hover:border-nilami-border-strong hover:-translate-y-1 transition-all duration-300 flex flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-nilami-green-dark"
     >
       {/* Thumbnail Container */}
-      <div className="relative aspect-4/3 bg-nilami-sand/30 dark:bg-nilami-dark-surface-elevated overflow-hidden">
+      <div className="relative aspect-4/3 bg-nilami-sand-surface overflow-hidden">
         {imgError ? (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-nilami-sand/40 to-nilami-ivory-surface text-nilami-text/40 p-4 select-none">
-            <Gavel className="w-10 h-10 text-nilami-green-dark/40 mb-2" />
+          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-nilami-sand/60 to-nilami-ivory-surface text-nilami-text-muted p-4 select-none">
+            <Gavel className="w-10 h-10 text-nilami-green-dark/50 mb-2" />
             <span className="text-xs font-bold text-nilami-text text-center line-clamp-1 max-w-[85%]">
               {auction.title}
             </span>
-            <span className="text-[10px] font-bold text-nilami-tan uppercase tracking-widest mt-1">
+            <span className="text-[10px] font-bold text-nilami-tan-dark uppercase tracking-widest mt-1">
               {auction.category}
             </span>
           </div>
@@ -178,8 +168,8 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({
           aria-label={watching ? 'Remove from watchlist' : 'Add to watchlist'}
           className={`absolute top-3 right-3 z-10 p-2 rounded-xl backdrop-blur-md transition-all shadow-sm cursor-pointer ${
             watching
-              ? 'bg-nilami-tan text-white hover:bg-nilami-tan-dark'
-              : 'bg-black/40 text-white/80 hover:bg-black/60 hover:text-white'
+              ? 'bg-nilami-tan text-nilami-text border border-nilami-border-strong hover:bg-nilami-sand'
+              : 'bg-nilami-text/70 text-nilami-ivory hover:bg-nilami-text hover:text-white'
           }`}
           title={watching ? 'Watching (Click to remove)' : 'Add to Watchlist'}
         >
@@ -197,32 +187,32 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({
       {/* Card Body */}
       <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
         <div className="space-y-1.5">
-          <h3 className="font-display font-bold text-base text-nilami-text dark:text-nilami-dark-text group-hover:text-nilami-green-dark dark:group-hover:text-nilami-sand transition-colors line-clamp-2 leading-snug">
+          <h3 className="font-display font-bold text-base text-nilami-text group-hover:text-nilami-green-dark transition-colors line-clamp-2 leading-snug">
             {auction.title}
           </h3>
-          <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60 line-clamp-2">
+          <p className="text-xs text-nilami-text-muted line-clamp-2">
             {auction.description}
           </p>
         </div>
 
         {/* Price & Bid Stats */}
-        <div className="pt-3 border-t border-nilami-border/60 dark:border-nilami-dark-border/60 space-y-3">
+        <div className="pt-3 border-t border-nilami-border-subtle space-y-3">
           <div className="flex items-baseline justify-between">
             <div>
-              <p className="text-[10px] uppercase tracking-wider font-bold text-nilami-text/50 dark:text-nilami-dark-text/50">
+              <p className="text-[10px] uppercase tracking-wider font-bold text-nilami-text-muted">
                 Current Bid
               </p>
-              <p className="text-xl font-black text-nilami-text dark:text-nilami-dark-text font-mono">
+              <p className="text-xl font-black text-nilami-text font-mono">
                 {formatINR(auction.currentPrice)}
               </p>
             </div>
             <div className="text-right">
-              <span className="inline-flex items-center gap-1 text-xs font-bold text-nilami-green-dark dark:text-nilami-sand">
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-nilami-green-dark">
                 <Gavel className="w-3.5 h-3.5" />
                 {auction.bidCount} {auction.bidCount === 1 ? 'bid' : 'bids'}
               </span>
               {auction.reserveMet && (
-                <div className="flex items-center justify-end gap-1 text-[10px] text-nilami-green-dark dark:text-nilami-green font-semibold">
+                <div className="flex items-center justify-end gap-1 text-[10px] text-nilami-green-dark font-semibold">
                   <ShieldCheck className="w-3 h-3" />
                   <span>Reserve met</span>
                 </div>
@@ -231,9 +221,9 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({
           </div>
 
           {/* Seller Rating & Ends Date */}
-          <div className="flex items-center justify-between text-[11px] text-nilami-text/50 dark:text-nilami-dark-text/50 pt-1">
+          <div className="flex items-center justify-between text-[11px] text-nilami-text-muted pt-1">
             {auction.seller?.ratingAvg && auction.seller.ratingAvg > 0 ? (
-              <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-semibold">
+              <div className="flex items-center gap-1 text-nilami-tan-dark font-semibold">
                 <Star className="w-3 h-3 fill-current" />
                 <span>{auction.seller.ratingAvg.toFixed(1)}</span>
                 {auction.seller.ratingCount > 0 && <span>({auction.seller.ratingCount})</span>}

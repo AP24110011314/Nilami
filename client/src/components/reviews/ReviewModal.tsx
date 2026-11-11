@@ -42,7 +42,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl max-w-md w-full p-6 shadow-2xl border border-nilami-border dark:border-nilami-dark-border relative space-y-4">
+      <div className="bg-nilami-sand-surface rounded-3xl max-w-md w-full p-6 shadow-2xl border border-nilami-border relative space-y-4">
         <button
           type="button"
           onClick={onClose}
@@ -52,23 +52,23 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
         </button>
 
         <div>
-          <h3 className="font-display font-bold text-lg text-nilami-text dark:text-nilami-dark-text">
+          <h3 className="font-display font-bold text-lg text-nilami-text">
             Review Seller
           </h3>
-          <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60 mt-0.5 line-clamp-1">
+          <p className="text-xs text-nilami-text-muted mt-0.5 line-clamp-1">
             Lot: {auctionTitle}
           </p>
         </div>
 
         {error && (
-          <div className="p-3 bg-nilami-danger-subtle border border-nilami-danger/30 text-nilami-danger-dark dark:text-nilami-danger-light rounded-xl text-xs font-semibold">
+          <div className="p-3 bg-nilami-danger-subtle border border-nilami-danger-border text-nilami-danger-dark rounded-xl text-xs font-semibold">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-nilami-text/60 dark:text-nilami-dark-text/60 block">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-nilami-text/60 block">
               Rating
             </label>
             <div className="flex gap-2">
@@ -77,11 +77,11 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                   key={star}
                   type="button"
                   onClick={() => setRating(star)}
-                  className="p-1 text-amber-500 hover:scale-110 transition cursor-pointer"
+                  className="p-1 text-nilami-warning-dark hover:scale-110 transition cursor-pointer"
                 >
                   <Star
                     className={`w-6 h-6 ${
-                      star <= rating ? 'fill-amber-500 text-amber-500' : 'text-nilami-text/30'
+                      star <= rating ? 'fill-nilami-tan text-nilami-warning-dark' : 'text-nilami-border-strong'
                     }`}
                   />
                 </button>
@@ -90,7 +90,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-nilami-text/60 dark:text-nilami-dark-text/60 block">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-nilami-text-muted block">
               Feedback & Comments
             </label>
             <textarea
@@ -99,7 +99,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Packaging quality, shipping promptness, item condition accuracy..."
-              className="w-full px-3.5 py-2 rounded-xl bg-nilami-sand/40 dark:bg-nilami-dark-bg border border-nilami-border dark:border-nilami-dark-border text-xs text-nilami-text dark:text-nilami-dark-text focus:outline-none focus:border-nilami-green-dark"
+              className="w-full px-3.5 py-2 rounded-xl bg-nilami-ivory-surface border border-nilami-border text-xs text-nilami-text focus:outline-none focus:border-nilami-green-dark"
             />
           </div>
 
@@ -115,7 +115,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl bg-nilami-sand dark:bg-nilami-dark-surface-elevated hover:bg-nilami-sand/80 text-xs font-semibold text-nilami-text dark:text-nilami-dark-text transition cursor-pointer border border-nilami-border"
+              className="px-4 py-2.5 rounded-xl bg-nilami-sand hover:bg-nilami-sand/80 text-xs font-semibold text-nilami-text transition cursor-pointer border border-nilami-border"
             >
               Cancel
             </button>

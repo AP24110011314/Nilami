@@ -52,6 +52,20 @@ describe('Phase 5 — Background Processing Suite (T11–T15)', () => {
 
   afterAll(async () => {
     await closeAllQueues();
+    if (seller?._id) {
+      const auctionIds = (await Auction.find({ sellerId: seller._id }).select('_id')).map(
+        (doc) => doc._id,
+      );
+      if (auctionIds.length > 0) {
+        await Bid.deleteMany({ auctionId: { $in: auctionIds } });
+        await Payment.deleteMany({ auctionId: { $in: auctionIds } });
+        await Outbox.deleteMany({ 'payload.auctionId': { $in: auctionIds.map(String) } });
+        await Auction.deleteMany({ _id: { $in: auctionIds } });
+      }
+      await Notification.deleteMany({
+        userId: { $in: [seller._id, buyer1._id, buyer2._id].filter(Boolean) },
+      });
+    }
     await User.deleteMany({ email: /@jobs\.test\.nilami\.local$/ });
     await disconnectRedis();
     await disconnectDB();
@@ -260,6 +274,11 @@ describe('Phase 5 — Background Processing Suite (T11–T15)', () => {
   });
 
   it('Outbox dispatcher delivers auction.won events and creates notifications idempotently', async () => {
+    // Drain earlier outbox events so batchSize=10 claims this auction's event deterministically
+    while ((await processOutboxBatch(50)) > 0) {
+      // flush backlog from earlier tests in suite
+    }
+
     const auction = await createAuctionWithBids({
       currentPrice: 250000,
       reservePrice: 200000,

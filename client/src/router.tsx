@@ -25,7 +25,7 @@ const AdminPage = lazy(() => import('./pages/admin/AdminPage.js').then((m) => ({
 const RouteLoadingSpinner: React.FC = () => (
   <div className="py-24 text-center space-y-3">
     <Loader2 className="w-8 h-8 text-nilami-green-dark animate-spin mx-auto" />
-    <p className="text-xs font-semibold text-nilami-text/50 dark:text-nilami-dark-text/50">
+    <p className="text-xs font-semibold text-nilami-text-muted">
       Loading view...
     </p>
   </div>

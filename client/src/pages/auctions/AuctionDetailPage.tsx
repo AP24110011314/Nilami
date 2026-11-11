@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient, ApiError } from '../../api/client.js';
 import { formatINR } from '../../lib/money.js';
+import { getCategoryFallbackImage, resolveImageUrl } from '../../lib/media.js';
 import { useAuthStore } from '../../store/auth.js';
 import { useAuctionSocket } from '../../hooks/useAuctionSocket.js';
 import { useCountdown } from '../../hooks/useCountdown.js';
@@ -31,22 +32,6 @@ import {
   ChevronRight,
 } from 'lucide-react';
 
-const DEFAULT_FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800';
-
-const CATEGORY_FALLBACKS: Record<string, string> = {
-  electronics: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800',
-  collectibles: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=800',
-  art: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800',
-  fashion: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800',
-  vehicles: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800',
-  watches: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800',
-  furniture: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800',
-  books: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800',
-  musical: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800',
-  sports: 'https://images.unsplash.com/photo-1517649763962-0c623266ddc0?w=800',
-  other: DEFAULT_FALLBACK_IMAGE,
-};
-
 export const AuctionDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuthStore();
@@ -54,6 +39,11 @@ export const AuctionDetailPage: React.FC = () => {
   const [detailImgError, setDetailImgError] = useState<boolean>(false);
   const [zoomModalOpen, setZoomModalOpen] = useState(false);
   const [priceFlash, setPriceFlash] = useState(false);
+
+  useEffect(() => {
+    setSelectedImage('');
+    setDetailImgError(false);
+  }, [id]);
 
   // Realtime Socket.IO synchronization
   const { isConnected, viewerCount, extensionFlash } = useAuctionSocket(id);
@@ -90,7 +80,7 @@ export const AuctionDetailPage: React.FC = () => {
     return (
       <div className="py-24 text-center space-y-4">
         <Loader2 className="w-10 h-10 text-nilami-green-dark animate-spin mx-auto" />
-        <p className="text-sm font-semibold text-nilami-text/60 dark:text-nilami-dark-text/60">
+        <p className="text-sm font-semibold text-nilami-text/60">
           Connecting to live lot synchronization...
         </p>
       </div>
@@ -101,11 +91,11 @@ export const AuctionDetailPage: React.FC = () => {
     const errorMsg =
       queryError instanceof ApiError ? queryError.message : 'This lot does not exist or was removed.';
     return (
-      <div className="max-w-md mx-auto my-16 p-8 bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl border border-nilami-border dark:border-nilami-dark-border text-center space-y-4 shadow-sm">
-        <h2 className="font-display font-bold text-xl text-nilami-text dark:text-nilami-dark-text">
+      <div className="max-w-md mx-auto my-16 p-8 bg-nilami-sand-surface rounded-3xl border border-nilami-border text-center space-y-4 shadow-sm">
+        <h2 className="font-display font-bold text-xl text-nilami-text">
           Auction Lot Not Found
         </h2>
-        <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60">{errorMsg}</p>
+        <p className="text-xs text-nilami-text/60">{errorMsg}</p>
         <Link
           to="/auctions"
           className="inline-block px-5 py-2.5 rounded-xl bg-nilami-green-dark hover:bg-nilami-green-pressed text-white font-bold text-xs transition"
@@ -121,15 +111,13 @@ export const AuctionDetailPage: React.FC = () => {
     isOwner && auction.bidCount === 0 && (auction.status === 'scheduled' || auction.status === 'active');
 
   const activeImage =
-    selectedImage ||
-    auction.images[0]?.url ||
-    CATEGORY_FALLBACKS[auction.category] ||
-    DEFAULT_FALLBACK_IMAGE;
+    resolveImageUrl(selectedImage || auction.images[0]?.url) ||
+    getCategoryFallbackImage(auction.category);
 
   const getUrgencyBadge = () => {
     if (countdown.isEnded || auction.status === 'completed' || auction.status === 'unsold') {
       return (
-        <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-nilami-sand dark:bg-nilami-dark-surface-elevated text-nilami-text/70 dark:text-nilami-dark-text/70 border border-nilami-border/80">
+        <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-nilami-sand text-nilami-text/70 border border-nilami-border/80">
           Closed
         </span>
       );
@@ -144,8 +132,8 @@ export const AuctionDetailPage: React.FC = () => {
     }
     if (countdown.phase === 'amber') {
       return (
-        <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-600 text-white shadow-md flex items-center gap-1.5">
-          <Clock className="w-3.5 h-3.5" />
+        <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-nilami-tan text-nilami-text border border-nilami-border-strong shadow-md flex items-center gap-1.5">
+          <Clock className="w-3.5 h-3.5 text-nilami-warning-dark" />
           Ending Soon: {countdown.formatted}
         </span>
       );
@@ -164,23 +152,23 @@ export const AuctionDetailPage: React.FC = () => {
       {extensionFlash && (
         <div
           role="status"
-          className="bg-amber-500 text-stone-950 font-bold px-5 py-3.5 rounded-2xl shadow-xl flex items-center justify-center gap-2 animate-bounce border-2 border-amber-300"
+          className="bg-nilami-tan text-nilami-text font-bold px-5 py-3.5 rounded-2xl shadow-xl flex items-center justify-center gap-2 animate-bounce border-2 border-nilami-border-strong"
         >
-          <Zap className="w-5 h-5 fill-current text-stone-950" />
+          <Zap className="w-5 h-5 fill-current text-nilami-warning-dark" />
           <span>Anti-Snipe Protection Triggered! Bidding extended by +30 seconds.</span>
         </div>
       )}
 
       {/* Breadcrumb & Live Stream Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-nilami-text/60 dark:text-nilami-dark-text/60">
+      <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-nilami-text/60">
         <div className="flex items-center gap-2">
-          <Link to="/auctions" className="hover:text-nilami-green-dark dark:hover:text-nilami-sand transition">
+          <Link to="/auctions" className="hover:text-nilami-green-dark transition">
             Auctions
           </Link>
-          <ChevronRight className="w-3 h-3 text-nilami-tan" />
+          <ChevronRight className="w-3 h-3 text-nilami-tan-dark" />
           <span className="capitalize">{auction.category}</span>
-          <ChevronRight className="w-3 h-3 text-nilami-tan" />
-          <span className="font-bold text-nilami-text dark:text-nilami-dark-text truncate max-w-xs">
+          <ChevronRight className="w-3 h-3 text-nilami-tan-dark" />
+          <span className="font-bold text-nilami-text truncate max-w-xs">
             {auction.title}
           </span>
         </div>
@@ -190,7 +178,7 @@ export const AuctionDetailPage: React.FC = () => {
           <div
             className={`flex items-center gap-1.5 px-3 py-1 rounded-full font-semibold text-[11px] border shadow-sm ${
               isConnected
-                ? 'bg-nilami-green-subtle/70 dark:bg-nilami-green-dark/30 text-nilami-green-dark dark:text-nilami-sand border-nilami-green/40'
+                ? 'bg-nilami-green-subtle/70 text-nilami-green-dark border-nilami-green/40'
                 : 'bg-nilami-danger-subtle text-nilami-danger-dark border-nilami-danger/30'
             }`}
           >
@@ -209,8 +197,8 @@ export const AuctionDetailPage: React.FC = () => {
           </div>
 
           {/* Active Viewers Count */}
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-nilami-sand/50 dark:bg-nilami-dark-surface-elevated text-nilami-text dark:text-nilami-dark-text text-[11px] font-semibold border border-nilami-border dark:border-nilami-dark-border">
-            <Users className="w-3.5 h-3.5 text-nilami-tan" />
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-nilami-sand/50 text-nilami-text text-[11px] font-semibold border border-nilami-border">
+            <Users className="w-3.5 h-3.5 text-nilami-tan-dark" />
             <span>{viewerCount} {viewerCount === 1 ? 'viewer' : 'viewers'}</span>
           </div>
 
@@ -219,7 +207,7 @@ export const AuctionDetailPage: React.FC = () => {
           {canEdit && (
             <Link
               to={`/seller/auctions/${auction.id}/edit`}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-nilami-sand dark:bg-nilami-dark-surface hover:bg-nilami-sand/80 text-nilami-text dark:text-nilami-dark-text font-bold text-xs transition border border-nilami-border"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-nilami-sand hover:bg-nilami-sand/80 text-nilami-text font-bold text-xs transition border border-nilami-border"
             >
               <Edit className="w-3.5 h-3.5" />
               <span>Edit Lot</span>
@@ -233,14 +221,14 @@ export const AuctionDetailPage: React.FC = () => {
         <div className="lg:col-span-7 space-y-6">
           <div className="space-y-4">
             {/* Main Image with Zoom Trigger */}
-            <div className="group relative aspect-4/3 bg-nilami-sand/30 dark:bg-nilami-dark-surface-elevated rounded-3xl overflow-hidden border border-nilami-border dark:border-nilami-dark-border shadow-sm">
+            <div className="group relative aspect-4/3 bg-nilami-sand/30 rounded-3xl overflow-hidden border border-nilami-border shadow-sm">
               {detailImgError ? (
                 <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-nilami-sand/40 to-nilami-ivory-surface text-nilami-text/40 p-8 select-none">
                   <Gavel className="w-16 h-16 text-nilami-green-dark/40 mb-3" />
                   <span className="text-base font-bold text-nilami-text text-center line-clamp-2 max-w-md">
                     {auction.title}
                   </span>
-                  <span className="text-xs font-bold text-nilami-tan uppercase tracking-widest mt-2">
+                  <span className="text-xs font-bold text-nilami-tan-dark uppercase tracking-widest mt-2">
                     {auction.category} Lot
                   </span>
                 </div>
@@ -249,8 +237,8 @@ export const AuctionDetailPage: React.FC = () => {
                   src={activeImage}
                   alt={auction.title}
                   onError={() => {
-                    const fallback = CATEGORY_FALLBACKS[auction.category] ?? DEFAULT_FALLBACK_IMAGE;
-                    if (selectedImage !== fallback) {
+                    const fallback = getCategoryFallbackImage(auction.category);
+                    if (activeImage !== fallback) {
                       setSelectedImage(fallback);
                     } else {
                       setDetailImgError(true);
@@ -276,63 +264,67 @@ export const AuctionDetailPage: React.FC = () => {
             {/* Thumbnail Strip */}
             {auction.images.length > 1 && (
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
-                {auction.images.map((img, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setSelectedImage(img.url)}
-                    className={`w-20 h-20 rounded-2xl overflow-hidden border-2 transition flex-shrink-0 cursor-pointer ${
-                      activeImage === img.url
-                        ? 'border-nilami-green-dark shadow-md scale-105'
-                        : 'border-nilami-border dark:border-nilami-dark-border opacity-70 hover:opacity-100'
-                    }`}
-                  >
-                    <img
-                      src={img.url}
-                      alt={`Thumbnail ${i + 1}`}
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          CATEGORY_FALLBACKS[auction.category] ?? DEFAULT_FALLBACK_IMAGE;
-                      }}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
+                {auction.images.map((img, i) => {
+                  const resolvedThumb = resolveImageUrl(img.url);
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setSelectedImage(resolvedThumb)}
+                      className={`w-20 h-20 rounded-2xl overflow-hidden border-2 transition flex-shrink-0 cursor-pointer ${
+                        activeImage === resolvedThumb
+                          ? 'border-nilami-green-dark shadow-md scale-105'
+                          : 'border-nilami-border opacity-70 hover:opacity-100'
+                      }`}
+                    >
+                      <img
+                        src={resolvedThumb}
+                        alt={`Thumbnail ${i + 1}`}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = getCategoryFallbackImage(
+                            auction.category,
+                          );
+                        }}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
 
           {/* Description & Specs */}
-          <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl p-6 sm:p-8 border border-nilami-border dark:border-nilami-dark-border shadow-sm space-y-4">
-            <h2 className="font-display font-bold text-lg text-nilami-text dark:text-nilami-dark-text">
+          <div className="bg-nilami-sand-surface rounded-3xl p-6 sm:p-8 border border-nilami-border shadow-sm space-y-4">
+            <h2 className="font-display font-bold text-lg text-nilami-text">
               Lot Description
             </h2>
-            <div className="text-sm text-nilami-text/80 dark:text-nilami-dark-text/80 leading-relaxed whitespace-pre-line">
+            <div className="text-sm text-nilami-text/80 leading-relaxed whitespace-pre-line">
               {auction.description}
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4 border-t border-nilami-border/60 dark:border-nilami-dark-border/60 text-xs">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4 border-t border-nilami-border/60 text-xs">
               <div>
-                <span className="text-nilami-text/50 dark:text-nilami-dark-text/50 block font-medium">
+                <span className="text-nilami-text/50 block font-medium">
                   Condition
                 </span>
-                <span className="font-bold text-nilami-text dark:text-nilami-dark-text capitalize">
+                <span className="font-bold text-nilami-text capitalize">
                   {auction.condition.replace('_', ' ')}
                 </span>
               </div>
               <div>
-                <span className="text-nilami-text/50 dark:text-nilami-dark-text/50 block font-medium">
+                <span className="text-nilami-text/50 block font-medium">
                   Category
                 </span>
-                <span className="font-bold text-nilami-text dark:text-nilami-dark-text capitalize">
+                <span className="font-bold text-nilami-text capitalize">
                   {auction.category}
                 </span>
               </div>
               <div>
-                <span className="text-nilami-text/50 dark:text-nilami-dark-text/50 block font-medium">
+                <span className="text-nilami-text/50 block font-medium">
                   Financial Precision
                 </span>
-                <span className="font-bold text-nilami-text dark:text-nilami-dark-text">
+                <span className="font-bold text-nilami-text">
                   INR (Integer Paise)
                 </span>
               </div>
@@ -348,36 +340,36 @@ export const AuctionDetailPage: React.FC = () => {
 
         {/* Right Column: Sticky Bid Panel & Seller Info (5 Cols) */}
         <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
-          <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl p-6 sm:p-8 border border-nilami-border dark:border-nilami-dark-border shadow-lg space-y-6">
+          <div className="bg-nilami-sand-surface rounded-3xl p-6 sm:p-8 border border-nilami-border shadow-lg space-y-6">
             {/* Status & Title */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-nilami-green-subtle/80 dark:bg-nilami-green-dark/30 text-nilami-green-dark dark:text-nilami-sand border border-nilami-green/30">
+                <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-nilami-green-subtle/80 text-nilami-green-dark border border-nilami-green/30">
                   {auction.status}
                 </span>
-                <div className="flex items-center gap-1.5 text-xs text-nilami-text/50 dark:text-nilami-dark-text/50 font-mono">
+                <div className="flex items-center gap-1.5 text-xs text-nilami-text/50 font-mono">
                   <Clock className="w-3.5 h-3.5" />
                   <span>Ends: {new Date(auction.endsAt).toLocaleTimeString()}</span>
                 </div>
               </div>
-              <h1 className="font-display font-black text-2xl text-nilami-text dark:text-nilami-dark-text leading-snug">
+              <h1 className="font-display font-black text-2xl text-nilami-text leading-snug">
                 {auction.title}
               </h1>
             </div>
 
             {/* Price Panel with Live Tick Flash */}
             <div
-              className={`p-5 rounded-2xl bg-nilami-ivory/80 dark:bg-nilami-dark-bg border border-nilami-border dark:border-nilami-dark-border space-y-3 transition-colors duration-300 ${
+              className={`p-5 rounded-2xl bg-nilami-ivory/80 border border-nilami-border space-y-3 transition-colors duration-300 ${
                 priceFlash ? 'bg-nilami-green-subtle/70 ring-2 ring-nilami-green' : ''
               }`}
             >
               <div className="flex items-baseline justify-between">
                 <div>
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-nilami-text/50 dark:text-nilami-dark-text/50 block">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-nilami-text/50 block">
                     Current High Bid
                   </span>
                   <span
-                    className="text-3xl font-black text-nilami-text dark:text-nilami-dark-text font-mono tracking-tight"
+                    className="text-3xl font-black text-nilami-text font-mono tracking-tight"
                     aria-live="polite"
                     aria-atomic="true"
                   >
@@ -385,28 +377,28 @@ export const AuctionDetailPage: React.FC = () => {
                   </span>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-nilami-text/50 dark:text-nilami-dark-text/50 block">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-nilami-text/50 block">
                     Next Minimum
                   </span>
-                  <span className="text-sm font-bold text-nilami-green-dark dark:text-nilami-sand font-mono">
+                  <span className="text-sm font-bold text-nilami-green-dark font-mono">
                     {formatINR(auction.minNextBid)}
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-3 border-t border-nilami-border/60 dark:border-nilami-dark-border/60 text-xs">
-                <span className="flex items-center gap-1.5 font-bold text-nilami-text dark:text-nilami-dark-text">
-                  <Gavel className="w-4 h-4 text-nilami-tan" />
+              <div className="flex items-center justify-between pt-3 border-t border-nilami-border/60 text-xs">
+                <span className="flex items-center gap-1.5 font-bold text-nilami-text">
+                  <Gavel className="w-4 h-4 text-nilami-tan-dark" />
                   {auction.bidCount} {auction.bidCount === 1 ? 'bid' : 'bids'} placed
                 </span>
 
                 {auction.reserveMet ? (
-                  <span className="flex items-center gap-1 text-nilami-green-dark dark:text-nilami-green font-bold">
+                  <span className="flex items-center gap-1 text-nilami-green-dark font-bold">
                     <ShieldCheck className="w-4 h-4" />
                     Reserve met
                   </span>
                 ) : (
-                  <span className="flex items-center gap-1 text-amber-700 dark:text-amber-400 font-bold">
+                  <span className="flex items-center gap-1 text-nilami-warning-dark font-bold">
                     <ShieldAlert className="w-4 h-4" />
                     Reserve pending
                   </span>
@@ -418,7 +410,7 @@ export const AuctionDetailPage: React.FC = () => {
             {user &&
             (auction.status === 'payment_pending' || auction.status === 'completed') &&
             auction.winnerId === user.id ? (
-              <div className="p-6 rounded-2xl bg-nilami-green-subtle/90 dark:bg-nilami-green-dark/30 border-2 border-nilami-green/50 text-nilami-green-dark dark:text-nilami-sand space-y-3 shadow-md">
+              <div className="p-6 rounded-2xl bg-nilami-green-subtle/90 border-2 border-nilami-green/50 text-nilami-green-dark space-y-3 shadow-md">
                 <div className="flex items-center gap-2 font-display font-black text-base">
                   <Trophy className="w-5 h-5 text-nilami-green" />
                   <span>You Won This Auction!</span>
@@ -448,25 +440,25 @@ export const AuctionDetailPage: React.FC = () => {
                 </button>
               </div>
             ) : auction.status === 'unsold' ? (
-              <div className="p-6 rounded-2xl bg-nilami-sand/40 dark:bg-nilami-dark-surface-elevated border border-nilami-border dark:border-nilami-dark-border text-center space-y-2">
+              <div className="p-6 rounded-2xl bg-nilami-sand/40 border border-nilami-border text-center space-y-2">
                 <AlertCircle className="w-6 h-6 text-nilami-text/40 mx-auto" />
-                <h3 className="font-bold text-sm text-nilami-text dark:text-nilami-dark-text">
+                <h3 className="font-bold text-sm text-nilami-text">
                   Auction Ended Unsold
                 </h3>
-                <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60">
+                <p className="text-xs text-nilami-text/60">
                   This lot ended without meeting the reserve price or receiving qualifying bids.
                 </p>
               </div>
             ) : auction.status === 'payment_pending' ||
               auction.status === 'completed' ||
               auction.status === 'payment_failed' ? (
-              <div className="p-6 rounded-2xl bg-nilami-sand/40 dark:bg-nilami-dark-surface-elevated border border-nilami-border dark:border-nilami-dark-border text-center space-y-2">
-                <h3 className="font-bold text-sm text-nilami-text dark:text-nilami-dark-text">
+              <div className="p-6 rounded-2xl bg-nilami-sand/40 border border-nilami-border text-center space-y-2">
+                <h3 className="font-bold text-sm text-nilami-text">
                   Auction Closed
                 </h3>
-                <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60">
+                <p className="text-xs text-nilami-text/60">
                   Winning Bid:{' '}
-                  <strong className="font-bold text-nilami-text dark:text-nilami-dark-text">
+                  <strong className="font-bold text-nilami-text">
                     {formatINR(auction.finalPrice || auction.currentPrice)}
                   </strong>
                 </p>
@@ -481,9 +473,9 @@ export const AuctionDetailPage: React.FC = () => {
                 >
                   Sign In to Place a Bid
                 </Link>
-                <p className="text-center text-xs text-nilami-text/50 dark:text-nilami-dark-text/50">
+                <p className="text-center text-xs text-nilami-text/50">
                   New to Nilami?{' '}
-                  <Link to="/register" className="text-nilami-green-dark dark:text-nilami-sand font-bold hover:underline">
+                  <Link to="/register" className="text-nilami-green-dark font-bold hover:underline">
                     Create free account
                   </Link>
                 </p>
@@ -491,7 +483,7 @@ export const AuctionDetailPage: React.FC = () => {
             )}
 
             {serverTime && (
-              <div className="flex items-center justify-between text-[11px] font-mono text-nilami-text/50 dark:text-nilami-dark-text/50 pt-2 border-t border-nilami-border/60 dark:border-nilami-dark-border/60">
+              <div className="flex items-center justify-between text-[11px] font-mono text-nilami-text/50 pt-2 border-t border-nilami-border/60">
                 <span>Cluster Server Clock:</span>
                 <span>{new Date(serverTime).toLocaleTimeString()}</span>
               </div>
@@ -500,8 +492,8 @@ export const AuctionDetailPage: React.FC = () => {
 
           {/* Seller Card */}
           {auction.seller && (
-            <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl p-6 border border-nilami-border dark:border-nilami-dark-border shadow-sm space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-nilami-text/50 dark:text-nilami-dark-text/50">
+            <div className="bg-nilami-sand-surface rounded-3xl p-6 border border-nilami-border shadow-sm space-y-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-nilami-text/50">
                 Seller Information
               </h3>
               <div className="flex items-center justify-between">
@@ -510,10 +502,10 @@ export const AuctionDetailPage: React.FC = () => {
                     {auction.seller.name.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <h4 className="font-display font-bold text-sm text-nilami-text dark:text-nilami-dark-text">
+                    <h4 className="font-display font-bold text-sm text-nilami-text">
                       {auction.seller.name}
                     </h4>
-                    <div className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+                    <div className="flex items-center gap-1 text-xs text-nilami-warning-dark">
                       <Star className="w-3.5 h-3.5 fill-current" />
                       <span className="font-bold">
                         {auction.seller.ratingAvg > 0 ? auction.seller.ratingAvg.toFixed(1) : 'New Seller'}
@@ -525,8 +517,8 @@ export const AuctionDetailPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-nilami-sand/50 dark:bg-nilami-dark-surface-elevated border border-nilami-border dark:border-nilami-dark-border text-nilami-text/80 dark:text-nilami-dark-text/80 text-[11px] font-semibold">
-                  <Info className="w-3.5 h-3.5 text-nilami-tan" />
+                <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-nilami-sand/50 border border-nilami-border text-nilami-text/80 text-[11px] font-semibold">
+                  <Info className="w-3.5 h-3.5 text-nilami-tan-dark" />
                   <span>Verified</span>
                 </div>
               </div>

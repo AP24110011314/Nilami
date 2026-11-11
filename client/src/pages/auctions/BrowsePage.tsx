@@ -62,7 +62,7 @@ export const BrowsePage: React.FC = () => {
   const sort = searchParams.get('sort') || 'endingSoon';
   const minPriceParam = searchParams.get('minPrice') || '';
   const maxPriceParam = searchParams.get('maxPrice') || '';
-  const page = parseInt(searchParams.get('page') || '1', 10);
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
 
   // Local form inputs
   const [searchInput, setSearchInput] = useState(q);
@@ -158,8 +158,13 @@ export const BrowsePage: React.FC = () => {
     } else {
       newParams.delete(key);
     }
-    newParams.set('page', '1');
+    if (key !== 'page') {
+      newParams.set('page', '1');
+    }
     setSearchParams(newParams);
+    if (key === 'page') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const activeFilterCount =
@@ -176,10 +181,10 @@ export const BrowsePage: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
         <div>
-          <h1 className="font-display font-black text-3xl sm:text-4xl text-nilami-text dark:text-nilami-dark-text tracking-tight">
+          <h1 className="font-display font-black text-3xl sm:text-4xl text-nilami-text tracking-tight">
             Browse Auctions
           </h1>
-          <p className="text-xs sm:text-sm text-nilami-text/60 dark:text-nilami-dark-text/60">
+          <p className="text-xs sm:text-sm text-nilami-text/60">
             Discover {total} authenticated lots with real-time atomic bidding
           </p>
         </div>
@@ -187,13 +192,13 @@ export const BrowsePage: React.FC = () => {
         {/* Global Search Bar */}
         <form onSubmit={handleSearchSubmit} className="flex gap-2 max-w-md w-full">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-nilami-text/40 dark:text-nilami-dark-text/40 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Search className="w-4 h-4 text-nilami-text/40 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search title, brand, keyword..."
-              className="w-full pl-9 pr-8 py-2.5 rounded-xl bg-nilami-sand-surface dark:bg-nilami-dark-surface border border-nilami-border dark:border-nilami-dark-border text-sm text-nilami-text dark:text-nilami-dark-text placeholder:text-nilami-text/40 dark:placeholder:text-nilami-dark-text/40 focus:outline-none focus:border-nilami-green-dark focus:ring-1 focus:ring-nilami-green-dark"
+              className="w-full pl-9 pr-8 py-2.5 rounded-xl bg-nilami-sand-surface border border-nilami-border text-sm text-nilami-text placeholder:text-nilami-text/40 focus:outline-none focus:border-nilami-green-dark focus:ring-1 focus:ring-nilami-green-dark"
             />
             {searchInput && (
               <button
@@ -218,13 +223,13 @@ export const BrowsePage: React.FC = () => {
       </div>
 
       {/* Mobile Filter Toggle & Sort Bar */}
-      <div className="flex items-center justify-between gap-3 pb-2 border-b border-nilami-border/60 dark:border-nilami-dark-border/60">
+      <div className="flex items-center justify-between gap-3 pb-2 border-b border-nilami-border/60">
         <button
           type="button"
           onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
-          className="lg:hidden flex items-center gap-2 px-3.5 py-2 rounded-xl bg-nilami-sand-surface dark:bg-nilami-dark-surface border border-nilami-border dark:border-nilami-dark-border text-xs font-bold text-nilami-text dark:text-nilami-dark-text shadow-sm cursor-pointer"
+          className="lg:hidden flex items-center gap-2 px-3.5 py-2 rounded-xl bg-nilami-sand-surface border border-nilami-border text-xs font-bold text-nilami-text shadow-sm cursor-pointer"
         >
-          <Filter className="w-3.5 h-3.5 text-nilami-tan" />
+          <Filter className="w-3.5 h-3.5 text-nilami-tan-dark" />
           <span>Filters</span>
           {activeFilterCount > 0 && (
             <span className="w-5 h-5 rounded-full bg-nilami-green-dark text-white text-[10px] flex items-center justify-center font-bold">
@@ -237,7 +242,7 @@ export const BrowsePage: React.FC = () => {
           <button
             type="button"
             onClick={handleClearFilters}
-            className="hidden sm:flex items-center gap-1.5 text-xs text-nilami-danger-dark dark:text-nilami-danger-light hover:underline font-semibold cursor-pointer"
+            className="hidden sm:flex items-center gap-1.5 text-xs text-nilami-danger-dark hover:underline font-semibold cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Clear Filters ({activeFilterCount})</span>
@@ -245,12 +250,12 @@ export const BrowsePage: React.FC = () => {
         )}
 
         <div className="flex items-center gap-2 ml-auto">
-          <ArrowUpDown className="w-4 h-4 text-nilami-tan hidden sm:block" />
+          <ArrowUpDown className="w-4 h-4 text-nilami-tan-dark hidden sm:block" />
           <select
             value={sort}
             onChange={(e) => updateParam('sort', e.target.value)}
             aria-label="Sort auctions"
-            className="text-xs font-bold bg-nilami-sand-surface dark:bg-nilami-dark-surface border border-nilami-border dark:border-nilami-dark-border rounded-xl px-3 py-2 text-nilami-text dark:text-nilami-dark-text focus:outline-none focus:border-nilami-green-dark cursor-pointer"
+            className="text-xs font-bold bg-nilami-sand-surface border border-nilami-border rounded-xl px-3 py-2 text-nilami-text focus:outline-none focus:border-nilami-green-dark cursor-pointer"
           >
             {SORT_OPTIONS.map((opt) => (
               <option key={opt.id} value={opt.id}>
@@ -267,12 +272,12 @@ export const BrowsePage: React.FC = () => {
         <aside
           className={`lg:block ${
             mobileFilterOpen ? 'block' : 'hidden'
-          } bg-nilami-sand-surface dark:bg-nilami-dark-surface p-6 rounded-3xl border border-nilami-border dark:border-nilami-dark-border space-y-6 shadow-sm`}
+          } bg-nilami-sand-surface p-6 rounded-3xl border border-nilami-border space-y-6 shadow-sm`}
         >
-          <div className="flex items-center justify-between border-b border-nilami-border/60 dark:border-nilami-dark-border/60 pb-3">
+          <div className="flex items-center justify-between border-b border-nilami-border/60 pb-3">
             <div className="flex items-center gap-2">
-              <SlidersHorizontal className="w-4 h-4 text-nilami-green-dark dark:text-nilami-sand" />
-              <h2 className="font-display font-bold text-sm text-nilami-green-dark dark:text-nilami-sand">
+              <SlidersHorizontal className="w-4 h-4 text-nilami-green-dark" />
+              <h2 className="font-display font-bold text-sm text-nilami-green-dark">
                 Filter Catalog
               </h2>
             </div>
@@ -280,7 +285,7 @@ export const BrowsePage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleClearFilters}
-                className="text-[11px] text-nilami-danger-dark dark:text-nilami-danger-light hover:underline font-semibold cursor-pointer"
+                className="text-[11px] text-nilami-danger-dark hover:underline font-semibold cursor-pointer"
               >
                 Reset
               </button>
@@ -289,7 +294,7 @@ export const BrowsePage: React.FC = () => {
 
           {/* Categories */}
           <div className="space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-nilami-text/50 dark:text-nilami-dark-text/50">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-nilami-text/50">
               Categories
             </h3>
             <div className="space-y-1">
@@ -303,7 +308,7 @@ export const BrowsePage: React.FC = () => {
                     className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
                       isSelected
                         ? 'bg-nilami-green-dark text-white font-bold shadow-sm'
-                        : 'text-nilami-text/80 dark:text-nilami-dark-text/80 hover:bg-nilami-sand/50 dark:hover:bg-nilami-dark-surface-elevated'
+                        : 'text-nilami-text/80 hover:bg-nilami-sand/50'
                     }`}
                   >
                     <span>{cat.label}</span>
@@ -315,8 +320,8 @@ export const BrowsePage: React.FC = () => {
           </div>
 
           {/* Status Filter */}
-          <div className="space-y-3 pt-3 border-t border-nilami-border/60 dark:border-nilami-dark-border/60">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-nilami-text/50 dark:text-nilami-dark-text/50">
+          <div className="space-y-3 pt-3 border-t border-nilami-border/60">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-nilami-text/50">
               Auction Status
             </h3>
             <div className="space-y-1">
@@ -330,7 +335,7 @@ export const BrowsePage: React.FC = () => {
                     className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
                       isSelected
                         ? 'bg-nilami-green-dark text-white font-bold shadow-sm'
-                        : 'text-nilami-text/80 dark:text-nilami-dark-text/80 hover:bg-nilami-sand/50 dark:hover:bg-nilami-dark-surface-elevated'
+                        : 'text-nilami-text/80 hover:bg-nilami-sand/50'
                     }`}
                   >
                     <span>{st.label}</span>
@@ -342,13 +347,13 @@ export const BrowsePage: React.FC = () => {
           </div>
 
           {/* Price Range Filter */}
-          <div className="space-y-3 pt-3 border-t border-nilami-border/60 dark:border-nilami-dark-border/60">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-nilami-text/50 dark:text-nilami-dark-text/50">
+          <div className="space-y-3 pt-3 border-t border-nilami-border/60">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-nilami-text/50">
               Price Range (₹)
             </h3>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label htmlFor="min-price-input" className="text-[10px] text-nilami-text/50 dark:text-nilami-dark-text/50 block mb-1">
+                <label htmlFor="min-price-input" className="text-[10px] text-nilami-text/50 block mb-1">
                   Min ₹
                 </label>
                 <input
@@ -357,11 +362,11 @@ export const BrowsePage: React.FC = () => {
                   placeholder="0"
                   value={minPriceRupees}
                   onChange={(e) => setMinPriceRupees(e.target.value)}
-                  className="w-full px-2.5 py-1.5 rounded-lg bg-nilami-sand/40 dark:bg-nilami-dark-bg border border-nilami-border dark:border-nilami-dark-border text-xs text-nilami-text dark:text-nilami-dark-text focus:outline-none focus:border-nilami-green-dark"
+                  className="w-full px-2.5 py-1.5 rounded-lg bg-nilami-ivory-surface border border-nilami-border text-xs text-nilami-text focus:outline-none focus:border-nilami-green-dark"
                 />
               </div>
               <div>
-                <label htmlFor="max-price-input" className="text-[10px] text-nilami-text/50 dark:text-nilami-dark-text/50 block mb-1">
+                <label htmlFor="max-price-input" className="text-[10px] text-nilami-text/50 block mb-1">
                   Max ₹
                 </label>
                 <input
@@ -370,14 +375,14 @@ export const BrowsePage: React.FC = () => {
                   placeholder="500000"
                   value={maxPriceRupees}
                   onChange={(e) => setMaxPriceRupees(e.target.value)}
-                  className="w-full px-2.5 py-1.5 rounded-lg bg-nilami-sand/40 dark:bg-nilami-dark-bg border border-nilami-border dark:border-nilami-dark-border text-xs text-nilami-text dark:text-nilami-dark-text focus:outline-none focus:border-nilami-green-dark"
+                  className="w-full px-2.5 py-1.5 rounded-lg bg-nilami-ivory-surface border border-nilami-border text-xs text-nilami-text focus:outline-none focus:border-nilami-green-dark"
                 />
               </div>
             </div>
             <button
               type="button"
               onClick={handlePriceApply}
-              className="w-full py-2 bg-nilami-tan hover:bg-nilami-tan-dark text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer"
+              className="w-full py-2 bg-nilami-tan hover:bg-nilami-sand text-nilami-text border border-nilami-border-strong rounded-xl text-xs font-bold transition shadow-sm cursor-pointer"
             >
               Apply Price Filter
             </button>
@@ -393,7 +398,7 @@ export const BrowsePage: React.FC = () => {
               ))}
             </div>
           ) : error ? (
-            <div className="p-8 bg-nilami-danger-subtle border border-nilami-danger/30 rounded-3xl text-nilami-danger-dark dark:text-nilami-danger-light text-center space-y-3">
+            <div className="p-8 bg-nilami-danger-subtle border border-nilami-danger/30 rounded-3xl text-nilami-danger-dark text-center space-y-3">
               <p className="font-bold text-sm">Failed to retrieve listings</p>
               <p className="text-xs opacity-90">{error}</p>
               <button
@@ -405,15 +410,15 @@ export const BrowsePage: React.FC = () => {
               </button>
             </div>
           ) : auctions.length === 0 ? (
-            <div className="py-20 text-center bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl border border-nilami-border dark:border-nilami-dark-border p-8 space-y-4 shadow-sm">
-              <div className="w-16 h-16 rounded-2xl bg-nilami-sand dark:bg-nilami-dark-surface-elevated text-nilami-tan flex items-center justify-center mx-auto">
+            <div className="py-20 text-center bg-nilami-sand-surface rounded-3xl border border-nilami-border p-8 space-y-4 shadow-sm">
+              <div className="w-16 h-16 rounded-2xl bg-nilami-sand text-nilami-tan-dark flex items-center justify-center mx-auto">
                 <PackageOpen className="w-8 h-8" />
               </div>
               <div className="space-y-1.5 max-w-sm mx-auto">
-                <h3 className="font-display font-bold text-lg text-nilami-text dark:text-nilami-dark-text">
+                <h3 className="font-display font-bold text-lg text-nilami-text">
                   No auctions found
                 </h3>
-                <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60">
+                <p className="text-xs text-nilami-text/60">
                   We couldn&apos;t find any lots matching your current filter criteria.
                 </p>
               </div>
@@ -440,18 +445,18 @@ export const BrowsePage: React.FC = () => {
                     type="button"
                     disabled={page <= 1}
                     onClick={() => updateParam('page', String(page - 1))}
-                    className="px-4 py-2 text-xs font-bold rounded-xl bg-nilami-sand-surface dark:bg-nilami-dark-surface border border-nilami-border dark:border-nilami-dark-border text-nilami-text dark:text-nilami-dark-text hover:bg-nilami-sand dark:hover:bg-nilami-dark-surface-elevated disabled:opacity-40 transition cursor-pointer"
+                    className="px-4 py-2 text-xs font-bold rounded-xl bg-nilami-sand-surface border border-nilami-border text-nilami-text hover:bg-nilami-sand disabled:opacity-40 transition cursor-pointer"
                   >
                     Previous
                   </button>
-                  <span className="text-xs font-medium text-nilami-text/60 dark:text-nilami-dark-text/60 px-3 font-mono">
+                  <span className="text-xs font-medium text-nilami-text/60 px-3 font-mono">
                     Page {page} of {totalPages}
                   </span>
                   <button
                     type="button"
                     disabled={page >= totalPages}
                     onClick={() => updateParam('page', String(page + 1))}
-                    className="px-4 py-2 text-xs font-bold rounded-xl bg-nilami-sand-surface dark:bg-nilami-dark-surface border border-nilami-border dark:border-nilami-dark-border text-nilami-text dark:text-nilami-dark-text hover:bg-nilami-sand dark:hover:bg-nilami-dark-surface-elevated disabled:opacity-40 transition cursor-pointer"
+                    className="px-4 py-2 text-xs font-bold rounded-xl bg-nilami-sand-surface border border-nilami-border text-nilami-text hover:bg-nilami-sand disabled:opacity-40 transition cursor-pointer"
                   >
                     Next
                   </button>

@@ -33,21 +33,21 @@ export function OutbidBanner() {
   return (
     <div
       role="alert"
-      className="bg-nilami-danger-subtle/90 dark:bg-nilami-danger-dark/30 border-b border-nilami-danger/40 px-4 py-3 text-nilami-danger-dark dark:text-nilami-danger-light sticky top-18 z-40 backdrop-blur shadow-md animate-in fade-in slide-in-from-top-2 duration-300"
+      className="bg-nilami-danger-subtle/95 border-b border-nilami-danger-border px-4 py-3 text-nilami-danger-dark sticky top-18 z-40 backdrop-blur shadow-md animate-in fade-in slide-in-from-top-2 duration-300"
     >
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-1.5 bg-nilami-danger/20 rounded-full text-nilami-danger-dark dark:text-nilami-danger shrink-0">
+          <div className="p-1.5 bg-nilami-danger/20 rounded-full text-nilami-danger-dark shrink-0">
             <AlertTriangle className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-sm font-bold text-nilami-danger-dark dark:text-nilami-danger-light">
+            <p className="text-sm font-bold text-nilami-danger-dark">
               You have been outbid on &quot;{alert.title}&quot;!
             </p>
-            <p className="text-xs text-nilami-text/80 dark:text-nilami-dark-text/80">
+            <p className="text-xs text-nilami-text-secondary">
               Your bid of {formatINR(alert.yourLastBid)} was surpassed. Current high bid:{' '}
-              <span className="font-bold text-nilami-danger-dark dark:text-nilami-danger-light">{formatINR(alert.currentPrice)}</span>. Next min:{' '}
-              <span className="font-bold text-nilami-green-dark dark:text-nilami-sand">{formatINR(alert.minNextBid)}</span>.
+              <span className="font-bold text-nilami-danger-dark">{formatINR(alert.currentPrice)}</span>. Next min:{' '}
+              <span className="font-bold text-nilami-green-dark">{formatINR(alert.minNextBid)}</span>.
             </p>
           </div>
         </div>

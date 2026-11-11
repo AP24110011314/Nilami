@@ -58,12 +58,12 @@ export const PaymentSuccessPage: React.FC = () => {
 
   if (!auctionId) {
     return (
-      <div className="max-w-md mx-auto my-16 p-8 bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl border border-nilami-border dark:border-nilami-dark-border text-center space-y-4">
-        <AlertCircle className="w-10 h-10 text-amber-500 mx-auto" />
-        <h2 className="font-display font-black text-xl text-nilami-text dark:text-nilami-dark-text">
+      <div className="max-w-md mx-auto my-16 p-8 bg-nilami-sand-surface rounded-3xl border border-nilami-border text-center space-y-4">
+        <AlertCircle className="w-10 h-10 text-nilami-warning-dark mx-auto" />
+        <h2 className="font-display font-black text-xl text-nilami-text">
           Invalid Payment Link
         </h2>
-        <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60">
+        <p className="text-xs text-nilami-text-muted">
           No auction identifier was provided.
         </p>
         <Link
@@ -78,9 +78,9 @@ export const PaymentSuccessPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="max-w-md mx-auto my-16 p-8 bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl border border-nilami-border dark:border-nilami-dark-border text-center space-y-4">
+      <div className="max-w-md mx-auto my-16 p-8 bg-nilami-sand-surface rounded-3xl border border-nilami-border text-center space-y-4">
         <Loader2 className="w-8 h-8 text-nilami-green-dark animate-spin mx-auto" />
-        <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60">
+        <p className="text-xs text-nilami-text-muted">
           Checking payment webhook verification...
         </p>
       </div>
@@ -91,47 +91,47 @@ export const PaymentSuccessPage: React.FC = () => {
 
   return (
     <div className="max-w-lg mx-auto my-12">
-      <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl p-8 border border-nilami-border dark:border-nilami-dark-border shadow-xl text-center space-y-6">
+      <div className="bg-nilami-sand-surface rounded-3xl p-8 border border-nilami-border shadow-xl text-center space-y-6">
         {isSucceeded ? (
           <>
-            <div className="w-16 h-16 bg-nilami-green-subtle text-nilami-green-dark dark:text-nilami-sand rounded-3xl flex items-center justify-center mx-auto border-2 border-nilami-green/30 shadow-sm">
+            <div className="w-16 h-16 bg-nilami-green-subtle text-nilami-green-dark rounded-3xl flex items-center justify-center mx-auto border-2 border-nilami-border-strong shadow-sm">
               <CheckCircle2 className="w-10 h-10" />
             </div>
 
             <div className="space-y-1.5">
-              <h1 className="font-display font-black text-2xl text-nilami-text dark:text-nilami-dark-text">
+              <h1 className="font-display font-black text-2xl text-nilami-text">
                 Payment Succeeded!
               </h1>
-              <p className="text-xs text-nilami-text/70 dark:text-nilami-dark-text/70 leading-relaxed">
+              <p className="text-xs text-nilami-text-secondary leading-relaxed">
                 Your payment has been verified by the Stripe webhook and the lot is now marked complete.
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-nilami-sand/30 dark:bg-nilami-dark-surface-elevated border border-nilami-border/60 dark:border-nilami-dark-border text-left space-y-2.5 text-xs">
-              <div className="flex justify-between items-center text-nilami-text/60 dark:text-nilami-dark-text/60">
+            <div className="p-5 rounded-2xl bg-nilami-ivory-surface border border-nilami-border text-left space-y-2.5 text-xs">
+              <div className="flex justify-between items-center text-nilami-text-muted">
                 <span>Amount Paid</span>
-                <span className="font-bold text-nilami-text dark:text-nilami-dark-text text-sm font-mono">
+                <span className="font-bold text-nilami-text text-sm font-mono">
                   {formatINR(amount)}
                 </span>
               </div>
-              <div className="flex justify-between items-center text-nilami-text/60 dark:text-nilami-dark-text/60">
+              <div className="flex justify-between items-center text-nilami-text-muted">
                 <span>Payment Rail</span>
-                <span className="font-semibold text-nilami-text dark:text-nilami-dark-text">
+                <span className="font-semibold text-nilami-text">
                   Stripe INR Direct Webhook
                 </span>
               </div>
               {paidAt && (
-                <div className="flex justify-between items-center text-nilami-text/60 dark:text-nilami-dark-text/60">
+                <div className="flex justify-between items-center text-nilami-text-muted">
                   <span>Settled At</span>
-                  <span className="font-mono text-nilami-text dark:text-nilami-dark-text">
+                  <span className="font-mono text-nilami-text">
                     {new Date(paidAt).toLocaleTimeString()}
                   </span>
                 </div>
               )}
             </div>
 
-            <div className="flex items-center justify-center gap-2 text-xs text-nilami-green-dark dark:text-nilami-sand font-bold bg-nilami-green-subtle/80 dark:bg-nilami-green-dark/30 py-2.5 rounded-xl border border-nilami-green/30">
-              <ShieldCheck className="w-4 h-4 text-nilami-green" />
+            <div className="flex items-center justify-center gap-2 text-xs text-nilami-green-dark font-bold bg-nilami-green-subtle py-2.5 rounded-xl border border-nilami-border-strong">
+              <ShieldCheck className="w-4 h-4 text-nilami-green-dark" />
               <span>Seller notified — item will be dispatched under escrow protection</span>
             </div>
 
@@ -141,28 +141,28 @@ export const PaymentSuccessPage: React.FC = () => {
                 className="w-full py-3.5 px-4 rounded-2xl bg-nilami-green-dark hover:bg-nilami-green-pressed text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition cursor-pointer"
               >
                 <span>Go to My Dashboard</span>
-                <ArrowRight className="w-4 h-4 text-nilami-sand" />
+                <ArrowRight className="w-4 h-4 text-nilami-tan" />
               </Link>
             </div>
           </>
         ) : (
           <>
-            <div className="w-16 h-16 bg-nilami-sand dark:bg-nilami-dark-surface-elevated text-nilami-green-dark dark:text-nilami-sand rounded-3xl flex items-center justify-center mx-auto border-2 border-nilami-border">
+            <div className="w-16 h-16 bg-nilami-sand text-nilami-green-dark rounded-3xl flex items-center justify-center mx-auto border-2 border-nilami-border">
               <Loader2 className="w-8 h-8 animate-spin" />
             </div>
 
             <div className="space-y-2">
-              <h1 className="font-display font-black text-xl text-nilami-text dark:text-nilami-dark-text">
+              <h1 className="font-display font-black text-xl text-nilami-text">
                 Confirming Webhook Settlement...
               </h1>
-              <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60 leading-relaxed">
+              <p className="text-xs text-nilami-text-muted leading-relaxed">
                 Waiting for the official Stripe webhook to confirm transaction settlement. Never trust client redirects alone.
               </p>
             </div>
 
             {isMock && (
-              <div className="pt-4 border-t border-nilami-border/60 dark:border-nilami-dark-border/60 space-y-3">
-                <p className="text-[11px] text-amber-700 dark:text-amber-400 font-semibold">
+              <div className="pt-4 border-t border-nilami-border space-y-3">
+                <p className="text-[11px] text-nilami-warning-dark font-semibold">
                   Demo Mode: simulate instant webhook callback
                 </p>
                 <button
@@ -180,7 +180,7 @@ export const PaymentSuccessPage: React.FC = () => {
             <div className="pt-2 text-center">
               <Link
                 to={`/auctions/${auctionId}`}
-                className="text-xs text-nilami-green-dark dark:text-nilami-sand font-bold hover:underline"
+                className="text-xs text-nilami-green-dark font-bold hover:underline"
               >
                 Return to Auction Lot
               </Link>

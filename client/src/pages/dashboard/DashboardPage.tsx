@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { useAuthStore } from '../../store/auth.js';
 import { apiClient, ApiError, type AuctionItem } from '../../api/client.js';
 import { formatINR } from '../../lib/money.js';
+import { getCategoryFallbackImage, resolveImageUrl } from '../../lib/media.js';
 import {
   CheckCircle2,
   AlertTriangle,
@@ -131,34 +132,34 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Profile Header */}
-      <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl p-6 sm:p-8 border border-nilami-border dark:border-nilami-dark-border shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+      <div className="bg-nilami-sand-surface rounded-3xl p-6 sm:p-8 border border-nilami-border shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-2xl bg-nilami-green-dark text-white flex items-center justify-center font-display font-black text-2xl shadow-sm">
             {user.name.charAt(0).toUpperCase()}
           </div>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="font-display font-black text-2xl text-nilami-text dark:text-nilami-dark-text">
+              <h1 className="font-display font-black text-2xl text-nilami-text">
                 {user.name}
               </h1>
               {isVerified ? (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-nilami-green-subtle text-nilami-green-dark dark:text-nilami-sand border border-nilami-green/30">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-nilami-green-subtle text-nilami-green-dark border border-nilami-green/30">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   Verified
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-nilami-tan/65 text-nilami-warning-dark border border-nilami-border-strong">
                   <AlertTriangle className="w-3.5 h-3.5" />
                   Unverified
                 </span>
               )}
             </div>
-            <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60">{user.email}</p>
+            <p className="text-xs text-nilami-text/60">{user.email}</p>
             <div className="flex gap-2 mt-2">
               {(user?.roles || []).map((role) => (
                 <span
                   key={role}
-                  className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-nilami-sand dark:bg-nilami-dark-surface-elevated text-nilami-text/80 dark:text-nilami-dark-text/80 border border-nilami-border/60"
+                  className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-nilami-sand text-nilami-text/80 border border-nilami-border/60"
                 >
                   {role}
                 </span>
@@ -183,26 +184,26 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-nilami-danger-subtle border border-nilami-danger/30 text-nilami-danger-dark dark:text-nilami-danger-light text-xs font-semibold">
+        <div className="p-4 rounded-xl bg-nilami-danger-subtle border border-nilami-danger/30 text-nilami-danger-dark text-xs font-semibold">
           {error}
         </div>
       )}
 
       {successMsg && (
-        <div className="p-4 rounded-xl bg-nilami-green-subtle border border-nilami-green/40 text-nilami-green-dark dark:text-nilami-sand text-xs font-semibold">
+        <div className="p-4 rounded-xl bg-nilami-green-subtle border border-nilami-green/40 text-nilami-green-dark text-xs font-semibold">
           {successMsg}
         </div>
       )}
 
       {/* Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-nilami-border/60 dark:border-nilami-dark-border/60 pb-2">
+      <div className="flex flex-wrap gap-2 border-b border-nilami-border/60 pb-2">
         <button
           type="button"
           onClick={() => setActiveTab('overview')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
             activeTab === 'overview'
               ? 'bg-nilami-green-dark text-white shadow-sm'
-              : 'text-nilami-text/70 dark:text-nilami-dark-text/70 hover:bg-nilami-sand/50'
+              : 'text-nilami-text/70 hover:bg-nilami-sand/50'
           }`}
         >
           Overview & Stats
@@ -213,11 +214,15 @@ export const DashboardPage: React.FC = () => {
           className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
             activeTab === 'bids'
               ? 'bg-nilami-green-dark text-white shadow-sm'
-              : 'text-nilami-text/70 dark:text-nilami-dark-text/70 hover:bg-nilami-sand/50'
+              : 'text-nilami-text/70 hover:bg-nilami-sand/50'
           }`}
         >
           <span>Active Bids</span>
-          <span className="px-1.5 py-0.2 bg-white/20 rounded-full text-[10px]">
+          <span
+            className={`px-1.5 py-0.2 rounded-full text-[10px] ${
+              activeTab === 'bids' ? 'bg-white/20 text-white' : 'bg-nilami-sand text-nilami-text'
+            }`}
+          >
             {(myBids || []).length}
           </span>
         </button>
@@ -227,11 +232,15 @@ export const DashboardPage: React.FC = () => {
           className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
             activeTab === 'wins'
               ? 'bg-nilami-green-dark text-white shadow-sm'
-              : 'text-nilami-text/70 dark:text-nilami-dark-text/70 hover:bg-nilami-sand/50'
+              : 'text-nilami-text/70 hover:bg-nilami-sand/50'
           }`}
         >
           <span>Won Lots</span>
-          <span className="px-1.5 py-0.2 bg-white/20 rounded-full text-[10px]">
+          <span
+            className={`px-1.5 py-0.2 rounded-full text-[10px] ${
+              activeTab === 'wins' ? 'bg-white/20 text-white' : 'bg-nilami-sand text-nilami-text'
+            }`}
+          >
             {(myWins || []).length}
           </span>
         </button>
@@ -241,11 +250,15 @@ export const DashboardPage: React.FC = () => {
           className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
             activeTab === 'watchlist'
               ? 'bg-nilami-green-dark text-white shadow-sm'
-              : 'text-nilami-text/70 dark:text-nilami-dark-text/70 hover:bg-nilami-sand/50'
+              : 'text-nilami-text/70 hover:bg-nilami-sand/50'
           }`}
         >
           <span>Watchlist</span>
-          <span className="px-1.5 py-0.2 bg-white/20 rounded-full text-[10px]">
+          <span
+            className={`px-1.5 py-0.2 rounded-full text-[10px] ${
+              activeTab === 'watchlist' ? 'bg-white/20 text-white' : 'bg-nilami-sand text-nilami-text'
+            }`}
+          >
             {(myWatchlist || []).length}
           </span>
         </button>
@@ -256,10 +269,14 @@ export const DashboardPage: React.FC = () => {
             className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'analytics'
                 ? 'bg-nilami-green-dark text-white shadow-sm'
-                : 'text-nilami-text/70 dark:text-nilami-dark-text/70 hover:bg-nilami-sand/50'
+                : 'text-nilami-text/70 hover:bg-nilami-sand/50'
             }`}
           >
-            <BarChart3 className="w-3.5 h-3.5 text-nilami-tan" />
+            <BarChart3
+              className={`w-3.5 h-3.5 ${
+                activeTab === 'analytics' ? 'text-nilami-tan' : 'text-nilami-tan-dark'
+              }`}
+            />
             <span>Seller Analytics</span>
           </button>
         )}
@@ -268,32 +285,32 @@ export const DashboardPage: React.FC = () => {
       {/* Tab: Overview */}
       {activeTab === 'overview' && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl p-6 border border-nilami-border dark:border-nilami-dark-border shadow-sm space-y-2">
-            <div className="flex items-center justify-between text-nilami-text/50 dark:text-nilami-dark-text/50 text-xs font-bold">
+          <div className="bg-nilami-sand-surface rounded-3xl p-6 border border-nilami-border shadow-sm space-y-2">
+            <div className="flex items-center justify-between text-nilami-text/50 text-xs font-bold">
               <span>BIDS PLACED</span>
-              <Gavel className="w-4 h-4 text-nilami-green-dark dark:text-nilami-sand" />
+              <Gavel className="w-4 h-4 text-nilami-green-dark" />
             </div>
-            <p className="text-3xl font-black text-nilami-text dark:text-nilami-dark-text font-mono">
+            <p className="text-3xl font-black text-nilami-text font-mono">
               {(myBids || []).length}
             </p>
           </div>
 
-          <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl p-6 border border-nilami-border dark:border-nilami-dark-border shadow-sm space-y-2">
-            <div className="flex items-center justify-between text-nilami-text/50 dark:text-nilami-dark-text/50 text-xs font-bold">
+          <div className="bg-nilami-sand-surface rounded-3xl p-6 border border-nilami-border shadow-sm space-y-2">
+            <div className="flex items-center justify-between text-nilami-text/50 text-xs font-bold">
               <span>AUCTIONS WON</span>
-              <Award className="w-4 h-4 text-nilami-green-dark dark:text-nilami-green" />
+              <Award className="w-4 h-4 text-nilami-green-dark" />
             </div>
-            <p className="text-3xl font-black text-nilami-text dark:text-nilami-dark-text font-mono">
+            <p className="text-3xl font-black text-nilami-text font-mono">
               {(myWins || []).length}
             </p>
           </div>
 
-          <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl p-6 border border-nilami-border dark:border-nilami-dark-border shadow-sm space-y-2">
-            <div className="flex items-center justify-between text-nilami-text/50 dark:text-nilami-dark-text/50 text-xs font-bold">
+          <div className="bg-nilami-sand-surface rounded-3xl p-6 border border-nilami-border shadow-sm space-y-2">
+            <div className="flex items-center justify-between text-nilami-text/50 text-xs font-bold">
               <span>AUCTIONS CONSIGNED</span>
-              <TrendingUp className="w-4 h-4 text-nilami-tan" />
+              <TrendingUp className="w-4 h-4 text-nilami-tan-dark" />
             </div>
-            <p className="text-3xl font-black text-nilami-text dark:text-nilami-dark-text font-mono">
+            <p className="text-3xl font-black text-nilami-text font-mono">
               {user?.stats?.auctionsSold ?? 0}
             </p>
           </div>
@@ -306,10 +323,10 @@ export const DashboardPage: React.FC = () => {
           {loadingActivities ? (
             <div className="py-12 text-center text-xs text-nilami-text/50">Loading bids...</div>
           ) : (myBids || []).length === 0 ? (
-            <div className="py-16 text-center bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl border border-nilami-border dark:border-nilami-dark-border space-y-2">
-              <Gavel className="w-8 h-8 text-nilami-tan mx-auto" />
-              <p className="font-bold text-nilami-text dark:text-nilami-dark-text text-sm">No bids placed yet</p>
-              <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60">
+            <div className="py-16 text-center bg-nilami-sand-surface rounded-3xl border border-nilami-border space-y-2">
+              <Gavel className="w-8 h-8 text-nilami-tan-dark mx-auto" />
+              <p className="font-bold text-nilami-text text-sm">No bids placed yet</p>
+              <p className="text-xs text-nilami-text/60">
                 Explore active catalog lots to place your first bid.
               </p>
               <Link
@@ -320,19 +337,18 @@ export const DashboardPage: React.FC = () => {
               </Link>
             </div>
           ) : (
-            <div className="divide-y divide-nilami-border/40 dark:divide-nilami-dark-border/40 bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl border border-nilami-border dark:border-nilami-dark-border overflow-hidden shadow-sm">
+            <div className="divide-y divide-nilami-border/40 bg-nilami-sand-surface rounded-3xl border border-nilami-border overflow-hidden shadow-sm">
               {(myBids || []).map(({ auction, myHighestBid, leading }) => (
                 <div
                   key={auction.id}
-                  className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-nilami-sand/30 dark:hover:bg-nilami-dark-surface-elevated transition"
+                  className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-nilami-sand/30 transition"
                 >
                   <div className="flex items-center gap-4">
                     <img
-                      src={auction.images[0]?.url || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100'}
+                      src={resolveImageUrl(auction.images[0]?.url) || getCategoryFallbackImage(auction.category)}
                       alt=""
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100';
+                        (e.target as HTMLImageElement).src = getCategoryFallbackImage(auction.category);
                       }}
                       className="w-16 h-16 rounded-xl object-cover border border-nilami-border flex-shrink-0"
                     />
@@ -340,12 +356,12 @@ export const DashboardPage: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <Link
                           to={`/auctions/${auction.id}`}
-                          className="font-bold text-sm text-nilami-text dark:text-nilami-dark-text hover:text-nilami-green-dark transition"
+                          className="font-bold text-sm text-nilami-text hover:text-nilami-green-dark transition"
                         >
                           {auction.title}
                         </Link>
                         {leading ? (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-nilami-green-subtle text-nilami-green-dark dark:text-nilami-sand border border-nilami-green/30">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-nilami-green-subtle text-nilami-green-dark border border-nilami-green/30">
                             Highest Bidder
                           </span>
                         ) : (
@@ -354,17 +370,17 @@ export const DashboardPage: React.FC = () => {
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-nilami-text/60 dark:text-nilami-dark-text/60">
+                      <div className="flex items-center gap-3 text-xs text-nilami-text/60">
                         <span>
                           Current Price:{' '}
-                          <strong className="text-nilami-text dark:text-nilami-dark-text">
+                          <strong className="text-nilami-text">
                             {formatINR(auction.currentPrice)}
                           </strong>
                         </span>
                         <span>•</span>
                         <span>
                           Your Bid:{' '}
-                          <strong className="text-nilami-text dark:text-nilami-dark-text">
+                          <strong className="text-nilami-text">
                             {formatINR(myHighestBid)}
                           </strong>
                         </span>
@@ -374,10 +390,10 @@ export const DashboardPage: React.FC = () => {
 
                   <Link
                     to={`/auctions/${auction.id}`}
-                    className="flex items-center gap-1 text-xs font-bold px-3.5 py-1.5 rounded-xl bg-nilami-sand dark:bg-nilami-dark-surface-elevated text-nilami-text dark:text-nilami-dark-text hover:bg-nilami-sand/80 transition"
+                    className="flex items-center gap-1 text-xs font-bold px-3.5 py-1.5 rounded-xl bg-nilami-sand text-nilami-text hover:bg-nilami-sand/80 transition"
                   >
                     <span>View Auction</span>
-                    <ArrowUpRight className="w-3.5 h-3.5 text-nilami-tan" />
+                    <ArrowUpRight className="w-3.5 h-3.5 text-nilami-tan-dark" />
                   </Link>
                 </div>
               ))}
@@ -392,42 +408,41 @@ export const DashboardPage: React.FC = () => {
           {loadingActivities ? (
             <div className="py-12 text-center text-xs text-nilami-text/50">Loading wins...</div>
           ) : (myWins || []).length === 0 ? (
-            <div className="py-16 text-center bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl border border-nilami-border dark:border-nilami-dark-border space-y-2">
-              <Award className="w-8 h-8 text-nilami-tan mx-auto" />
-              <p className="font-bold text-nilami-text dark:text-nilami-dark-text text-sm">No won auctions yet</p>
-              <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60">
+            <div className="py-16 text-center bg-nilami-sand-surface rounded-3xl border border-nilami-border space-y-2">
+              <Award className="w-8 h-8 text-nilami-tan-dark mx-auto" />
+              <p className="font-bold text-nilami-text text-sm">No won auctions yet</p>
+              <p className="text-xs text-nilami-text/60">
                 When you win an auction, it will appear here for checkout.
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-nilami-border/40 dark:divide-nilami-dark-border/40 bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl border border-nilami-border dark:border-nilami-dark-border overflow-hidden shadow-sm">
+            <div className="divide-y divide-nilami-border/40 bg-nilami-sand-surface rounded-3xl border border-nilami-border overflow-hidden shadow-sm">
               {(myWins || []).map(({ auction, finalPrice }) => (
                 <div
                   key={auction.id}
-                  className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-nilami-sand/30 dark:hover:bg-nilami-dark-surface-elevated transition"
+                  className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-nilami-sand/30 transition"
                 >
                   <div className="flex items-center gap-4">
                     <img
-                      src={auction.images[0]?.url || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100'}
+                      src={resolveImageUrl(auction.images[0]?.url) || getCategoryFallbackImage(auction.category)}
                       alt=""
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100';
+                        (e.target as HTMLImageElement).src = getCategoryFallbackImage(auction.category);
                       }}
                       className="w-16 h-16 rounded-xl object-cover border border-nilami-border flex-shrink-0"
                     />
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-nilami-text dark:text-nilami-dark-text">
+                        <span className="font-bold text-sm text-nilami-text">
                           {auction.title}
                         </span>
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-nilami-green-subtle text-nilami-green-dark dark:text-nilami-sand border border-nilami-green/30">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-nilami-green-subtle text-nilami-green-dark border border-nilami-green/30">
                           Won
                         </span>
                       </div>
-                      <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60">
+                      <p className="text-xs text-nilami-text/60">
                         Final Price:{' '}
-                        <strong className="text-nilami-text dark:text-nilami-dark-text font-mono">
+                        <strong className="text-nilami-text font-mono">
                           {formatINR(finalPrice)}
                         </strong>
                       </p>
@@ -459,9 +474,9 @@ export const DashboardPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setReviewModalAuction({ id: auction.id, title: auction.title })}
-                        className="px-3.5 py-2 bg-nilami-sand dark:bg-nilami-dark-surface-elevated hover:bg-nilami-sand/80 text-nilami-text dark:text-nilami-dark-text text-xs font-bold rounded-xl border border-nilami-border transition cursor-pointer flex items-center gap-1.5"
+                        className="px-3.5 py-2 bg-nilami-sand hover:bg-nilami-sand/80 text-nilami-text text-xs font-bold rounded-xl border border-nilami-border transition cursor-pointer flex items-center gap-1.5"
                       >
-                        <MessageSquare className="w-3.5 h-3.5 text-nilami-tan" />
+                        <MessageSquare className="w-3.5 h-3.5 text-nilami-tan-dark" />
                         <span>Review Seller</span>
                       </button>
                     )}
@@ -479,43 +494,42 @@ export const DashboardPage: React.FC = () => {
           {loadingActivities ? (
             <div className="py-12 text-center text-xs text-nilami-text/50">Loading watchlist...</div>
           ) : (myWatchlist || []).length === 0 ? (
-            <div className="py-16 text-center bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl border border-nilami-border dark:border-nilami-dark-border space-y-2">
-              <Bookmark className="w-8 h-8 text-nilami-tan mx-auto" />
-              <p className="font-bold text-nilami-text dark:text-nilami-dark-text text-sm">No watched lots</p>
-              <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60">
+            <div className="py-16 text-center bg-nilami-sand-surface rounded-3xl border border-nilami-border space-y-2">
+              <Bookmark className="w-8 h-8 text-nilami-tan-dark mx-auto" />
+              <p className="font-bold text-nilami-text text-sm">No watched lots</p>
+              <p className="text-xs text-nilami-text/60">
                 Click the watch button on any lot to track live bids.
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-nilami-border/40 dark:divide-nilami-dark-border/40 bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl border border-nilami-border dark:border-nilami-dark-border overflow-hidden shadow-sm">
+            <div className="divide-y divide-nilami-border/40 bg-nilami-sand-surface rounded-3xl border border-nilami-border overflow-hidden shadow-sm">
               {(myWatchlist || []).map(({ id, auction, reminderMinutesBefore }) => (
                 <div
                   key={id}
-                  className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-nilami-sand/30 dark:hover:bg-nilami-dark-surface-elevated transition"
+                  className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-nilami-sand/30 transition"
                 >
                   <div className="flex items-center gap-4">
                     <img
-                      src={auction.images[0]?.url || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100'}
+                      src={resolveImageUrl(auction.images[0]?.url) || getCategoryFallbackImage(auction.category)}
                       alt=""
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100';
+                        (e.target as HTMLImageElement).src = getCategoryFallbackImage(auction.category);
                       }}
                       className="w-16 h-16 rounded-xl object-cover border border-nilami-border flex-shrink-0"
                     />
                     <div className="space-y-1">
                       <Link
                         to={`/auctions/${auction.id}`}
-                        className="font-bold text-sm text-nilami-text dark:text-nilami-dark-text hover:text-nilami-green-dark transition"
+                        className="font-bold text-sm text-nilami-text hover:text-nilami-green-dark transition"
                       >
                         {auction.title}
                       </Link>
-                      <div className="flex items-center gap-2 text-xs text-nilami-text/60 dark:text-nilami-dark-text/60">
-                        <span>Current: <strong className="text-nilami-text dark:text-nilami-dark-text">{formatINR(auction.currentPrice)}</strong></span>
+                      <div className="flex items-center gap-2 text-xs text-nilami-text/60">
+                        <span>Current: <strong className="text-nilami-text">{formatINR(auction.currentPrice)}</strong></span>
                         {reminderMinutesBefore && (
                           <>
                             <span>•</span>
-                            <span className="text-nilami-green-dark dark:text-nilami-sand font-bold">
+                            <span className="text-nilami-green-dark font-bold">
                               {reminderMinutesBefore}m reminder set
                             </span>
                           </>
@@ -542,45 +556,45 @@ export const DashboardPage: React.FC = () => {
       {activeTab === 'analytics' && sellerAnalytics && (
         <div className="space-y-6">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface p-5 rounded-2xl border border-nilami-border dark:border-nilami-dark-border shadow-sm space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-nilami-text/50 dark:text-nilami-dark-text/50">
+            <div className="bg-nilami-sand-surface p-5 rounded-2xl border border-nilami-border shadow-sm space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-nilami-text/50">
                 Total Succeeded Revenue
               </span>
-              <p className="text-xl font-black text-nilami-text dark:text-nilami-dark-text font-mono">
+              <p className="text-xl font-black text-nilami-text font-mono">
                 {formatINR(sellerAnalytics.totalRevenue)}
               </p>
             </div>
 
-            <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface p-5 rounded-2xl border border-nilami-border dark:border-nilami-dark-border shadow-sm space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-nilami-text/50 dark:text-nilami-dark-text/50">
+            <div className="bg-nilami-sand-surface p-5 rounded-2xl border border-nilami-border shadow-sm space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-nilami-text/50">
                 Sell-Through Rate
               </span>
-              <p className="text-xl font-black text-nilami-green-dark dark:text-nilami-green font-mono">
+              <p className="text-xl font-black text-nilami-green-dark font-mono">
                 {sellerAnalytics.sellThroughRate}%
               </p>
             </div>
 
-            <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface p-5 rounded-2xl border border-nilami-border dark:border-nilami-dark-border shadow-sm space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-nilami-text/50 dark:text-nilami-dark-text/50">
+            <div className="bg-nilami-sand-surface p-5 rounded-2xl border border-nilami-border shadow-sm space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-nilami-text/50">
                 Avg Final / Starting Ratio
               </span>
-              <p className="text-xl font-black text-nilami-tan font-mono">
+              <p className="text-xl font-black text-nilami-tan-dark font-mono">
                 {sellerAnalytics.avgFinalStartingRatio}x
               </p>
             </div>
 
-            <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface p-5 rounded-2xl border border-nilami-border dark:border-nilami-dark-border shadow-sm space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-nilami-text/50 dark:text-nilami-dark-text/50">
+            <div className="bg-nilami-sand-surface p-5 rounded-2xl border border-nilami-border shadow-sm space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-nilami-text/50">
                 Avg Bids Per Auction
               </span>
-              <p className="text-xl font-black text-nilami-text dark:text-nilami-dark-text font-mono">
+              <p className="text-xl font-black text-nilami-text font-mono">
                 {sellerAnalytics.avgBidsPerAuction}
               </p>
             </div>
           </div>
 
-          <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl p-6 border border-nilami-border dark:border-nilami-dark-border shadow-sm space-y-4">
-            <h3 className="font-display font-bold text-sm text-nilami-text dark:text-nilami-dark-text">
+          <div className="bg-nilami-sand-surface rounded-3xl p-6 border border-nilami-border shadow-sm space-y-4">
+            <h3 className="font-display font-bold text-sm text-nilami-text">
               14-Day Daily Revenue Progression
             </h3>
             {!sellerAnalytics.dailyRevenue || sellerAnalytics.dailyRevenue.length === 0 ? (
@@ -596,9 +610,9 @@ export const DashboardPage: React.FC = () => {
                       amountRupees: Math.round(d.amount / 100),
                     }))}
                   >
-                    <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#7C8A82' }} />
+                    <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'var(--nilami-text-muted)' }} />
                     <YAxis
-                      tick={{ fontSize: 10, fill: '#7C8A82' }}
+                      tick={{ fontSize: 10, fill: 'var(--nilami-text-muted)' }}
                       tickFormatter={(val: number) => `₹${val.toLocaleString('en-IN')}`}
                     />
                     <Tooltip
@@ -609,15 +623,15 @@ export const DashboardPage: React.FC = () => {
                         'Revenue',
                       ]}
                       contentStyle={{
-                        backgroundColor: '#F5F5F0',
-                        color: '#1F2A24',
+                        backgroundColor: 'var(--nilami-ivory)',
+                        color: 'var(--nilami-text)',
                         borderRadius: '0.75rem',
                         fontSize: '11px',
-                        border: '1px solid #C2A68C',
+                        border: '1px solid var(--nilami-border-strong)',
                         fontWeight: 'bold',
                       }}
                     />
-                    <Bar dataKey="amountRupees" fill="#5D866C" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="amountRupees" fill="var(--nilami-green-dark)" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>

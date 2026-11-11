@@ -71,22 +71,22 @@ export const WatchlistButton: React.FC<WatchlistButtonProps> = ({ auctionId, cla
 
   return (
     <div className={`relative inline-flex items-center ${className}`}>
-      <div className="inline-flex rounded-xl shadow-sm border border-slate-200 bg-white overflow-hidden">
+      <div className="inline-flex rounded-xl shadow-sm border border-nilami-border bg-nilami-ivory-surface overflow-hidden">
         <button
           type="button"
           disabled={loading}
           onClick={() => handleToggle()}
           className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition cursor-pointer ${
             isWatching
-              ? 'bg-amber-50 text-amber-700 hover:bg-amber-100'
-              : 'text-slate-700 hover:bg-slate-50'
+              ? 'bg-nilami-tan text-nilami-text hover:bg-nilami-sand'
+              : 'text-nilami-text-secondary hover:bg-nilami-sand-light'
           }`}
           title={isWatching ? 'Remove from Watchlist' : 'Add to Watchlist'}
         >
           {isWatching ? (
-            <BookmarkCheck className="w-4 h-4 text-amber-600 fill-amber-500" />
+            <BookmarkCheck className="w-4 h-4 text-nilami-green-dark fill-nilami-sand" />
           ) : (
-            <Bookmark className="w-4 h-4 text-slate-500" />
+            <Bookmark className="w-4 h-4 text-nilami-text-muted" />
           )}
           <span>{isWatching ? 'Watching' : 'Watch Lot'}</span>
         </button>
@@ -95,7 +95,7 @@ export const WatchlistButton: React.FC<WatchlistButtonProps> = ({ auctionId, cla
           <button
             type="button"
             onClick={() => setShowOptions(!showOptions)}
-            className="px-2 py-1.5 bg-amber-50 text-amber-700 border-l border-amber-200 hover:bg-amber-100 transition cursor-pointer"
+            className="px-2 py-1.5 bg-nilami-tan text-nilami-text border-l border-nilami-border-strong hover:bg-nilami-sand transition cursor-pointer"
             title="Reminder Settings"
           >
             <ChevronDown className="w-3.5 h-3.5" />
@@ -104,9 +104,9 @@ export const WatchlistButton: React.FC<WatchlistButtonProps> = ({ auctionId, cla
       </div>
 
       {showOptions && (
-        <div className="absolute right-0 top-full mt-1.5 w-48 bg-white rounded-xl shadow-lg border border-slate-200 p-2 z-30 text-xs">
-          <div className="flex items-center gap-1 text-slate-500 font-semibold px-2 py-1 mb-1 border-b border-slate-100">
-            <Bell className="w-3.5 h-3.5 text-indigo-600" />
+        <div className="absolute right-0 top-full mt-1.5 w-48 bg-nilami-ivory-surface rounded-xl shadow-lg border border-nilami-border p-2 z-30 text-xs">
+          <div className="flex items-center gap-1 text-nilami-text-muted font-semibold px-2 py-1 mb-1 border-b border-nilami-border-subtle">
+            <Bell className="w-3.5 h-3.5 text-nilami-green-dark" />
             <span>Reminder alert:</span>
           </div>
           {[15, 30, 60].map((mins) => (
@@ -115,12 +115,12 @@ export const WatchlistButton: React.FC<WatchlistButtonProps> = ({ auctionId, cla
               onClick={() => handleToggle(mins)}
               className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between cursor-pointer transition ${
                 reminderMinutes === mins
-                  ? 'bg-indigo-50 font-bold text-indigo-700'
-                  : 'text-slate-600 hover:bg-slate-50'
+                  ? 'bg-nilami-tan font-bold text-nilami-text'
+                  : 'text-nilami-text-secondary hover:bg-nilami-sand-light'
               }`}
             >
               <span>{mins} mins before</span>
-              {reminderMinutes === mins && <span className="text-indigo-600">✓</span>}
+              {reminderMinutes === mins && <span className="text-nilami-green-dark">✓</span>}
             </button>
           ))}
         </div>

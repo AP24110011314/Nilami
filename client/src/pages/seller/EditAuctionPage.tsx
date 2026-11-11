@@ -88,41 +88,41 @@ export const EditAuctionPage: React.FC = () => {
 
   if (!auction) {
     return (
-      <div className="max-w-md mx-auto my-12 p-6 bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-2xl border border-nilami-border text-center">
-        <p className="text-sm text-nilami-text/70">{error || 'Auction not found'}</p>
+      <div className="max-w-md mx-auto my-12 p-6 bg-nilami-sand-surface rounded-2xl border border-nilami-border text-center">
+        <p className="text-sm text-nilami-text-secondary">{error || 'Auction not found'}</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto my-8 bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl p-6 sm:p-10 border border-nilami-border dark:border-nilami-dark-border shadow-xl space-y-6">
+    <div className="max-w-2xl mx-auto my-8 bg-nilami-sand-surface rounded-3xl p-6 sm:p-10 border border-nilami-border shadow-xl space-y-6">
       <div className="space-y-1">
         <div className="flex items-center gap-2">
-          <Gavel className="w-5 h-5 text-nilami-green-dark dark:text-nilami-sand" />
-          <h1 className="font-display font-black text-2xl text-nilami-text dark:text-nilami-dark-text tracking-tight">
+          <Gavel className="w-5 h-5 text-nilami-green-dark" />
+          <h1 className="font-display font-black text-2xl text-nilami-text tracking-tight">
             Edit Auction Lot
           </h1>
         </div>
-        <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60">
+        <p className="text-xs text-nilami-text-muted">
           Modify lot details before the first competitive bid is placed
         </p>
       </div>
 
       {error && (
-        <div className="p-3.5 rounded-xl bg-nilami-danger-subtle border border-nilami-danger/30 text-nilami-danger-dark dark:text-nilami-danger-light flex items-center gap-2.5 text-xs font-semibold">
+        <div className="p-3.5 rounded-xl bg-nilami-danger-subtle border border-nilami-danger-border text-nilami-danger-dark flex items-center gap-2.5 text-xs font-semibold">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       {auction.bidCount > 0 ? (
-        <div className="p-6 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 rounded-2xl text-amber-900 dark:text-amber-200 text-xs leading-relaxed">
+        <div className="p-6 bg-nilami-tan/65 border border-nilami-border-strong rounded-2xl text-nilami-text text-xs leading-relaxed">
           Rule FR-B2: Once a bid has been accepted, seller modifications are locked to preserve bidding integrity.
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-nilami-text/60 dark:text-nilami-dark-text/60">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-nilami-text-muted">
               Title
             </label>
             <input
@@ -132,19 +132,19 @@ export const EditAuctionPage: React.FC = () => {
               maxLength={120}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl bg-nilami-sand/40 dark:bg-nilami-dark-bg border border-nilami-border dark:border-nilami-dark-border text-sm text-nilami-text dark:text-nilami-dark-text focus:outline-none focus:border-nilami-green-dark"
+              className="w-full px-4 py-2.5 rounded-xl bg-nilami-ivory-surface border border-nilami-border text-sm text-nilami-text focus:outline-none focus:border-nilami-green-dark"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-nilami-text/60 dark:text-nilami-dark-text/60">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-nilami-text-muted">
                 Category
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as typeof category)}
-                className="w-full px-4 py-2.5 rounded-xl bg-nilami-sand/40 dark:bg-nilami-dark-bg border border-nilami-border dark:border-nilami-dark-border text-sm text-nilami-text dark:text-nilami-dark-text focus:outline-none focus:border-nilami-green-dark"
+                className="w-full px-4 py-2.5 rounded-xl bg-nilami-ivory-surface border border-nilami-border text-sm text-nilami-text focus:outline-none focus:border-nilami-green-dark"
               >
                 <option value="electronics">Electronics</option>
                 <option value="watches">Horology & Watches</option>
@@ -162,13 +162,13 @@ export const EditAuctionPage: React.FC = () => {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-nilami-text/60 dark:text-nilami-dark-text/60">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-nilami-text-muted">
                 Condition
               </label>
               <select
                 value={condition}
                 onChange={(e) => setCondition(e.target.value as typeof condition)}
-                className="w-full px-4 py-2.5 rounded-xl bg-nilami-sand/40 dark:bg-nilami-dark-bg border border-nilami-border dark:border-nilami-dark-border text-sm text-nilami-text dark:text-nilami-dark-text focus:outline-none focus:border-nilami-green-dark"
+                className="w-full px-4 py-2.5 rounded-xl bg-nilami-ivory-surface border border-nilami-border text-sm text-nilami-text focus:outline-none focus:border-nilami-green-dark"
               >
                 <option value="new">Brand New</option>
                 <option value="like_new">Like New / Mint</option>
@@ -179,7 +179,7 @@ export const EditAuctionPage: React.FC = () => {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-nilami-text/60 dark:text-nilami-dark-text/60">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-nilami-text-muted">
               Description
             </label>
             <textarea
@@ -189,13 +189,13 @@ export const EditAuctionPage: React.FC = () => {
               maxLength={5000}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl bg-nilami-sand/40 dark:bg-nilami-dark-bg border border-nilami-border dark:border-nilami-dark-border text-sm text-nilami-text dark:text-nilami-dark-text focus:outline-none focus:border-nilami-green-dark leading-relaxed"
+              className="w-full px-4 py-2.5 rounded-xl bg-nilami-ivory-surface border border-nilami-border text-sm text-nilami-text focus:outline-none focus:border-nilami-green-dark leading-relaxed"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-nilami-text/60 dark:text-nilami-dark-text/60">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-nilami-text-muted">
                 Starting Price (₹)
               </label>
               <input
@@ -203,12 +203,12 @@ export const EditAuctionPage: React.FC = () => {
                 required
                 value={startingPriceRupees}
                 onChange={(e) => setStartingPriceRupees(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl bg-nilami-sand/40 dark:bg-nilami-dark-bg border border-nilami-border dark:border-nilami-dark-border text-sm font-bold text-nilami-text dark:text-nilami-dark-text focus:outline-none focus:border-nilami-green-dark font-mono"
+                className="w-full px-4 py-2.5 rounded-xl bg-nilami-ivory-surface border border-nilami-border text-sm font-bold text-nilami-text focus:outline-none focus:border-nilami-green-dark font-mono"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-nilami-text/60 dark:text-nilami-dark-text/60">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-nilami-text-muted">
                 Min Increment (₹)
               </label>
               <input
@@ -216,7 +216,7 @@ export const EditAuctionPage: React.FC = () => {
                 required
                 value={minIncrementRupees}
                 onChange={(e) => setMinIncrementRupees(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl bg-nilami-sand/40 dark:bg-nilami-dark-bg border border-nilami-border dark:border-nilami-dark-border text-sm font-bold text-nilami-text dark:text-nilami-dark-text focus:outline-none focus:border-nilami-green-dark font-mono"
+                className="w-full px-4 py-2.5 rounded-xl bg-nilami-ivory-surface border border-nilami-border text-sm font-bold text-nilami-text focus:outline-none focus:border-nilami-green-dark font-mono"
               />
             </div>
           </div>
@@ -227,7 +227,7 @@ export const EditAuctionPage: React.FC = () => {
             className="w-full mt-4 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-nilami-green-dark hover:bg-nilami-green-pressed text-white font-bold text-xs shadow-md transition disabled:opacity-50 cursor-pointer"
           >
             <span>{submitting ? 'Saving changes...' : 'Save Lot Changes'}</span>
-            <ArrowRight className="w-4 h-4 text-nilami-sand" />
+            <ArrowRight className="w-4 h-4 text-nilami-tan" />
           </button>
         </form>
       )}

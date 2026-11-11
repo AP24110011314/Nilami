@@ -37,14 +37,14 @@ export const VerifyEmailPage: React.FC = () => {
   }, [token]);
 
   return (
-    <div className="max-w-md mx-auto my-12 bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl p-8 border border-nilami-border dark:border-nilami-dark-border shadow-xl text-center space-y-6">
+    <div className="max-w-md mx-auto my-12 bg-nilami-sand-surface rounded-3xl p-8 border border-nilami-border shadow-xl text-center space-y-6">
       {loading && (
         <div className="space-y-4">
           <Loader2 className="w-10 h-10 text-nilami-green-dark animate-spin mx-auto" />
-          <h2 className="font-display font-black text-xl text-nilami-text dark:text-nilami-dark-text">
+          <h2 className="font-display font-black text-xl text-nilami-text">
             Verifying Email Address...
           </h2>
-          <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60">
+          <p className="text-xs text-nilami-text-muted">
             Please wait while we confirm your account tokens.
           </p>
         </div>
@@ -52,13 +52,13 @@ export const VerifyEmailPage: React.FC = () => {
 
       {!loading && success && (
         <div className="space-y-4">
-          <div className="w-16 h-16 bg-nilami-green-subtle text-nilami-green-dark dark:text-nilami-sand rounded-full flex items-center justify-center mx-auto border border-nilami-green/30">
+          <div className="w-16 h-16 bg-nilami-green-subtle text-nilami-green-dark rounded-full flex items-center justify-center mx-auto border border-nilami-border-strong">
             <CheckCircle2 className="w-8 h-8" />
           </div>
-          <h2 className="font-display font-black text-2xl text-nilami-text dark:text-nilami-dark-text">
+          <h2 className="font-display font-black text-2xl text-nilami-text">
             Email Verified!
           </h2>
-          <p className="text-xs text-nilami-text/70 dark:text-nilami-dark-text/70 leading-relaxed">
+          <p className="text-xs text-nilami-text-secondary leading-relaxed">
             Your email has been successfully verified. You are now authorized to participate in live bidding and list items.
           </p>
           <Link
@@ -66,23 +66,23 @@ export const VerifyEmailPage: React.FC = () => {
             className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-nilami-green-dark hover:bg-nilami-green-pressed text-white font-bold text-xs transition shadow-sm"
           >
             <span>Proceed to Sign In</span>
-            <ArrowRight className="w-4 h-4 text-nilami-sand" />
+            <ArrowRight className="w-4 h-4 text-nilami-tan" />
           </Link>
         </div>
       )}
 
       {!loading && error && (
         <div className="space-y-4">
-          <div className="w-16 h-16 bg-nilami-danger-subtle text-nilami-danger-dark rounded-full flex items-center justify-center mx-auto border border-nilami-danger/30">
+          <div className="w-16 h-16 bg-nilami-danger-subtle text-nilami-danger-dark rounded-full flex items-center justify-center mx-auto border border-nilami-danger-border">
             <XCircle className="w-8 h-8" />
           </div>
-          <h2 className="font-display font-black text-xl text-nilami-text dark:text-nilami-dark-text">
+          <h2 className="font-display font-black text-xl text-nilami-text">
             Verification Failed
           </h2>
-          <p className="text-xs text-nilami-danger-dark dark:text-nilami-danger-light font-medium">{error}</p>
+          <p className="text-xs text-nilami-danger-dark font-medium">{error}</p>
           <Link
             to="/register"
-            className="inline-block w-full py-3 px-4 rounded-xl bg-nilami-sand dark:bg-nilami-dark-surface-elevated hover:bg-nilami-sand/80 text-nilami-text dark:text-nilami-dark-text font-bold text-xs border border-nilami-border transition"
+            className="inline-block w-full py-3 px-4 rounded-xl bg-nilami-sand hover:bg-nilami-sand/80 text-nilami-text font-bold text-xs border border-nilami-border transition"
           >
             Back to Registration
           </Link>

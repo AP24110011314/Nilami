@@ -91,7 +91,7 @@ export const BidForm: React.FC<BidFormProps> = ({ auction, onBidSuccess }) => {
 
   if (isSeller) {
     return (
-      <div className="p-4 rounded-2xl bg-nilami-sand/50 dark:bg-nilami-dark-surface-elevated border border-nilami-border dark:border-nilami-dark-border text-xs text-nilami-text/70 dark:text-nilami-dark-text/70 text-center">
+      <div className="p-4 rounded-2xl bg-nilami-sand-light border border-nilami-border text-xs text-nilami-text-secondary text-center">
         You are the seller of this auction lot. Self-bidding is strictly prohibited.
       </div>
     );
@@ -99,9 +99,9 @@ export const BidForm: React.FC<BidFormProps> = ({ auction, onBidSuccess }) => {
 
   if (isHighestBidder) {
     return (
-      <div className="p-4 rounded-2xl bg-nilami-green-subtle/70 dark:bg-nilami-green-dark/30 border border-nilami-green/40 text-nilami-green-dark dark:text-nilami-sand space-y-1.5 text-center">
+      <div className="p-4 rounded-2xl bg-nilami-green-subtle border border-nilami-border-strong text-nilami-green-dark space-y-1.5 text-center">
         <div className="flex items-center justify-center gap-1.5 font-bold text-xs uppercase tracking-wider">
-          <CheckCircle2 className="w-4 h-4 text-nilami-green-dark dark:text-nilami-green" />
+          <CheckCircle2 className="w-4 h-4 text-nilami-green-dark" />
           <span>You are currently the highest bidder</span>
         </div>
         <p className="text-xs opacity-90">
@@ -115,9 +115,9 @@ export const BidForm: React.FC<BidFormProps> = ({ auction, onBidSuccess }) => {
     <div className="space-y-4">
       {/* Fat finger confirmation modal / alert */}
       {showFatFingerConfirm && (
-        <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 space-y-3">
+        <div className="p-4 rounded-2xl bg-nilami-tan/65 border-2 border-nilami-border-strong text-nilami-text space-y-3">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
+            <AlertTriangle className="w-5 h-5 text-nilami-warning-dark shrink-0" />
             <h4 className="font-bold text-xs">High Bid Confirmation</h4>
           </div>
           <p className="text-xs leading-relaxed">
@@ -135,7 +135,7 @@ export const BidForm: React.FC<BidFormProps> = ({ auction, onBidSuccess }) => {
             <button
               type="button"
               onClick={() => setShowFatFingerConfirm(false)}
-              className="px-4 py-2 rounded-xl bg-nilami-sand dark:bg-nilami-dark-surface hover:bg-nilami-sand/80 text-xs font-semibold text-nilami-text dark:text-nilami-dark-text transition cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-nilami-sand hover:bg-nilami-sand/80 text-xs font-semibold text-nilami-text transition cursor-pointer"
             >
               Cancel
             </button>
@@ -145,11 +145,11 @@ export const BidForm: React.FC<BidFormProps> = ({ auction, onBidSuccess }) => {
 
       <form onSubmit={handleFormSubmit} className="space-y-3">
         <div>
-          <label htmlFor="bid-amount-input" className="block text-xs font-bold text-nilami-text dark:text-nilami-dark-text mb-1">
+          <label htmlFor="bid-amount-input" className="block text-xs font-bold text-nilami-text mb-1">
             Your Bid (₹ INR)
           </label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-sm text-nilami-text/40 dark:text-nilami-dark-text/40">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-sm text-nilami-text-muted">
               ₹
             </span>
             <input
@@ -160,7 +160,7 @@ export const BidForm: React.FC<BidFormProps> = ({ auction, onBidSuccess }) => {
               value={amountRupees}
               onChange={(e) => setAmountRupees(e.target.value)}
               disabled={submitting}
-              className="w-full pl-8 pr-4 py-3 rounded-2xl bg-nilami-sand-surface dark:bg-nilami-dark-surface border-2 border-nilami-border dark:border-nilami-dark-border focus:border-nilami-green-dark text-lg font-mono font-black text-nilami-text dark:text-nilami-dark-text focus:outline-none"
+              className="w-full pl-8 pr-4 py-3 rounded-2xl bg-nilami-ivory-surface border-2 border-nilami-border focus:border-nilami-green-dark text-lg font-mono font-black text-nilami-text focus:outline-none"
             />
           </div>
         </div>
@@ -173,7 +173,7 @@ export const BidForm: React.FC<BidFormProps> = ({ auction, onBidSuccess }) => {
               type="button"
               onClick={() => handleQuickAdd(multiplier)}
               disabled={submitting}
-              className="flex-1 py-1.5 rounded-xl bg-nilami-sand/50 dark:bg-nilami-dark-surface-elevated hover:bg-nilami-sand border border-nilami-border dark:border-nilami-dark-border text-xs font-semibold text-nilami-text dark:text-nilami-dark-text transition cursor-pointer"
+              className="flex-1 py-1.5 rounded-xl bg-nilami-sand/60 hover:bg-nilami-sand border border-nilami-border text-xs font-semibold text-nilami-text transition cursor-pointer"
             >
               +{formatINR(auction.minIncrement * multiplier)}
             </button>
@@ -181,14 +181,14 @@ export const BidForm: React.FC<BidFormProps> = ({ auction, onBidSuccess }) => {
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-nilami-danger-subtle border border-nilami-danger/30 text-nilami-danger-dark dark:text-nilami-danger-light text-xs flex items-center gap-2">
+          <div className="p-3 rounded-xl bg-nilami-danger-subtle border border-nilami-danger-border text-nilami-danger-dark text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {successMsg && (
-          <div className="p-3 rounded-xl bg-nilami-green-subtle/80 border border-nilami-green/40 text-nilami-green-dark dark:text-nilami-sand text-xs flex items-center gap-2">
+          <div className="p-3 rounded-xl bg-nilami-green-subtle border border-nilami-border-strong text-nilami-green-dark text-xs flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-nilami-green-dark shrink-0" />
             <span>{successMsg}</span>
           </div>

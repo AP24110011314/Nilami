@@ -80,15 +80,15 @@ export const AdminPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-display font-black text-2xl sm:text-3xl text-nilami-text dark:text-nilami-dark-text tracking-tight">
+          <h1 className="font-display font-black text-2xl sm:text-3xl text-nilami-text tracking-tight">
             Admin & Security Console
           </h1>
-          <p className="text-xs text-nilami-text/60 dark:text-nilami-dark-text/60 mt-1">
+          <p className="text-xs text-nilami-text-muted mt-1">
             Platform monitoring, explainable fraud rule detections, and authoritative audit trail
           </p>
         </div>
-        <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-nilami-green-subtle/80 dark:bg-nilami-green-dark/30 border border-nilami-green/40 text-nilami-green-dark dark:text-nilami-sand text-xs font-bold">
-          <ShieldAlert className="w-4 h-4 text-nilami-green-dark dark:text-nilami-green" />
+        <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-nilami-green-subtle border border-nilami-border-strong text-nilami-green-dark text-xs font-bold">
+          <ShieldAlert className="w-4 h-4 text-nilami-green-dark" />
           <span>Risk Rule Engine Active</span>
         </div>
       </div>
@@ -96,53 +96,53 @@ export const AdminPage: React.FC = () => {
       {/* KPI Cards */}
       {stats && (
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-          <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface p-5 rounded-2xl border border-nilami-border dark:border-nilami-dark-border shadow-sm space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-nilami-text/50 dark:text-nilami-dark-text/50">
+          <div className="bg-nilami-sand-surface p-5 rounded-2xl border border-nilami-border shadow-sm space-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-nilami-text-muted">
               Total GMV
             </span>
-            <p className="text-xl font-black text-nilami-text dark:text-nilami-dark-text font-mono">
+            <p className="text-xl font-black text-nilami-text font-mono">
               {formatINR(stats.gmv)}
             </p>
           </div>
 
-          <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface p-5 rounded-2xl border border-nilami-border dark:border-nilami-dark-border shadow-sm space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-nilami-text/50 dark:text-nilami-dark-text/50">
+          <div className="bg-nilami-sand-surface p-5 rounded-2xl border border-nilami-border shadow-sm space-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-nilami-text-muted">
               Active Lots
             </span>
-            <p className="text-xl font-black text-nilami-green-dark dark:text-nilami-sand font-mono">
+            <p className="text-xl font-black text-nilami-green-dark font-mono">
               {stats.activeAuctionsCount}
             </p>
           </div>
 
-          <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface p-5 rounded-2xl border border-nilami-border dark:border-nilami-dark-border shadow-sm space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-nilami-text/50 dark:text-nilami-dark-text/50">
+          <div className="bg-nilami-sand-surface p-5 rounded-2xl border border-nilami-border shadow-sm space-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-nilami-text-muted">
               Bids Placed
             </span>
-            <p className="text-xl font-black text-nilami-text dark:text-nilami-dark-text font-mono">
+            <p className="text-xl font-black text-nilami-text font-mono">
               {stats.totalBidsCount}
             </p>
           </div>
 
-          <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface p-5 rounded-2xl border border-nilami-border dark:border-nilami-dark-border shadow-sm space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-nilami-text/50 dark:text-nilami-dark-text/50">
+          <div className="bg-nilami-sand-surface p-5 rounded-2xl border border-nilami-border shadow-sm space-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-nilami-text-muted">
               Open Risk Flags
             </span>
             <p
               className={`text-xl font-black font-mono ${
                 stats.openFraudFlagsCount > 0
-                  ? 'text-nilami-danger-dark dark:text-nilami-danger-light animate-pulse'
-                  : 'text-nilami-green-dark dark:text-nilami-green'
+                  ? 'text-nilami-danger-dark animate-pulse'
+                  : 'text-nilami-green-dark'
               }`}
             >
               {stats.openFraudFlagsCount}
             </p>
           </div>
 
-          <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface p-5 rounded-2xl border border-nilami-border dark:border-nilami-dark-border shadow-sm space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-nilami-text/50 dark:text-nilami-dark-text/50">
+          <div className="bg-nilami-sand-surface p-5 rounded-2xl border border-nilami-border shadow-sm space-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-nilami-text-muted">
               Payment Failure
             </span>
-            <p className="text-xl font-black text-nilami-text dark:text-nilami-dark-text font-mono">
+            <p className="text-xl font-black text-nilami-text font-mono">
               {stats.paymentFailureRate}%
             </p>
           </div>
@@ -150,14 +150,14 @@ export const AdminPage: React.FC = () => {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-nilami-border/60 dark:border-nilami-dark-border/60 pb-2">
+      <div className="flex gap-2 border-b border-nilami-border/60 pb-2">
         <button
           type="button"
           onClick={() => setActiveTab('fraud')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
             activeTab === 'fraud'
               ? 'bg-nilami-green-dark text-white shadow-sm'
-              : 'text-nilami-text/70 dark:text-nilami-dark-text/70 hover:bg-nilami-sand/50'
+              : 'text-nilami-text/70 hover:bg-nilami-sand/50'
           }`}
         >
           <AlertTriangle className="w-3.5 h-3.5" />
@@ -175,7 +175,7 @@ export const AdminPage: React.FC = () => {
           className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
             activeTab === 'audit'
               ? 'bg-nilami-green-dark text-white shadow-sm'
-              : 'text-nilami-text/70 dark:text-nilami-dark-text/70 hover:bg-nilami-sand/50'
+              : 'text-nilami-text/70 hover:bg-nilami-sand/50'
           }`}
         >
           <History className="w-3.5 h-3.5" />
@@ -185,12 +185,12 @@ export const AdminPage: React.FC = () => {
 
       {/* Fraud Queue Tab */}
       {activeTab === 'fraud' && (
-        <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl border border-nilami-border dark:border-nilami-dark-border shadow-sm overflow-hidden">
-          <div className="p-5 border-b border-nilami-border/60 dark:border-nilami-dark-border/60 flex items-center justify-between">
-            <h2 className="font-display font-bold text-sm text-nilami-text dark:text-nilami-dark-text">
+        <div className="bg-nilami-sand-surface rounded-3xl border border-nilami-border shadow-sm overflow-hidden">
+          <div className="p-5 border-b border-nilami-border/60 flex items-center justify-between">
+            <h2 className="font-display font-bold text-sm text-nilami-text">
               Open Risk Detections
             </h2>
-            <span className="text-xs text-nilami-text/50 dark:text-nilami-dark-text/50">
+            <span className="text-xs text-nilami-text/50">
               Explainable rule-based scoring (threshold 60 = flag, 70 = bid block)
             </span>
           </div>
@@ -199,33 +199,33 @@ export const AdminPage: React.FC = () => {
             <div className="p-8 text-center text-xs text-nilami-text/50">Loading risk flags...</div>
           ) : flags.length === 0 ? (
             <div className="p-12 text-center space-y-2">
-              <ShieldCheck className="w-8 h-8 text-nilami-green-dark dark:text-nilami-green mx-auto" />
-              <p className="font-display font-bold text-sm text-nilami-text dark:text-nilami-dark-text">
+              <ShieldCheck className="w-8 h-8 text-nilami-green-dark mx-auto" />
+              <p className="font-display font-bold text-sm text-nilami-text">
                 Fraud Queue Clear
               </p>
               <p className="text-xs text-nilami-text/50">No open risk flags requiring manual moderator review.</p>
             </div>
           ) : (
-            <div className="divide-y divide-nilami-border/40 dark:divide-nilami-dark-border/40">
+            <div className="divide-y divide-nilami-border/40">
               {flags.map((flag) => (
                 <div
                   key={flag._id}
-                  className="p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:bg-nilami-sand/30 dark:hover:bg-nilami-dark-surface-elevated transition"
+                  className="p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:bg-nilami-sand/30 transition"
                 >
                   <div className="space-y-1.5">
                     <div className="flex items-center gap-2">
                       <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-nilami-danger-subtle text-nilami-danger-dark border border-nilami-danger/30">
                         {flag.type}
                       </span>
-                      <span className="text-xs font-black text-nilami-danger-dark dark:text-nilami-danger-light font-mono">
+                      <span className="text-xs font-black text-nilami-danger-dark font-mono">
                         Risk Score: {flag.score}/100
                       </span>
                     </div>
 
-                    <div className="text-xs text-nilami-text/80 dark:text-nilami-dark-text/80 space-y-0.5">
+                    <div className="text-xs text-nilami-text/80 space-y-0.5">
                       <p>
                         User:{' '}
-                        <strong className="text-nilami-text dark:text-nilami-dark-text font-bold">
+                        <strong className="text-nilami-text font-bold">
                           {flag.subjectUserId?.name}
                         </strong>{' '}
                         ({flag.subjectUserId?.email})
@@ -233,12 +233,12 @@ export const AdminPage: React.FC = () => {
                       {flag.auctionId && (
                         <p>
                           Auction:{' '}
-                          <strong className="text-nilami-text dark:text-nilami-dark-text font-bold">
+                          <strong className="text-nilami-text font-bold">
                             {flag.auctionId.title}
                           </strong>
                         </p>
                       )}
-                      <p className="font-mono text-[11px] text-nilami-text/60 dark:text-nilami-dark-text/60">
+                      <p className="font-mono text-[11px] text-nilami-text/60">
                         Evidence: {JSON.stringify(flag.evidence)}
                       </p>
                     </div>
@@ -249,7 +249,7 @@ export const AdminPage: React.FC = () => {
                       type="button"
                       onClick={() => handleReviewFlag(flag._id, 'dismissed')}
                       disabled={actionLoading === flag._id}
-                      className="px-3.5 py-2 bg-nilami-sand dark:bg-nilami-dark-surface-elevated hover:bg-nilami-sand/80 text-nilami-text dark:text-nilami-dark-text rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 border border-nilami-border"
+                      className="px-3.5 py-2 bg-nilami-sand hover:bg-nilami-sand/80 text-nilami-text rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 border border-nilami-border"
                     >
                       <X className="w-3.5 h-3.5" />
                       <span>Dismiss</span>
@@ -278,33 +278,33 @@ export const AdminPage: React.FC = () => {
 
       {/* Audit Log Tab */}
       {activeTab === 'audit' && (
-        <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl border border-nilami-border dark:border-nilami-dark-border shadow-sm overflow-hidden">
-          <div className="p-5 border-b border-nilami-border/60 dark:border-nilami-dark-border/60">
-            <h2 className="font-display font-bold text-sm text-nilami-text dark:text-nilami-dark-text">
+        <div className="bg-nilami-sand-surface rounded-3xl border border-nilami-border shadow-sm overflow-hidden">
+          <div className="p-5 border-b border-nilami-border/60">
+            <h2 className="font-display font-bold text-sm text-nilami-text">
               Administrator Activity Log
             </h2>
           </div>
 
-          <div className="divide-y divide-nilami-border/40 dark:divide-nilami-dark-border/40">
+          <div className="divide-y divide-nilami-border/40">
             {auditLogs.map((log) => (
               <div key={log._id} className="p-4 flex items-center justify-between gap-4 text-xs">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-nilami-text dark:text-nilami-dark-text">{log.action}</span>
+                    <span className="font-bold text-nilami-text">{log.action}</span>
                     <span className="text-nilami-text/40">•</span>
-                    <span className="text-nilami-text/70 dark:text-nilami-dark-text/70">
+                    <span className="text-nilami-text/70">
                       {log.targetType}: {log.targetId}
                     </span>
                   </div>
-                  <p className="text-nilami-text/60 dark:text-nilami-dark-text/60 mt-0.5">
+                  <p className="text-nilami-text/60 mt-0.5">
                     By:{' '}
-                    <strong className="text-nilami-text dark:text-nilami-dark-text">
+                    <strong className="text-nilami-text">
                       {log.adminId?.name || 'Admin'}
                     </strong>{' '}
                     from IP {log.ip}
                   </p>
                 </div>
-                <span className="text-[11px] font-mono text-nilami-text/50 dark:text-nilami-dark-text/50 shrink-0">
+                <span className="text-[11px] font-mono text-nilami-text/50 shrink-0">
                   {new Date(log.createdAt).toLocaleString()}
                 </span>
               </div>

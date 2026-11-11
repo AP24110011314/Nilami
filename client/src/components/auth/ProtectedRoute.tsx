@@ -19,7 +19,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (!isInitialized) {
     return (
       <div className="flex items-center justify-center min-h-[300px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-nilami-green-dark"></div>
       </div>
     );
   }
@@ -30,7 +30,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   if (requireVerified && !user.emailVerifiedAt) {
     return (
-      <div className="max-w-md mx-auto my-12 p-6 bg-amber-50 border border-amber-200 rounded-2xl text-amber-900 space-y-4">
+      <div className="max-w-md mx-auto my-12 p-6 bg-nilami-tan/60 border border-nilami-border-strong rounded-2xl text-nilami-text space-y-4">
         <h3 className="font-bold text-lg">Email Verification Required</h3>
         <p className="text-sm">
           You must verify your email address before accessing this page. Please check your inbox or Mailpit.
@@ -41,7 +41,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   if (requiredRole && !user.roles.includes(requiredRole)) {
     return (
-      <div className="max-w-md mx-auto my-12 p-6 bg-rose-50 border border-rose-200 rounded-2xl text-rose-900 space-y-4">
+      <div className="max-w-md mx-auto my-12 p-6 bg-nilami-danger-subtle border border-nilami-danger-border rounded-2xl text-nilami-danger-dark space-y-4">
         <h3 className="font-bold text-lg">Access Denied</h3>
         <p className="text-sm">You do not have the required permissions to view this section.</p>
       </div>

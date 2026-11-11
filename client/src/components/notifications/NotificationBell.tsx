@@ -87,7 +87,7 @@ export const NotificationBell: React.FC = () => {
             void fetchNotifications();
           }
         }}
-        className="relative p-2 rounded-xl text-nilami-text/70 dark:text-nilami-dark-text/70 hover:text-nilami-green-dark dark:hover:text-nilami-sand hover:bg-nilami-sand/50 dark:hover:bg-nilami-dark-surface-elevated transition cursor-pointer"
+        className="relative p-2 rounded-xl text-nilami-text-secondary hover:text-nilami-green-dark hover:bg-nilami-sand/50 transition cursor-pointer"
         aria-label="Notifications"
         title="Notifications"
       >
@@ -100,14 +100,14 @@ export const NotificationBell: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-2xl shadow-xl border border-nilami-border dark:border-nilami-dark-border py-2 z-50 overflow-hidden animate-in fade-in duration-150">
-          <div className="flex items-center justify-between px-4 py-2.5 border-b border-nilami-border/60 dark:border-nilami-dark-border/60">
+        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-nilami-sand-surface rounded-2xl shadow-xl border border-nilami-border py-2 z-50 overflow-hidden animate-in fade-in duration-150">
+          <div className="flex items-center justify-between px-4 py-2.5 border-b border-nilami-border/60">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-sm text-nilami-green-dark dark:text-nilami-sand">
+              <span className="font-bold text-sm text-nilami-green-dark">
                 Notifications
               </span>
               {unreadCount > 0 && (
-                <span className="px-2 py-0.5 text-[10px] font-bold bg-nilami-danger-subtle text-nilami-danger-dark dark:text-nilami-danger-light rounded-full border border-nilami-danger/30">
+                <span className="px-2 py-0.5 text-[10px] font-bold bg-nilami-danger-subtle text-nilami-danger-dark rounded-full border border-nilami-danger-border">
                   {unreadCount} new
                 </span>
               )}
@@ -116,7 +116,7 @@ export const NotificationBell: React.FC = () => {
               <button
                 type="button"
                 onClick={handleMarkAllRead}
-                className="text-xs text-nilami-green-dark dark:text-nilami-sand hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+                className="text-xs text-nilami-green-dark hover:underline font-semibold flex items-center gap-1 cursor-pointer"
               >
                 <CheckCheck className="w-3.5 h-3.5" />
                 <span>Mark all read</span>
@@ -124,13 +124,13 @@ export const NotificationBell: React.FC = () => {
             )}
           </div>
 
-          <div className="max-h-80 overflow-y-auto divide-y divide-nilami-border/40 dark:divide-nilami-dark-border/40">
+          <div className="max-h-80 overflow-y-auto divide-y divide-nilami-border/60">
             {loading && (!notifications || notifications.length === 0) ? (
-              <div className="py-8 text-center text-xs text-nilami-text/50 dark:text-nilami-dark-text/50">
+              <div className="py-8 text-center text-xs text-nilami-text-muted">
                 Loading notifications...
               </div>
             ) : !notifications || notifications.length === 0 ? (
-              <div className="py-8 text-center text-xs text-nilami-text/50 dark:text-nilami-dark-text/50">
+              <div className="py-8 text-center text-xs text-nilami-text-muted">
                 No notifications yet
               </div>
             ) : (
@@ -140,15 +140,15 @@ export const NotificationBell: React.FC = () => {
                   <div
                     key={notif.id}
                     onClick={() => !isRead && handleMarkAsRead(notif.id)}
-                    className={`p-3.5 hover:bg-nilami-sand/40 dark:hover:bg-nilami-dark-surface-elevated transition cursor-pointer ${
-                      !isRead ? 'bg-nilami-green-subtle/40 dark:bg-nilami-green-dark/20' : ''
+                    className={`p-3.5 hover:bg-nilami-sand/40 transition cursor-pointer ${
+                      !isRead ? 'bg-nilami-green-subtle/60' : ''
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <h4 className="text-xs font-bold text-nilami-text dark:text-nilami-dark-text">
+                      <h4 className="text-xs font-bold text-nilami-text">
                         {notif.title}
                       </h4>
-                      <span className="text-[10px] text-nilami-text/50 dark:text-nilami-dark-text/50 shrink-0 flex items-center gap-0.5">
+                      <span className="text-[10px] text-nilami-text-muted shrink-0 flex items-center gap-0.5">
                         <Clock className="w-3 h-3" />
                         {new Date(notif.createdAt).toLocaleTimeString([], {
                           hour: '2-digit',
@@ -156,14 +156,14 @@ export const NotificationBell: React.FC = () => {
                         })}
                       </span>
                     </div>
-                    <p className="text-xs text-nilami-text/70 dark:text-nilami-dark-text/70 mt-1 line-clamp-2">
+                    <p className="text-xs text-nilami-text-secondary mt-1 line-clamp-2">
                       {notif.body}
                     </p>
                     {notif.data?.auctionId && (
                       <Link
                         to={`/auctions/${notif.data.auctionId}`}
                         onClick={() => setIsOpen(false)}
-                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-nilami-green-dark dark:text-nilami-sand hover:underline mt-2"
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-nilami-green-dark hover:underline mt-2"
                       >
                         <span>View Lot</span>
                         <ExternalLink className="w-3 h-3" />

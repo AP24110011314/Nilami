@@ -6,8 +6,6 @@ import {
   LogOut,
   PlusCircle,
   Search,
-  Sun,
-  Moon,
   Menu,
   X,
   Compass,
@@ -17,12 +15,10 @@ import {
 import { useAuthStore } from '../../store/auth.js';
 import { apiClient } from '../../api/client.js';
 import { NotificationBell } from '../notifications/NotificationBell.js';
-import { useTheme } from '../../hooks/useTheme.js';
 
 export const Header: React.FC = () => {
   const { user, clearAuth } = useAuthStore();
   const navigate = useNavigate();
-  const { toggleTheme, isDark } = useTheme();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -50,7 +46,7 @@ export const Header: React.FC = () => {
   const isAdmin = user?.roles.includes('admin');
 
   return (
-    <header className="sticky top-0 z-50 bg-nilami-ivory/95 dark:bg-nilami-dark-surface/95 backdrop-blur-md border-b border-nilami-border dark:border-nilami-dark-border transition-colors">
+    <header className="sticky top-0 z-50 bg-nilami-ivory/95 backdrop-blur-md border-b border-nilami-border transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-3">
         {/* Left: Brand Logo & Navigation */}
         <div className="flex items-center gap-6 lg:gap-8">
@@ -62,42 +58,42 @@ export const Header: React.FC = () => {
               <Gavel className="w-5 h-5 text-nilami-sand" />
             </div>
             <div className="flex flex-col">
-              <span className="font-display font-black text-2xl tracking-tight text-nilami-green-dark dark:text-nilami-sand leading-none">
+              <span className="font-display font-black text-2xl tracking-tight text-nilami-text leading-none">
                 Nilami
               </span>
-              <span className="text-[10px] uppercase tracking-widest font-bold text-nilami-tan dark:text-nilami-sand/70 leading-tight">
+              <span className="text-[10px] uppercase tracking-widest font-bold text-nilami-tan-dark leading-tight">
                 Live Auctions
               </span>
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-5 text-sm font-medium text-nilami-text/80 dark:text-nilami-dark-text/80">
+          <nav className="hidden md:flex items-center gap-5 text-sm font-medium text-nilami-text-secondary">
             <Link
               to="/"
-              className="hover:text-nilami-green-dark dark:hover:text-nilami-sand transition-colors py-1 px-2 rounded-lg hover:bg-nilami-sand/40 dark:hover:bg-nilami-dark-surface-elevated"
+              className="hover:text-nilami-green-dark transition-colors py-1 px-2 rounded-lg hover:bg-nilami-sand/40"
             >
               Home
             </Link>
             <Link
               to="/auctions"
-              className="hover:text-nilami-green-dark dark:hover:text-nilami-sand transition-colors py-1 px-2 rounded-lg hover:bg-nilami-sand/40 dark:hover:bg-nilami-dark-surface-elevated flex items-center gap-1.5"
+              className="hover:text-nilami-green-dark transition-colors py-1 px-2 rounded-lg hover:bg-nilami-sand/40 flex items-center gap-1.5"
             >
-              <Compass className="w-4 h-4 text-nilami-tan" />
+              <Compass className="w-4 h-4 text-nilami-tan-dark" />
               <span>Browse Lots</span>
             </Link>
             {user && (
               <Link
                 to="/dashboard"
-                className="hover:text-nilami-green-dark dark:hover:text-nilami-sand transition-colors py-1 px-2 rounded-lg hover:bg-nilami-sand/40 dark:hover:bg-nilami-dark-surface-elevated flex items-center gap-1.5"
+                className="hover:text-nilami-green-dark transition-colors py-1 px-2 rounded-lg hover:bg-nilami-sand/40 flex items-center gap-1.5"
               >
-                <LayoutDashboard className="w-4 h-4 text-nilami-tan" />
+                <LayoutDashboard className="w-4 h-4 text-nilami-tan-dark" />
                 <span>Dashboard</span>
               </Link>
             )}
             {isAdmin && (
               <Link
                 to="/admin"
-                className="text-nilami-danger-dark dark:text-nilami-danger-light font-semibold hover:opacity-80 transition py-1 px-2 rounded-lg hover:bg-nilami-danger-subtle/30 flex items-center gap-1.5"
+                className="text-nilami-danger-dark font-semibold hover:opacity-80 transition py-1 px-2 rounded-lg hover:bg-nilami-danger-subtle/50 flex items-center gap-1.5"
               >
                 <ShieldAlert className="w-4 h-4" />
                 <span>Admin</span>
@@ -109,13 +105,13 @@ export const Header: React.FC = () => {
         {/* Center: Search Bar */}
         <div className="hidden lg:flex flex-1 max-w-md mx-4">
           <form onSubmit={handleSearchSubmit} className="relative w-full">
-            <Search className="w-4 h-4 text-nilami-text/40 dark:text-nilami-dark-text/40 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Search className="w-4 h-4 text-nilami-text-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by title, category, or brand..."
-              className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-nilami-sand-surface dark:bg-nilami-dark-bg border border-nilami-border dark:border-nilami-dark-border text-nilami-text dark:text-nilami-dark-text placeholder:text-nilami-text/40 dark:placeholder:text-nilami-dark-text/40 focus:outline-none focus:border-nilami-green-dark focus:ring-1 focus:ring-nilami-green-dark transition-all"
+              className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-nilami-ivory-surface border border-nilami-border text-nilami-text placeholder:text-nilami-text-muted focus:outline-none focus:border-nilami-green-dark focus:ring-1 focus:ring-nilami-green-dark transition-all"
             />
           </form>
         </div>
@@ -124,23 +120,12 @@ export const Header: React.FC = () => {
         <div className="flex items-center gap-2.5 sm:gap-3">
           {/* Native Port 4000 indicator */}
           <div
-            className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-nilami-green-subtle/60 dark:bg-nilami-green-dark/30 border border-nilami-green/30 text-nilami-green-dark dark:text-nilami-sand text-[11px] font-semibold"
+            className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-nilami-tan/65 border border-nilami-border-strong text-nilami-text text-[11px] font-semibold"
             title="Nilami Native Core running on Port 4000 (No Docker)"
           >
-            <Activity className="w-3.5 h-3.5 text-nilami-green-dark dark:text-nilami-green animate-pulse" />
+            <Activity className="w-3.5 h-3.5 text-nilami-green-dark animate-pulse" />
             <span>Port 4000</span>
           </div>
-
-          {/* Theme Toggle Button */}
-          <button
-            type="button"
-            onClick={toggleTheme}
-            aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
-            className="p-2 rounded-xl text-nilami-text/70 dark:text-nilami-dark-text/70 hover:text-nilami-green-dark dark:hover:text-nilami-sand hover:bg-nilami-sand/50 dark:hover:bg-nilami-dark-surface-elevated transition cursor-pointer"
-            title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
-          >
-            {isDark ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-nilami-green-dark" />}
-          </button>
 
           {isSeller && (
             <Link
@@ -157,7 +142,7 @@ export const Header: React.FC = () => {
               <NotificationBell />
               <Link
                 to="/dashboard"
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-nilami-sand/60 dark:bg-nilami-dark-surface-elevated hover:bg-nilami-sand dark:hover:bg-nilami-dark-surface text-nilami-text dark:text-nilami-dark-text text-xs font-semibold border border-nilami-border dark:border-nilami-dark-border transition"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-nilami-sand/60 hover:bg-nilami-sand text-nilami-text text-xs font-semibold border border-nilami-border transition"
               >
                 <div className="w-5 h-5 rounded-full bg-nilami-green-dark text-white flex items-center justify-center text-[10px] font-bold">
                   {user.name.charAt(0).toUpperCase()}
@@ -169,7 +154,7 @@ export const Header: React.FC = () => {
                 onClick={handleLogout}
                 title="Sign out"
                 aria-label="Sign out"
-                className="p-2 rounded-xl text-nilami-text/60 dark:text-nilami-dark-text/60 hover:text-nilami-danger-dark hover:bg-nilami-danger-subtle/50 transition cursor-pointer"
+                className="p-2 rounded-xl text-nilami-text-muted hover:text-nilami-danger-dark hover:bg-nilami-danger-subtle/50 transition cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
               </button>
@@ -178,7 +163,7 @@ export const Header: React.FC = () => {
             <div className="flex items-center gap-2">
               <Link
                 to="/login"
-                className="px-3.5 py-2 text-xs font-semibold text-nilami-text/80 dark:text-nilami-dark-text/80 hover:text-nilami-green-dark dark:hover:text-nilami-sand transition"
+                className="px-3.5 py-2 text-xs font-semibold text-nilami-text/80 hover:text-nilami-green-dark transition"
               >
                 Sign In
               </Link>
@@ -196,7 +181,7 @@ export const Header: React.FC = () => {
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle navigation menu"
-            className="md:hidden p-2 rounded-xl text-nilami-text/70 dark:text-nilami-dark-text/70 hover:bg-nilami-sand/50 dark:hover:bg-nilami-dark-surface-elevated transition cursor-pointer"
+            className="md:hidden p-2 rounded-xl text-nilami-text/70 hover:bg-nilami-sand/50 transition cursor-pointer"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -205,42 +190,42 @@ export const Header: React.FC = () => {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-nilami-border dark:border-nilami-dark-border bg-nilami-ivory-surface dark:bg-nilami-dark-surface px-4 py-4 space-y-4 shadow-lg animate-in fade-in duration-200">
+        <div className="md:hidden border-t border-nilami-border bg-nilami-ivory-surface px-4 py-4 space-y-4 shadow-lg animate-in fade-in duration-200">
           <form onSubmit={handleSearchSubmit} className="relative w-full">
-            <Search className="w-4 h-4 text-nilami-text/40 dark:text-nilami-dark-text/40 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Search className="w-4 h-4 text-nilami-text-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search catalog..."
-              className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-nilami-sand/40 dark:bg-nilami-dark-bg border border-nilami-border dark:border-nilami-dark-border text-nilami-text dark:text-nilami-dark-text placeholder:text-nilami-text/40 dark:placeholder:text-nilami-dark-text/40 focus:outline-none focus:border-nilami-green-dark"
+              className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-nilami-ivory border border-nilami-border text-nilami-text placeholder:text-nilami-text-muted focus:outline-none focus:border-nilami-green-dark"
             />
           </form>
 
-          <nav className="flex flex-col space-y-1 text-sm font-medium text-nilami-text dark:text-nilami-dark-text">
+          <nav className="flex flex-col space-y-1 text-sm font-medium text-nilami-text">
             <Link
               to="/"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-xl hover:bg-nilami-sand/50 dark:hover:bg-nilami-dark-surface-elevated transition"
+              className="px-3 py-2 rounded-xl hover:bg-nilami-sand/50 transition"
             >
               Home
             </Link>
             <Link
               to="/auctions"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-xl hover:bg-nilami-sand/50 dark:hover:bg-nilami-dark-surface-elevated transition flex items-center justify-between"
+              className="px-3 py-2 rounded-xl hover:bg-nilami-sand/50 transition flex items-center justify-between"
             >
               <span>Browse Catalog</span>
-              <Compass className="w-4 h-4 text-nilami-tan" />
+              <Compass className="w-4 h-4 text-nilami-tan-dark" />
             </Link>
             {user && (
               <Link
                 to="/dashboard"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-xl hover:bg-nilami-sand/50 dark:hover:bg-nilami-dark-surface-elevated transition flex items-center justify-between"
+                className="px-3 py-2 rounded-xl hover:bg-nilami-sand/50 transition flex items-center justify-between"
               >
                 <span>Dashboard</span>
-                <LayoutDashboard className="w-4 h-4 text-nilami-tan" />
+                <LayoutDashboard className="w-4 h-4 text-nilami-tan-dark" />
               </Link>
             )}
             {isSeller && (
@@ -257,7 +242,7 @@ export const Header: React.FC = () => {
               <Link
                 to="/admin"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-xl text-nilami-danger-dark dark:text-nilami-danger-light font-bold text-xs flex items-center justify-between"
+                className="px-3 py-2 rounded-xl text-nilami-danger-dark font-bold text-xs flex items-center justify-between"
               >
                 <span>Admin Portal</span>
                 <ShieldAlert className="w-4 h-4" />

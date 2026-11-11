@@ -43,7 +43,7 @@ export const AuctionPriceChart: React.FC<AuctionPriceChartProps> = ({ auctionId 
 
   if (loading) {
     return (
-      <div className="h-44 flex items-center justify-center text-xs text-nilami-text/40 dark:text-nilami-dark-text/40">
+      <div className="h-44 flex items-center justify-center text-xs text-nilami-text-muted">
         Loading lot price trajectory...
       </div>
     );
@@ -51,7 +51,7 @@ export const AuctionPriceChart: React.FC<AuctionPriceChartProps> = ({ auctionId 
 
   if (!data || data.priceProgression.length <= 1) {
     return (
-      <div className="p-4 rounded-2xl bg-nilami-sand/30 dark:bg-nilami-dark-surface-elevated border border-nilami-border/60 dark:border-nilami-dark-border text-xs text-nilami-text/60 dark:text-nilami-dark-text/60 text-center">
+      <div className="p-4 rounded-2xl bg-nilami-sand-surface border border-nilami-border text-xs text-nilami-text-secondary text-center">
         No bids recorded yet. Bids placed on this lot will generate live price analytics.
       </div>
     );
@@ -65,21 +65,21 @@ export const AuctionPriceChart: React.FC<AuctionPriceChartProps> = ({ auctionId 
   }));
 
   return (
-    <div className="bg-nilami-sand-surface dark:bg-nilami-dark-surface rounded-3xl p-6 border border-nilami-border dark:border-nilami-dark-border shadow-sm space-y-4">
+    <div className="bg-nilami-sand-surface rounded-3xl p-6 border border-nilami-border shadow-sm space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-nilami-green-dark dark:text-nilami-sand" />
-          <h3 className="text-sm font-display font-bold text-nilami-text dark:text-nilami-dark-text">
+          <TrendingUp className="w-4 h-4 text-nilami-green-dark" />
+          <h3 className="text-sm font-display font-bold text-nilami-text">
             Price Progression
           </h3>
         </div>
-        <div className="flex items-center gap-3 text-xs text-nilami-text/60 dark:text-nilami-dark-text/60">
+        <div className="flex items-center gap-3 text-xs text-nilami-text-secondary">
           <span className="flex items-center gap-1">
-            <Users className="w-3.5 h-3.5 text-nilami-tan" />
-            <strong className="text-nilami-text dark:text-nilami-dark-text">{data.uniqueBidders}</strong> bidders
+            <Users className="w-3.5 h-3.5 text-nilami-tan-dark" />
+            <strong className="text-nilami-text">{data.uniqueBidders}</strong> bidders
           </span>
           {data.extensionCount > 0 && (
-            <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-bold">
+            <span className="flex items-center gap-1 text-nilami-warning-dark font-bold">
               <Zap className="w-3.5 h-3.5" />
               <strong>{data.extensionCount}</strong> anti-snipes
             </span>
@@ -92,13 +92,13 @@ export const AuctionPriceChart: React.FC<AuctionPriceChartProps> = ({ auctionId 
           <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
             <defs>
               <linearGradient id="nilamiPriceGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#5D866C" stopOpacity={0.4} />
-                <stop offset="95%" stopColor="#5D866C" stopOpacity={0.0} />
+                <stop offset="5%" stopColor="var(--nilami-green-dark)" stopOpacity={0.35} />
+                <stop offset="95%" stopColor="var(--nilami-green)" stopOpacity={0.05} />
               </linearGradient>
             </defs>
-            <XAxis dataKey="step" tick={{ fontSize: 10, fill: '#7C8A82' }} />
+            <XAxis dataKey="step" tick={{ fontSize: 10, fill: 'var(--nilami-text-muted)' }} />
             <YAxis
-              tick={{ fontSize: 10, fill: '#7C8A82' }}
+              tick={{ fontSize: 10, fill: 'var(--nilami-text-muted)' }}
               tickFormatter={(val: number) => `₹${val.toLocaleString('en-IN')}`}
             />
             <Tooltip
@@ -108,18 +108,18 @@ export const AuctionPriceChart: React.FC<AuctionPriceChartProps> = ({ auctionId 
               ]}
               labelFormatter={(label) => `Stage: ${String(label)}`}
               contentStyle={{
-                backgroundColor: '#F5F5F0',
-                border: '1px solid #C2A68C',
+                backgroundColor: 'var(--nilami-ivory)',
+                border: '1px solid var(--nilami-border-strong)',
                 borderRadius: '12px',
                 fontSize: '11px',
-                color: '#1F2A24',
+                color: 'var(--nilami-text)',
                 fontWeight: 'bold',
               }}
             />
             <Area
               type="monotone"
               dataKey="priceRupees"
-              stroke="#3F5F4B"
+              stroke="var(--nilami-green-dark)"
               strokeWidth={2.5}
               fillOpacity={1}
               fill="url(#nilamiPriceGradient)"
