@@ -80,9 +80,12 @@ export function createApp(): Express {
   app.use(
     '/uploads',
     express.static(uploadRoot, {
-      maxAge: '7d',
+      maxAge: 0,
       etag: true,
       lastModified: true,
+      setHeaders: (res) => {
+        res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+      },
     }),
   );
 

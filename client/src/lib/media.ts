@@ -2,9 +2,13 @@ const RAW_API_URL =
   (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:4000/api';
 
 export const API_ORIGIN = RAW_API_URL.replace(/\/api\/?$/, '').replace(/\/$/, '');
+const SEED_MEDIA_VERSION = '2';
 
 export function resolveImageUrl(url?: string | null): string {
   if (!url) return '';
+  if (url.startsWith('/uploads/seed/') && !url.includes('?')) {
+    return `${API_ORIGIN}${url}?v=${SEED_MEDIA_VERSION}`;
+  }
   if (url.startsWith('/uploads/')) {
     return `${API_ORIGIN}${url}`;
   }
