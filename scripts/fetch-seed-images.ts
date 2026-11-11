@@ -64,31 +64,46 @@ function generatePlaceholderSvg(title: string, category: string, width: number, 
 </svg>`;
 }
 
-async function fetchImageBuffer(url: string, timeoutMs = 8000): Promise<Buffer | null> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const res = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        'User-Agent': 'Nilami-ImageFetcher/1.0',
-        Accept: 'image/webp,image/apng,image/*,*/*;q=0.8',
-      },
-    });
-    if (!res.ok) return null;
-    const arrayBuf = await res.arrayBuffer();
-    return Buffer.from(arrayBuf);
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timer);
+async function fetchImageBuffer(url: string, timeoutMs = 15000): Promise<Buffer | null> {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const res = await fetch(url, {
+        signal: controller.signal,
+        headers: {
+          'User-Agent': 'NilamiSeedImageFetcher/1.0 (https://github.com/nilami; educational demo)',
+          Accept: 'image/webp,image/png,image/jpeg,image/*,*/*;q=0.8',
+        },
+      });
+      if (res.status === 429 || res.status >= 500) {
+        await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
+        continue;
+      }
+      if (!res.ok) return null;
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType && !contentType.startsWith('image/')) {
+        return null;
+      }
+      const arrayBuf = await res.arrayBuffer();
+      return Buffer.from(arrayBuf);
+    } catch {
+      if (attempt < 2) {
+        await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
+      }
+    } finally {
+      clearTimeout(timer);
+    }
   }
+  return null;
 }
 
 async function main() {
+  const forceRefresh = process.argv.includes('--force');
   const rootDir = process.cwd();
   const manifestPath = path.resolve(rootDir, 'scripts/seed-manifest.json');
   const targetDir = path.resolve(rootDir, 'server/uploads/seed');
+  const cacheIndexPath = path.join(targetDir, '.manifest-urls.json');
   const attributionDocPath = path.resolve(rootDir, 'docs/SEED_IMAGE_ATTRIBUTION.md');
 
   if (!fs.existsSync(manifestPath)) {
@@ -100,15 +115,20 @@ async function main() {
     fs.mkdirSync(targetDir, { recursive: true });
   }
 
+  const prevUrlCache: Record<string, string> = fs.existsSync(cacheIndexPath)
+    ? (JSON.parse(fs.readFileSync(cacheIndexPath, 'utf-8')) as Record<string, string>)
+    : {};
+  const nextUrlCache: Record<string, string> = { ...prevUrlCache };
+
   const manifest: SeedManifestItem[] = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
   console.log(`Processing ${manifest.length} seed items into ${targetDir}...`);
 
   const attributionLines: string[] = [
     '# SEED_IMAGE_ATTRIBUTION.md — Nilami Seed Images',
     '',
-    'All images used for seed lot previews are sourced from [Unsplash](https://unsplash.com) under the generous [Unsplash License](https://unsplash.com/license), which grants an irrevocable, nonexclusive, worldwide copyright license to download, copy, modify, distribute, and use photos for free, including for commercial purposes.',
+    'All images used for seed lot previews are sourced from [Wikimedia Commons](https://commons.wikimedia.org) (Public Domain, CC0, CC BY, CC BY-SA) and [Unsplash](https://unsplash.com) under the [Unsplash License](https://unsplash.com/license).',
     '',
-    '| Item / Lot | Category | Photographer | Source Link |',
+    '| Item / Lot | Category | Photographer / Credit | Source Link |',
     '|---|---|---|---|',
   ];
 
@@ -125,17 +145,21 @@ async function main() {
       const mainPath = path.join(targetDir, mainFilename);
       const thumbPath = path.join(targetDir, thumbFilename);
 
+      const sourceLabel = img.sourceUrl.includes('wikimedia.org') ? 'Wikimedia Commons' : 'Unsplash Photo';
       attributionLines.push(
-        `| **${item.title.replace(/\|/g, '-')}** | \`${item.category}\` | ${img.photographer} | [Unsplash Photo](${img.sourceUrl}) |`,
+        `| **${item.title.replace(/\|/g, '-')}** | \`${item.category}\` | ${img.photographer.replace(/\|/g, '-')} | [${sourceLabel}](${img.sourceUrl}) |`,
       );
 
-      // Check if already downloaded and valid
-      if (
+      const cachedUrl = prevUrlCache[mainFilename];
+      const hasValidFile =
         fs.existsSync(mainPath) &&
         fs.existsSync(thumbPath) &&
-        fs.statSync(mainPath).size > 500 &&
-        fs.statSync(thumbPath).size > 200
-      ) {
+        fs.statSync(mainPath).size > 12000 &&
+        fs.statSync(thumbPath).size > 200;
+
+      // Re-fetch when manifest URL changed, --force is passed, or existing file looks like a tiny SVG fallback
+      if (!forceRefresh && hasValidFile && (!cachedUrl || cachedUrl === img.url)) {
+        nextUrlCache[mainFilename] = img.url;
         cachedCount++;
         continue;
       }
@@ -159,7 +183,9 @@ async function main() {
             .webp({ quality: 80 })
             .toFile(thumbPath);
 
+          nextUrlCache[mainFilename] = img.url;
           downloadedCount++;
+          await new Promise((r) => setTimeout(r, 150));
           continue;
         } catch (err) {
           console.warn(`Sharp processing failed for ${item.slug}:`, err);
@@ -173,10 +199,12 @@ async function main() {
 
       await sharp(Buffer.from(svgMain)).webp({ quality: 85 }).toFile(mainPath);
       await sharp(Buffer.from(svgThumb)).webp({ quality: 80 }).toFile(thumbPath);
+      delete nextUrlCache[mainFilename];
       fallbackCount++;
     }
   }
 
+  fs.writeFileSync(cacheIndexPath, JSON.stringify(nextUrlCache, null, 2), 'utf-8');
   // Write attribution document
   fs.writeFileSync(attributionDocPath, attributionLines.join('\n'), 'utf-8');
   console.log(`\nImage fetch completed:`);
