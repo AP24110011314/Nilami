@@ -5,9 +5,13 @@ import { logger } from './logger.js';
 export async function connectDB(): Promise<typeof mongoose> {
   mongoose.set('strictQuery', true);
   try {
-    const conn = await mongoose.connect(env.MONGODB_URI);
+    const hasDbInUri = /^mongodb(?:\+srv)?:\/\/[^/]+\/[^?]+/.test(env.MONGODB_URI);
+    const conn = await mongoose.connect(
+      env.MONGODB_URI,
+      hasDbInUri ? undefined : { dbName: env.MONGODB_DB_NAME },
+    );
     const sanitizedUri = env.MONGODB_URI.replace(/:[^:@]+@/, ':****@');
-    logger.info({ uri: sanitizedUri }, 'MongoDB connected');
+    logger.info({ uri: sanitizedUri, db: conn.connection.name }, 'MongoDB connected');
     return conn;
   } catch (error) {
     logger.error({ error }, 'MongoDB connection error');

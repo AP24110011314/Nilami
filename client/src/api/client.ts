@@ -1,9 +1,13 @@
 import { useAuthStore, type User } from '../store/auth.js';
+import { API_BASE_URL } from '../lib/env.js';
 
 export interface HealthResponse {
   ok: boolean;
   mongo: string;
+  mongoTarget?: string;
   redis: string;
+  storageDriver?: string;
+  paymentProvider?: string;
   uptime: number;
   serverTime: string;
 }
@@ -32,7 +36,7 @@ class ApiClient {
   private refreshSubscribers: Array<(token: string | null) => void> = [];
 
   constructor() {
-    this.baseUrl = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:4000/api';
+    this.baseUrl = API_BASE_URL;
   }
 
   private onTokenRefreshed(token: string | null) {
@@ -285,7 +289,22 @@ class ApiClient {
       paidAt?: string | null;
       auctionStatus: string;
       isWinner: boolean;
+      provider?: 'stripe' | 'razorpay' | 'mock';
     }>(`/payments/status/${auctionId}`);
+  }
+
+  public async verifyRazorpayPayment(
+    auctionId: string,
+    payload: {
+      razorpay_payment_id: string;
+      razorpay_payment_link_id?: string;
+      razorpay_payment_link_reference_id?: string;
+      razorpay_payment_link_status?: string;
+      razorpay_order_id?: string;
+      razorpay_signature: string;
+    },
+  ) {
+    return this.post<{ ok: boolean; status: string }>(`/payments/razorpay/verify/${auctionId}`, payload);
   }
 
   public async mockCompletePayment(auctionId: string) {

@@ -62,11 +62,16 @@ export function createApp(): Express {
   // Cookie parser
   app.use(cookieParser());
 
-  // Stripe webhook with raw body MUST be mounted before express.json()
+  // Payment webhooks with raw body MUST be mounted before express.json()
   app.post(
     '/api/payments/webhook',
     express.raw({ type: 'application/json' }),
     PaymentController.handleWebhook,
+  );
+  app.post(
+    '/api/payments/razorpay/webhook',
+    express.raw({ type: 'application/json' }),
+    PaymentController.handleRazorpayWebhook,
   );
 
   // Body parsers

@@ -39,7 +39,7 @@ export const ForgotPasswordPage: React.FC = () => {
             Reset Link Dispatched
           </h2>
           <p className="text-xs text-nilami-text-secondary leading-relaxed">
-            If an account exists with <strong className="text-nilami-text font-bold">{email}</strong>, check Mailpit (port 8025) for your reset token.
+            If an account exists with <strong className="text-nilami-text font-bold">{email}</strong>, check your email inbox for your reset link.
           </p>
         </div>
         <Link

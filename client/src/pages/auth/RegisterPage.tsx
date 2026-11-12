@@ -44,7 +44,7 @@ export const RegisterPage: React.FC = () => {
           <p className="text-xs text-nilami-text-secondary leading-relaxed">
             We sent an email verification link to{' '}
             <strong className="text-nilami-text font-bold">{registeredEmail}</strong>.
-            Check your Mailpit inbox (port 8025) to activate your account.
+            Check your email inbox to activate your account.
           </p>
         </div>
         <Link

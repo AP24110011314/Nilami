@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { apiClient, type HealthResponse, type AuctionItem } from '../api/client.js';
 import { AuctionCard } from '../components/auctions/AuctionCard.js';
 import { AuctionCardSkeleton } from '../components/auctions/AuctionCardSkeleton.js';
@@ -7,6 +7,7 @@ import {
   Clock,
   Sparkles,
   ArrowRight,
+  Search,
   TrendingUp,
   Watch,
   Laptop,
@@ -37,6 +38,8 @@ const CATEGORY_TILES = [
 ];
 
 export const HomePage: React.FC = () => {
+  const navigate = useNavigate();
+  const [heroSearch, setHeroSearch] = useState('');
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [endingSoonAuctions, setEndingSoonAuctions] = useState<AuctionItem[]>([]);
   const [trendingAuctions, setTrendingAuctions] = useState<AuctionItem[]>([]);
@@ -67,20 +70,20 @@ export const HomePage: React.FC = () => {
   }, []);
 
   return (
-    <div className="space-y-16">
+    <div className="space-y-10 sm:space-y-16">
       {/* Hero Section */}
-      <section className="relative rounded-3xl bg-gradient-to-br from-nilami-ivory via-nilami-tan to-nilami-sand text-nilami-text p-8 sm:p-14 lg:p-16 shadow-lg overflow-hidden border border-nilami-border-strong">
+      <section className="relative rounded-3xl bg-gradient-to-br from-nilami-ivory via-nilami-tan to-nilami-sand text-nilami-text p-5 sm:p-12 lg:p-16 shadow-lg overflow-hidden border border-nilami-border-strong">
         {/* Decorative background glow & pattern */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-nilami-tan/40 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
         <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-nilami-sand/60 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 max-w-3xl space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-nilami-ivory/90 border border-nilami-border-strong text-nilami-tan-dark text-xs font-bold uppercase tracking-wider backdrop-blur-md">
-            <Sparkles className="w-3.5 h-3.5 text-nilami-green-dark" />
+        <div className="relative z-10 max-w-3xl space-y-5 sm:space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-nilami-ivory/90 border border-nilami-border-strong text-nilami-tan-dark text-[11px] sm:text-xs font-bold uppercase tracking-wider backdrop-blur-md">
+            <Sparkles className="w-3.5 h-3.5 text-nilami-green-dark shrink-0" />
             <span>Authoritative Live Auction Platform</span>
           </div>
 
-          <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.1] text-nilami-text">
+          <h1 className="font-display font-black text-3xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.1] text-nilami-text">
             Authenticated Lots.<br />
             <span className="text-nilami-green-dark">Authoritative Bids.</span>
           </h1>
@@ -90,17 +93,47 @@ export const HomePage: React.FC = () => {
             authoritative server timestamps, integer paise financial accuracy, and automatic 30-second anti-snipe extensions.
           </p>
 
-          <div className="flex flex-wrap gap-4 pt-2">
+          {/* Mobile & Desktop Quick Catalog Search */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (heroSearch.trim()) {
+                navigate(`/auctions?q=${encodeURIComponent(heroSearch.trim())}`);
+              } else {
+                navigate('/auctions');
+              }
+            }}
+            className="flex flex-col sm:flex-row gap-2.5 max-w-xl"
+          >
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-nilami-text-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                value={heroSearch}
+                onChange={(e) => setHeroSearch(e.target.value)}
+                placeholder="Search watches, collectibles, fine art..."
+                className="w-full pl-10 pr-4 py-3 rounded-2xl bg-nilami-ivory-surface/95 border border-nilami-border-strong text-sm text-nilami-text placeholder:text-nilami-text-muted focus:outline-none focus:border-nilami-green-dark focus:ring-1 focus:ring-nilami-green-dark shadow-sm"
+              />
+            </div>
+            <button
+              type="submit"
+              className="px-5 py-3 rounded-2xl bg-nilami-green-dark hover:bg-nilami-green-pressed text-white text-xs sm:text-sm font-bold transition shadow-md cursor-pointer shrink-0"
+            >
+              Search Lots
+            </button>
+          </form>
+
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 pt-1">
             <Link
               to="/auctions"
-              className="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-nilami-green-dark text-white hover:bg-nilami-green-pressed font-bold text-sm transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+              className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-nilami-green-dark text-white hover:bg-nilami-green-pressed font-bold text-sm transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
             >
               <span>Explore Live Lots</span>
               <ArrowRight className="w-4 h-4 text-nilami-tan" />
             </Link>
             <Link
               to="/seller/new"
-              className="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-nilami-ivory hover:bg-nilami-ivory-surface text-nilami-text font-bold text-sm border border-nilami-border-strong transition-all shadow-sm"
+              className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-nilami-ivory hover:bg-nilami-ivory-surface text-nilami-text font-bold text-sm border border-nilami-border-strong transition-all shadow-sm"
             >
               <span>Consign an Item</span>
             </Link>
@@ -287,10 +320,10 @@ export const HomePage: React.FC = () => {
               4
             </div>
             <h3 className="font-display font-bold text-base text-nilami-text">
-              Stripe Escrow
+              Verified Escrow
             </h3>
             <p className="text-xs text-nilami-text/70 leading-relaxed">
-              Winning bids are settled via encrypted Stripe 3DS checkouts. Funds are securely released upon courier confirmation.
+              Winning bids settle via encrypted Razorpay &amp; 3DS escrow checkout. Funds release securely upon verified fulfillment.
             </p>
           </div>
         </div>
@@ -362,9 +395,11 @@ export const HomePage: React.FC = () => {
               <div className="flex items-center justify-between text-xs font-semibold text-nilami-text/70">
                 <span className="flex items-center gap-1.5">
                   <Database className="w-4 h-4 text-nilami-green-dark" />
-                  MongoDB (rs0)
+                  MongoDB
                 </span>
-                <span className="font-mono text-[11px] text-nilami-text/40">port 27018</span>
+                <span className="font-mono text-[11px] text-nilami-text/50">
+                  {health?.mongoTarget || 'Atlas Cloud'}
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 {health?.mongo === 'ok' ? (
@@ -387,7 +422,7 @@ export const HomePage: React.FC = () => {
                   <Server className="w-4 h-4 text-nilami-green-dark" />
                   Redis Queue
                 </span>
-                <span className="font-mono text-[11px] text-nilami-text/40">port 6380</span>
+                <span className="font-mono text-[11px] text-nilami-text/50">BullMQ</span>
               </div>
               <div className="flex items-center gap-2">
                 {health?.redis === 'ok' ? (

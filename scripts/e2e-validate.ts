@@ -16,9 +16,12 @@ interface TestStepResult {
   evidence: string;
 }
 
-const API_BASE = 'http://localhost:4000/api';
-const CLIENT_BASE = 'http://localhost:5173';
-const MAILPIT_API = 'http://localhost:8025/api/v1/messages';
+import { env } from '../server/src/config/env.js';
+
+const API_BASE = process.env.VITE_API_URL || process.env.API_URL || `http://127.0.0.1:${env.PORT}/api`;
+const CLIENT_BASE = env.CLIENT_URL;
+const MAILPIT_ORIGIN = process.env.MAILPIT_URL || 'http://127.0.0.1:8025';
+const MAILPIT_API = `${MAILPIT_ORIGIN}/api/v1/messages`;
 
 async function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
@@ -67,7 +70,7 @@ async function runE2EValidation() {
 
     let verifiedOk = false;
     if (verifMsg) {
-      const msgDetailRes = await fetch(`http://localhost:8025/api/v1/message/${verifMsg.ID}`);
+      const msgDetailRes = await fetch(`${MAILPIT_ORIGIN}/api/v1/message/${verifMsg.ID}`);
       const msgDetail = await msgDetailRes.json();
       const tokenMatch = msgDetail.Text?.match(/token=([a-zA-Z0-9_-]+)/);
       if (tokenMatch) {

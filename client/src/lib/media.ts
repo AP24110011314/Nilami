@@ -1,7 +1,6 @@
-const RAW_API_URL =
-  (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:4000/api';
+import { API_ORIGIN } from './env.js';
 
-export const API_ORIGIN = RAW_API_URL.replace(/\/api\/?$/, '').replace(/\/$/, '');
+export { API_ORIGIN };
 const SEED_MEDIA_VERSION = '2';
 
 export function resolveImageUrl(url?: string | null): string {

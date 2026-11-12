@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router';
 import { apiClient } from '../../api/client.js';
+import { PAYMENT_PROVIDER } from '../../lib/env.js';
 import { formatINR } from '../../lib/money.js';
 import { CheckCircle2, Loader2, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 
@@ -8,13 +9,22 @@ export const PaymentSuccessPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const auctionId = searchParams.get('auction') || '';
   const isMock = searchParams.get('mock') === 'true';
+  const providerParam = searchParams.get('provider') || PAYMENT_PROVIDER;
+  const rzpPaymentId = searchParams.get('razorpay_payment_id') || '';
+  const rzpLinkId = searchParams.get('razorpay_payment_link_id') || '';
+  const rzpLinkRef = searchParams.get('razorpay_payment_link_reference_id') || '';
+  const rzpLinkStatus = searchParams.get('razorpay_payment_link_status') || '';
+  const rzpOrderId = searchParams.get('razorpay_order_id') || '';
+  const rzpSignature = searchParams.get('razorpay_signature') || '';
 
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
+  const [activeProvider, setActiveProvider] = useState<string>(providerParam);
   const [amount, setAmount] = useState<number>(0);
   const [paidAt, setPaidAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [completingMock, setCompletingMock] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const verifiedRazorpayRef = useRef(false);
 
   const checkStatus = useCallback(async () => {
     if (!auctionId) return;
@@ -22,6 +32,7 @@ export const PaymentSuccessPage: React.FC = () => {
       const res = await apiClient.getPaymentStatus(auctionId);
       setPaymentStatus(res.status);
       setAmount(res.amount);
+      if (res.provider) setActiveProvider(res.provider);
       if (res.paidAt) setPaidAt(res.paidAt);
     } catch {
       // Keep polling
@@ -29,6 +40,25 @@ export const PaymentSuccessPage: React.FC = () => {
       setLoading(false);
     }
   }, [auctionId]);
+
+  useEffect(() => {
+    if (auctionId && rzpPaymentId && rzpSignature && !verifiedRazorpayRef.current) {
+      verifiedRazorpayRef.current = true;
+      void apiClient
+        .verifyRazorpayPayment(auctionId, {
+          razorpay_payment_id: rzpPaymentId,
+          razorpay_payment_link_id: rzpLinkId || undefined,
+          razorpay_payment_link_reference_id: rzpLinkRef || undefined,
+          razorpay_payment_link_status: rzpLinkStatus || undefined,
+          razorpay_order_id: rzpOrderId || undefined,
+          razorpay_signature: rzpSignature,
+        })
+        .then(() => checkStatus())
+        .catch(() => {
+          setError('Unable to verify Razorpay signature. Waiting for webhook confirmation.');
+        });
+    }
+  }, [auctionId, rzpPaymentId, rzpLinkId, rzpLinkRef, rzpLinkStatus, rzpOrderId, rzpSignature, checkStatus]);
 
   useEffect(() => {
     void checkStatus();
@@ -103,7 +133,7 @@ export const PaymentSuccessPage: React.FC = () => {
                 Payment Succeeded!
               </h1>
               <p className="text-xs text-nilami-text-secondary leading-relaxed">
-                Your payment has been verified by the Stripe webhook and the lot is now marked complete.
+                Your payment has been verified via {activeProvider === 'razorpay' ? 'Razorpay' : activeProvider === 'stripe' ? 'Stripe' : 'Escrow'} settlement and the lot is now marked complete.
               </p>
             </div>
 
@@ -116,8 +146,8 @@ export const PaymentSuccessPage: React.FC = () => {
               </div>
               <div className="flex justify-between items-center text-nilami-text-muted">
                 <span>Payment Rail</span>
-                <span className="font-semibold text-nilami-text">
-                  Stripe INR Direct Webhook
+                <span className="font-semibold text-nilami-text capitalize">
+                  {activeProvider} INR Direct
                 </span>
               </div>
               {paidAt && (
@@ -156,7 +186,7 @@ export const PaymentSuccessPage: React.FC = () => {
                 Confirming Webhook Settlement...
               </h1>
               <p className="text-xs text-nilami-text-muted leading-relaxed">
-                Waiting for the official Stripe webhook to confirm transaction settlement. Never trust client redirects alone.
+                Waiting for the official {activeProvider === 'razorpay' ? 'Razorpay' : 'payment'} webhook to confirm transaction settlement. Never trust client redirects alone.
               </p>
             </div>
 

@@ -63,13 +63,31 @@ export async function runReconciliation(): Promise<ReconcileResult> {
     const overdueAuctions = await Auction.find({
       status: 'payment_pending',
       $expr: { $lte: ['$paymentDueAt', '$$NOW'] },
-    }).limit(50);
+    })
+      .sort({ paymentDueAt: -1 })
+      .limit(200);
 
     for (const a of overdueAuctions) {
       const payment = await Payment.findOne({ auctionId: a._id });
-      if (payment && !['succeeded', 'processing'].includes(payment.status)) {
-        await Payment.updateOne(
-          { _id: payment._id },
+      if (!payment) {
+        await Auction.updateOne(
+          { _id: a._id, status: 'payment_pending' },
+          { $set: { status: 'payment_failed' }, $inc: { version: 1 } },
+        );
+        continue;
+      }
+
+      if (payment.status === 'succeeded') {
+        await Auction.updateOne(
+          { _id: a._id, status: 'payment_pending' },
+          { $set: { status: 'completed' }, $inc: { version: 1 } },
+        );
+        continue;
+      }
+
+      if (!['succeeded', 'processing'].includes(payment.status)) {
+        const payUpd = await Payment.updateOne(
+          { _id: payment._id, status: { $ne: 'expired' } },
           { $set: { status: 'expired' } },
         );
 
@@ -78,7 +96,9 @@ export async function runReconciliation(): Promise<ReconcileResult> {
           { $set: { status: 'payment_failed' }, $inc: { version: 1 } },
         );
 
-        result.expiredPaymentsCount++;
+        if (payUpd.modifiedCount === 1) {
+          result.expiredPaymentsCount++;
+        }
       }
     }
 

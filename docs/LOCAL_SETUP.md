@@ -36,12 +36,13 @@ open http://localhost:8025                     # Mailpit
 
 ## 4. Environment files
 
-`server/.env.example`
+Root `.env.example` (shared by `server/` and `client/` via `env.ts` and `vite.config.ts`) and `server/.env.example` / `client/.env.example`:
 ```
 NODE_ENV=development
 PORT=4000
 CLIENT_URL=http://localhost:5173
-MONGODB_URI=mongodb://127.0.0.1:27018/nilami?replicaSet=rs0
+MONGODB_DB_NAME=nilami
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/nilami?retryWrites=true&w=majority
 REDIS_URL=redis://127.0.0.1:6380
 JWT_ACCESS_SECRET=change-me-32+chars
 JWT_REFRESH_SECRET=change-me-too-32+chars
@@ -50,11 +51,21 @@ REFRESH_TTL_DAYS=30
 IP_HASH_SECRET=change-me-3
 SMTP_HOST=127.0.0.1
 SMTP_PORT=1025
-MAIL_FROM="Nilami <no-reply@nilami.local>"
-STORAGE_DRIVER=local            # local | cloudinary
+SMTP_SERVICE=gmail
+SMTP_USER=your_email@gmail.com
+SMTP_PASS=your_16_char_google_app_password
+MAIL_FROM="Nilami <your_email@gmail.com>"
+STORAGE_DRIVER=s3               # local | cloudinary | s3
 UPLOAD_DIR=./uploads
 CLOUDINARY_URL=
-PAYMENT_PROVIDER=stripe         # stripe | mock
+AWS_ACCESS_KEY_ID=your_aws_access_key_id
+AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
+AWS_REGION=ap-south-1
+AWS_S3_BUCKET=your_bucket_name
+PAYMENT_PROVIDER=razorpay       # razorpay | stripe | mock
+RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxxxxx
+RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+RAZORPAY_WEBHOOK_SECRET=your_razorpay_webhook_secret
 STRIPE_SECRET_KEY=sk_test_xxx
 STRIPE_WEBHOOK_SECRET=whsec_xxx
 PAYMENT_WINDOW_MINUTES=2880     # use 10 for demos
@@ -68,6 +79,9 @@ LOG_LEVEL=debug
 ```
 VITE_API_URL=http://localhost:4000/api
 VITE_SOCKET_URL=http://localhost:4000
+VITE_API_PROXY_TARGET=http://localhost:4000
+VITE_PAYMENT_PROVIDER=razorpay
+VITE_RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxxxxx
 VITE_STRIPE_PUBLISHABLE_KEY=pk_test_xxx
 ```
 `env.ts` validates with Zod and **throws if `PORT` is 5000 or 7000**.

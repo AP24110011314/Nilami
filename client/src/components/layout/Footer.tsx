@@ -21,10 +21,10 @@ export const Footer: React.FC = () => {
               Nilami is a high-assurance, real-time live auction platform. Built with MongoDB atomic transactions,
               authoritative cluster clock timestamps, integer paise financial accuracy, and sub-200ms Socket.IO synchronization.
             </p>
-            <div className="flex flex-wrap items-center gap-3 pt-1">
+            <div className="flex flex-wrap items-center gap-2.5 pt-1">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-nilami-tan/70 border border-nilami-border text-nilami-text text-[11px] font-semibold">
                 <Activity className="w-3 h-3 text-nilami-green-dark" />
-                Port 4000 Native
+                Live Socket Engine
               </span>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-nilami-sand text-nilami-text text-[11px] font-semibold">
                 <Clock className="w-3 h-3 text-nilami-tan-dark" />
@@ -83,7 +83,7 @@ export const Footer: React.FC = () => {
               </li>
               <li className="flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-nilami-green-dark shrink-0" />
-                <span>Verified Stripe Webhooks</span>
+                <span>Verified Webhook Settlement</span>
               </li>
               <li className="flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-nilami-green-dark shrink-0" />

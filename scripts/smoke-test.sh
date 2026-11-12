@@ -3,7 +3,7 @@
 # Usage: ./scripts/smoke-test.sh [API_BASE_URL]
 set -euo pipefail
 
-API_URL="${1:-http://localhost:4000/api}"
+API_URL="${1:-${VITE_API_URL:-http://127.0.0.1:${PORT:-4000}/api}}"
 echo "=================================================="
 echo "Starting Nilami Production Smoke Test against: $API_URL"
 echo "=================================================="

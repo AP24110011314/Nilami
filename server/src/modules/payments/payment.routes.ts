@@ -18,6 +18,13 @@ paymentRouter.get(
   PaymentController.getPaymentStatus,
 );
 
+// Verify Razorpay callback signature
+paymentRouter.post(
+  '/razorpay/verify/:auctionId',
+  requireAuth,
+  PaymentController.verifyRazorpayCallback,
+);
+
 // Mock payment completion for tests and offline demos
 paymentRouter.post(
   '/mock-complete/:auctionId',

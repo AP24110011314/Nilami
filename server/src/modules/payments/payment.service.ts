@@ -6,6 +6,7 @@ import { User } from '../users/user.model.js';
 import { Outbox } from '../outbox/outbox.model.js';
 import { Notification } from '../notifications/notification.model.js';
 import { StripePaymentProvider } from './providers/stripe.provider.js';
+import { RazorpayPaymentProvider } from './providers/razorpay.provider.js';
 import { MockPaymentProvider } from './providers/mock.provider.js';
 import type { IPaymentProvider } from './providers/payment-provider.interface.js';
 import { env } from '../../config/env.js';
@@ -14,7 +15,13 @@ import { NotFoundError, ForbiddenError, ConflictError, BadRequestError } from '.
 import { emitPaymentSuccess } from '../../realtime/events.js';
 
 function getPaymentProvider(): IPaymentProvider {
-  return env.PAYMENT_PROVIDER === 'stripe' ? new StripePaymentProvider() : new MockPaymentProvider();
+  if (env.PAYMENT_PROVIDER === 'stripe') {
+    return new StripePaymentProvider();
+  }
+  if (env.PAYMENT_PROVIDER === 'razorpay') {
+    return new RazorpayPaymentProvider();
+  }
+  return new MockPaymentProvider();
 }
 
 export class PaymentService {
@@ -90,6 +97,7 @@ export class PaymentService {
     paidAt?: Date | null;
     auctionStatus: string;
     isWinner: boolean;
+    provider: 'stripe' | 'razorpay' | 'mock';
   }> {
     const auction = await Auction.findById(auctionId);
     if (!auction) {
@@ -109,6 +117,7 @@ export class PaymentService {
       paidAt: payment.paidAt,
       auctionStatus: auction.status,
       isWinner,
+      provider: env.PAYMENT_PROVIDER,
     };
   }
 
@@ -388,5 +397,108 @@ export class PaymentService {
       default:
         logger.debug({ type: event.type }, 'Unhandled Stripe event type');
     }
+  }
+
+  public static async handleRazorpayWebhookEvent(payload: {
+    event?: string;
+    payload?: {
+      payment?: {
+        entity?: {
+          id?: string;
+          amount?: number;
+          currency?: string;
+          notes?: Record<string, string>;
+          error_code?: string;
+        };
+      };
+      payment_link?: {
+        entity?: {
+          id?: string;
+          amount?: number;
+          amount_paid?: number;
+          currency?: string;
+          notes?: Record<string, string>;
+        };
+      };
+      order?: {
+        entity?: {
+          id?: string;
+          amount?: number;
+          amount_paid?: number;
+          currency?: string;
+          notes?: Record<string, string>;
+        };
+      };
+    };
+  }): Promise<void> {
+    const eventType = payload.event || '';
+    const paymentEntity = payload.payload?.payment?.entity;
+    const linkEntity = payload.payload?.payment_link?.entity;
+    const orderEntity = payload.payload?.order?.entity;
+    const notes =
+      linkEntity?.notes || orderEntity?.notes || paymentEntity?.notes || {};
+    const paymentId = notes.paymentId;
+
+    if (!paymentId) {
+      logger.warn({ eventType }, 'Razorpay webhook missing paymentId in notes');
+      return;
+    }
+
+    const payment = await Payment.findById(paymentId);
+    if (!payment) {
+      logger.error({ paymentId, eventType }, 'Payment referenced in Razorpay webhook not found');
+      return;
+    }
+
+    if (
+      eventType === 'payment_link.paid' ||
+      eventType === 'order.paid' ||
+      eventType === 'payment.captured'
+    ) {
+      const paidAmount =
+        linkEntity?.amount_paid ??
+        linkEntity?.amount ??
+        orderEntity?.amount_paid ??
+        orderEntity?.amount ??
+        paymentEntity?.amount;
+      const currency = (
+        linkEntity?.currency ||
+        orderEntity?.currency ||
+        paymentEntity?.currency ||
+        'INR'
+      ).toUpperCase();
+
+      if (typeof paidAmount === 'number' && paidAmount !== payment.amount) {
+        logger.error(
+          { expected: payment.amount, received: paidAmount, paymentId },
+          'SECURITY ALERT: Razorpay webhook amount mismatch',
+        );
+        throw new BadRequestError('Razorpay payment amount mismatch');
+      }
+
+      if (currency !== payment.currency) {
+        logger.error(
+          { expected: payment.currency, received: currency, paymentId },
+          'SECURITY ALERT: Razorpay webhook currency mismatch',
+        );
+        throw new BadRequestError('Razorpay payment currency mismatch');
+      }
+
+      await this.markPaymentSucceeded(paymentId, {
+        stripeCheckoutSessionId: linkEntity?.id || orderEntity?.id,
+        stripePaymentIntentId: paymentEntity?.id,
+      });
+      return;
+    }
+
+    if (eventType === 'payment.failed') {
+      await this.markPaymentFailed(
+        paymentId,
+        paymentEntity?.error_code || 'RAZORPAY_PAYMENT_FAILED',
+      );
+      return;
+    }
+
+    logger.debug({ eventType }, 'Unhandled Razorpay webhook event type');
   }
 }

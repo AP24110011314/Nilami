@@ -88,10 +88,10 @@ export async function sendVerificationEmail(email: string, token: string): Promi
     text: `Welcome to Nilami! Please verify your email by opening this link: ${verifyUrl}`,
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #4f46e5;">Welcome to Nilami</h2>
+        <h2 style="color: #4E4635;">Welcome to Nilami</h2>
         <p>Thank you for creating an account on Nilami. Please click the button below to verify your email address:</p>
         <div style="margin: 30px 0;">
-          <a href="${verifyUrl}" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+          <a href="${verifyUrl}" style="background-color: #4E4635; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
             Verify Email Address
           </a>
         </div>
@@ -111,10 +111,10 @@ export async function sendPasswordResetEmail(email: string, token: string): Prom
     text: `You requested a password reset. Please open this link within 30 minutes to reset your password: ${resetUrl}`,
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #4f46e5;">Nilami Password Reset</h2>
+        <h2 style="color: #4E4635;">Nilami Password Reset</h2>
         <p>You requested to reset your password. Click the button below to choose a new password (valid for 30 minutes):</p>
         <div style="margin: 30px 0;">
-          <a href="${resetUrl}" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+          <a href="${resetUrl}" style="background-color: #4E4635; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
             Reset Password
           </a>
         </div>

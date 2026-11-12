@@ -22,7 +22,7 @@ async function startServer(): Promise<void> {
     server.listen(env.PORT, () => {
       logger.info(
         { port: env.PORT, env: env.NODE_ENV, clientUrl: env.CLIENT_URL },
-        `Nilami API server listening on http://localhost:${env.PORT}`,
+        `Nilami API server listening on port ${env.PORT}`,
       );
     });
   } catch (error) {

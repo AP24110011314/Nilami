@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
+import { env } from '../../config/env.js';
 import { getRedisClient } from '../../config/redis.js';
 
 export async function getHealth(_req: Request, res: Response): Promise<void> {
@@ -31,7 +32,10 @@ export async function getHealth(_req: Request, res: Response): Promise<void> {
   res.status(statusCode).json({
     ok: isHealthy,
     mongo: mongoStatus,
+    mongoTarget: env.MONGODB_URI.startsWith('mongodb+srv://') ? 'Atlas Cloud' : 'Local rs0',
     redis: redisStatus,
+    storageDriver: env.STORAGE_DRIVER,
+    paymentProvider: env.PAYMENT_PROVIDER,
     uptime: process.uptime(),
     serverTime: new Date().toISOString(),
   });

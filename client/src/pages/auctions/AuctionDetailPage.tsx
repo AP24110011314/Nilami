@@ -39,6 +39,7 @@ export const AuctionDetailPage: React.FC = () => {
   const [detailImgError, setDetailImgError] = useState<boolean>(false);
   const [zoomModalOpen, setZoomModalOpen] = useState(false);
   const [priceFlash, setPriceFlash] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   useEffect(() => {
     setSelectedImage('');
@@ -147,7 +148,7 @@ export const AuctionDetailPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 pb-16">
+    <div className="space-y-8 pb-24 lg:pb-16">
       {/* Anti-snipe Extension Banner */}
       {extensionFlash && (
         <div
@@ -160,20 +161,20 @@ export const AuctionDetailPage: React.FC = () => {
       )}
 
       {/* Breadcrumb & Live Stream Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-nilami-text/60">
-        <div className="flex items-center gap-2">
-          <Link to="/auctions" className="hover:text-nilami-green-dark transition">
+      <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4 text-xs text-nilami-text/60">
+        <div className="flex items-center gap-2 min-w-0 max-w-full">
+          <Link to="/auctions" className="hover:text-nilami-green-dark transition shrink-0">
             Auctions
           </Link>
-          <ChevronRight className="w-3 h-3 text-nilami-tan-dark" />
-          <span className="capitalize">{auction.category}</span>
-          <ChevronRight className="w-3 h-3 text-nilami-tan-dark" />
-          <span className="font-bold text-nilami-text truncate max-w-xs">
+          <ChevronRight className="w-3 h-3 text-nilami-tan-dark shrink-0" />
+          <span className="capitalize shrink-0">{auction.category}</span>
+          <ChevronRight className="w-3 h-3 text-nilami-tan-dark shrink-0" />
+          <span className="font-bold text-nilami-text truncate">
             {auction.title}
           </span>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
           {/* Socket status */}
           <div
             className={`flex items-center gap-1.5 px-3 py-1 rounded-full font-semibold text-[11px] border shadow-sm ${
@@ -339,7 +340,7 @@ export const AuctionDetailPage: React.FC = () => {
         </div>
 
         {/* Right Column: Sticky Bid Panel & Seller Info (5 Cols) */}
-        <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
+        <div id="bid-panel" className="lg:col-span-5 space-y-6 lg:sticky lg:top-24 scroll-mt-24">
           <div className="bg-nilami-sand-surface rounded-3xl p-6 sm:p-8 border border-nilami-border shadow-lg space-y-6">
             {/* Status & Title */}
             <div className="space-y-2">
@@ -420,18 +421,24 @@ export const AuctionDetailPage: React.FC = () => {
                   <strong className="font-bold">
                     {formatINR(auction.finalPrice || auction.currentPrice)}
                   </strong>{' '}
-                  secured this lot. Complete Stripe escrow checkout to initiate delivery.
+                  secured this lot. Complete verified escrow checkout to initiate delivery.
                 </p>
+                {checkoutError && (
+                  <div className="p-3 rounded-xl bg-nilami-danger-subtle border border-nilami-danger-border text-nilami-danger-dark text-xs font-semibold">
+                    {checkoutError}
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={async () => {
+                    setCheckoutError(null);
                     try {
                       const res = await apiClient.createCheckoutSession(auction.id);
                       if (res.checkoutUrl) {
                         window.location.href = res.checkoutUrl;
                       }
                     } catch {
-                      alert('Failed to initiate Stripe checkout. Please try again.');
+                      setCheckoutError('Failed to initiate checkout. Please try again.');
                     }
                   }}
                   className="block w-full py-3.5 px-4 rounded-xl bg-nilami-green-dark hover:bg-nilami-green-pressed text-white font-bold text-xs text-center shadow-md transition cursor-pointer"
@@ -549,6 +556,32 @@ export const AuctionDetailPage: React.FC = () => {
               alt={auction.title}
               className="w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl"
             />
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Sticky Bottom Bid Bar */}
+      {auction.status === 'active' && !countdown.isEnded && (
+        <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-nilami-ivory/95 backdrop-blur-md border-t border-nilami-border-strong px-4 py-3 shadow-lg">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <span className="block text-[10px] uppercase font-bold tracking-wider text-nilami-text-muted">
+                Current Bid • {countdown.formatted}
+              </span>
+              <span className="font-mono font-black text-base text-nilami-text truncate block">
+                {formatINR(auction.currentPrice)}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                document.getElementById('bid-panel')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="shrink-0 px-4 py-2.5 rounded-xl bg-nilami-green-dark hover:bg-nilami-green-pressed text-white text-xs font-bold shadow-sm transition cursor-pointer flex items-center gap-1.5"
+            >
+              <Gavel className="w-3.5 h-3.5 text-nilami-sand" />
+              <span>Bid {formatINR(auction.minNextBid)}</span>
+            </button>
           </div>
         </div>
       )}

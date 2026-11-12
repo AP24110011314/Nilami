@@ -196,11 +196,11 @@ export const DashboardPage: React.FC = () => {
       )}
 
       {/* Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-nilami-border/60 pb-2">
+      <div className="flex overflow-x-auto gap-2 border-b border-nilami-border/60 pb-2.5 [scrollbar-width:none]">
         <button
           type="button"
           onClick={() => setActiveTab('overview')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+          className={`shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
             activeTab === 'overview'
               ? 'bg-nilami-green-dark text-white shadow-sm'
               : 'text-nilami-text/70 hover:bg-nilami-sand/50'
@@ -449,21 +449,22 @@ export const DashboardPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                     {auction.status === 'payment_pending' && (
                       <button
                         type="button"
                         onClick={async () => {
+                          setError(null);
                           try {
                             const res = await apiClient.createCheckoutSession(auction.id);
                             if (res.checkoutUrl) {
                               window.location.href = res.checkoutUrl;
                             }
                           } catch {
-                            alert('Failed to initiate Stripe checkout.');
+                            setError('Failed to initiate checkout. Please try again.');
                           }
                         }}
-                        className="px-4 py-2 bg-nilami-green-dark hover:bg-nilami-green-pressed text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer flex items-center gap-1.5"
+                        className="w-full sm:w-auto justify-center px-4 py-2.5 sm:py-2 bg-nilami-green-dark hover:bg-nilami-green-pressed text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer flex items-center gap-1.5"
                       >
                         <CreditCard className="w-3.5 h-3.5 text-nilami-sand" />
                         <span>Pay Now ({formatINR(finalPrice)})</span>

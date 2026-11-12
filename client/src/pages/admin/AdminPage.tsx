@@ -150,11 +150,11 @@ export const AdminPage: React.FC = () => {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-nilami-border/60 pb-2">
+      <div className="flex overflow-x-auto gap-2 border-b border-nilami-border/60 pb-2.5">
         <button
           type="button"
           onClick={() => setActiveTab('fraud')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
+          className={`shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
             activeTab === 'fraud'
               ? 'bg-nilami-green-dark text-white shadow-sm'
               : 'text-nilami-text/70 hover:bg-nilami-sand/50'
@@ -238,13 +238,13 @@ export const AdminPage: React.FC = () => {
                           </strong>
                         </p>
                       )}
-                      <p className="font-mono text-[11px] text-nilami-text/60">
+                      <p className="font-mono text-[11px] text-nilami-text/60 break-all">
                         Evidence: {JSON.stringify(flag.evidence)}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex flex-wrap items-center gap-2 shrink-0 w-full md:w-auto">
                     <button
                       type="button"
                       onClick={() => handleReviewFlag(flag._id, 'dismissed')}

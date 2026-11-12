@@ -266,13 +266,90 @@ export const BrowsePage: React.FC = () => {
         </div>
       </div>
 
+      {/* Active Filter Chips */}
+      {activeFilterCount > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          {q && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchInput('');
+                updateParam('q', '');
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-nilami-tan/75 border border-nilami-border-strong text-[11px] font-bold text-nilami-text cursor-pointer"
+            >
+              <span>Search: {q}</span>
+              <X className="w-3 h-3" />
+            </button>
+          )}
+          {category && (
+            <button
+              type="button"
+              onClick={() => updateParam('category', '')}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-nilami-tan/75 border border-nilami-border-strong text-[11px] font-bold text-nilami-text cursor-pointer"
+            >
+              <span>{CATEGORIES.find((c) => c.id === category)?.label || category}</span>
+              <X className="w-3 h-3" />
+            </button>
+          )}
+          {status && (
+            <button
+              type="button"
+              onClick={() => updateParam('status', '')}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-nilami-tan/75 border border-nilami-border-strong text-[11px] font-bold text-nilami-text cursor-pointer"
+            >
+              <span>{STATUS_OPTIONS.find((s) => s.id === status)?.label || status}</span>
+              <X className="w-3 h-3" />
+            </button>
+          )}
+          {(minPriceParam || maxPriceParam) && (
+            <button
+              type="button"
+              onClick={() => {
+                setMinPriceRupees('');
+                setMaxPriceRupees('');
+                const newParams = new URLSearchParams(searchParams);
+                newParams.delete('minPrice');
+                newParams.delete('maxPrice');
+                newParams.set('page', '1');
+                setSearchParams(newParams);
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-nilami-tan/75 border border-nilami-border-strong text-[11px] font-bold text-nilami-text cursor-pointer"
+            >
+              <span>
+                Price: ₹{minPriceRupees || '0'} – {maxPriceRupees ? `₹${maxPriceRupees}` : 'Any'}
+              </span>
+              <X className="w-3 h-3" />
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={handleClearFilters}
+            className="text-[11px] font-bold text-nilami-danger-dark hover:underline px-2 py-1 cursor-pointer"
+          >
+            Clear All
+          </button>
+        </div>
+      )}
+
       {/* Main Layout: Sidebar Filters + Products Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
-        {/* Desktop Sidebar Filter (Hidden on Mobile) */}
+        {/* Mobile Backdrop */}
+        {mobileFilterOpen && (
+          <div
+            onClick={() => setMobileFilterOpen(false)}
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs lg:hidden"
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Sidebar Filter (Slide-over Drawer on Mobile, Sticky Column on Desktop) */}
         <aside
-          className={`lg:block ${
-            mobileFilterOpen ? 'block' : 'hidden'
-          } bg-nilami-sand-surface p-6 rounded-3xl border border-nilami-border space-y-6 shadow-sm`}
+          className={`${
+            mobileFilterOpen
+              ? 'fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] overflow-y-auto block shadow-2xl rounded-r-3xl rounded-l-none'
+              : 'hidden lg:block rounded-3xl shadow-sm'
+          } bg-nilami-sand-surface p-6 border border-nilami-border space-y-6`}
         >
           <div className="flex items-center justify-between border-b border-nilami-border/60 pb-3">
             <div className="flex items-center gap-2">
@@ -281,15 +358,25 @@ export const BrowsePage: React.FC = () => {
                 Filter Catalog
               </h2>
             </div>
-            {activeFilterCount > 0 && (
+            <div className="flex items-center gap-3">
+              {activeFilterCount > 0 && (
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="text-[11px] text-nilami-danger-dark hover:underline font-semibold cursor-pointer"
+                >
+                  Reset
+                </button>
+              )}
               <button
                 type="button"
-                onClick={handleClearFilters}
-                className="text-[11px] text-nilami-danger-dark hover:underline font-semibold cursor-pointer"
+                onClick={() => setMobileFilterOpen(false)}
+                aria-label="Close filters"
+                className="lg:hidden p-1.5 rounded-lg bg-nilami-sand/60 text-nilami-text cursor-pointer"
               >
-                Reset
+                <X className="w-4 h-4" />
               </button>
-            )}
+            </div>
           </div>
 
           {/* Categories */}
@@ -304,7 +391,10 @@ export const BrowsePage: React.FC = () => {
                   <button
                     key={cat.id}
                     type="button"
-                    onClick={() => updateParam('category', cat.id)}
+                    onClick={() => {
+                      updateParam('category', cat.id);
+                      setMobileFilterOpen(false);
+                    }}
                     className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
                       isSelected
                         ? 'bg-nilami-green-dark text-white font-bold shadow-sm'
@@ -331,7 +421,10 @@ export const BrowsePage: React.FC = () => {
                   <button
                     key={st.id}
                     type="button"
-                    onClick={() => updateParam('status', st.id)}
+                    onClick={() => {
+                      updateParam('status', st.id);
+                      setMobileFilterOpen(false);
+                    }}
                     className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
                       isSelected
                         ? 'bg-nilami-green-dark text-white font-bold shadow-sm'

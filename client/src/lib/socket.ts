@@ -1,11 +1,8 @@
 import { io, type Socket } from 'socket.io-client';
 import { useAuthStore } from '../store/auth';
+import { SOCKET_BASE_URL } from './env';
 
-const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL ||
-  (import.meta.env.VITE_API_URL
-    ? String(import.meta.env.VITE_API_URL).replace(/\/api\/?$/, '')
-    : 'http://localhost:4000');
+const SOCKET_URL = SOCKET_BASE_URL;
 
 let socket: Socket | null = null;
 
