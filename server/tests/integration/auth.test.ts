@@ -94,6 +94,16 @@ describe('Phase 1 — Auth and Users Integration Suite', () => {
     const verifyRes = await request(app).post('/api/auth/verify-email').send({ token });
     expect(verifyRes.status).toBe(200);
 
+    // Idempotent retry: re-verifying with the same token returns 200 and preserves verification
+    const retryRes = await request(app).post('/api/auth/verify-email').send({ token });
+    expect(retryRes.status).toBe(200);
+
+    // Invalid token returns 400
+    const invalidRes = await request(app)
+      .post('/api/auth/verify-email')
+      .send({ token: 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef' });
+    expect(invalidRes.status).toBe(400);
+
     const verifiedUser = await User.findOne({ email: testBuyer.email });
     expect(verifiedUser?.emailVerifiedAt).not.toBeNull();
   });

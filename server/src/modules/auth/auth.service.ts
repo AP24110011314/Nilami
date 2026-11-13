@@ -63,23 +63,48 @@ export class AuthService {
 
   public static async verifyEmail(token: string): Promise<void> {
     const tokenHash = hashToken(token);
-    const authToken = await AuthToken.findOne({
-      tokenHash,
-      type: 'email_verification',
-      usedAt: null,
-      expiresAt: { $gt: new Date() },
-    });
 
-    if (!authToken) {
-      throw new ValidationError('Invalid or expired verification token');
+    // Atomically find and consume the unused verification token
+    const authToken = await AuthToken.findOneAndUpdate(
+      {
+        tokenHash,
+        type: 'email_verification',
+        usedAt: null,
+        expiresAt: { $gt: new Date() },
+      },
+      {
+        $set: { usedAt: new Date() },
+      },
+      { new: true },
+    );
+
+    if (authToken) {
+      await User.findByIdAndUpdate(authToken.userId, {
+        emailVerifiedAt: new Date(),
+      });
+      return;
     }
 
-    await User.findByIdAndUpdate(authToken.userId, {
-      emailVerifiedAt: new Date(),
+    // Idempotency: check if this token was already used to verify the user
+    const alreadyUsed = await AuthToken.findOne({
+      tokenHash,
+      type: 'email_verification',
     });
 
-    authToken.usedAt = new Date();
-    await authToken.save();
+    if (alreadyUsed && alreadyUsed.usedAt) {
+      const user = await User.findById(alreadyUsed.userId);
+      if (user?.emailVerifiedAt) {
+        return; // Already verified; idempotent success
+      }
+      if (alreadyUsed.expiresAt > alreadyUsed.usedAt) {
+        await User.findByIdAndUpdate(alreadyUsed.userId, {
+          emailVerifiedAt: alreadyUsed.usedAt,
+        });
+        return;
+      }
+    }
+
+    throw new ValidationError('Invalid or expired verification token');
   }
 
   public static async login(
